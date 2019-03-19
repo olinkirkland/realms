@@ -5,6 +5,7 @@ package {
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.Dictionary;
+    import flash.utils.setTimeout;
 
     import graph.Center;
     import graph.Corner;
@@ -14,9 +15,10 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 50;
+        public static var NUM_POINTS:int = 100;
 
         // Map Storage
+        public var points:Vector.<Point>;
         public var centers:Vector.<Center>;
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
@@ -27,21 +29,76 @@ package {
         }
 
         private function onCreationComplete(event:FlexEvent):void {
-            build(pickRandomPoints());
+            pickRandomPoints();
+            build(points);
+            test();
         }
 
-        public function pickRandomPoints():Vector.<Point> {
+        private function test():void {
+            relaxPoints();
+            build(points);
+            draw();
+
+            setTimeout(test, 200);
+        }
+
+        private function relaxPoints():void {
+            points = new Vector.<Point>();
+            for each (var center:Center in centers) {
+                var centroid:Point = new Point();
+                for each (var corner:Corner in center.corners) {
+                    centroid.x += corner.point.x;
+                    centroid.y += corner.point.y;
+                }
+
+                centroid.x /= center.corners.length;
+                centroid.y /= center.corners.length;
+
+                points.push(Point.interpolate(center.point, centroid, 0.5));
+            }
+        }
+
+        private function draw():void {
+            // Clear
+            graphics.clear();
+
+            // Draw Centers
+            for each (var center:Center in centers) {
+                graphics.beginFill(0xff0000);
+                graphics.drawCircle(center.point.x, center.point.y, 5);
+                graphics.endFill();
+            }
+
+            // Draw Corner
+            for each (var corner:Corner in corners) {
+                graphics.beginFill(0x0000ff);
+                graphics.drawCircle(corner.point.x, corner.point.y, 2);
+                graphics.endFill();
+            }
+
+            // Draw Edges
+            graphics.lineStyle(1, 0x00ff00);
+            for each (var edge:Edge in edges) {
+                if (edge.v0 && edge.v1) {
+                    graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                }
+            }
+        }
+
+        public function pickRandomPoints():void {
             // Pick points
-            var points:Vector.<Point> = new Vector.<Point>;
+            points = new Vector.<Point>;
             var r:Rand = new Rand(1);
             for (var i:int = 0; i < NUM_POINTS; i++) {
                 points.push(new Point(r.next() * width, r.next() * height));
             }
-            return points;
         }
 
         public function build(points:Vector.<Point>):void {
             // Setup
+            var time:Number = new Date().time;
+
             var voronoi:Voronoi = new Voronoi(points, null, new Rectangle(0, 0, 800, 600));
             centers = new Vector.<Center>();
             corners = new Vector.<Corner>();
@@ -173,7 +230,9 @@ package {
                 }
             }
 
-            trace("Done building!");
+            var timeTaken:Number = ((new Date().time - time) / 1000);
+            trace("Finished (" + NUM_POINTS + " points) in " + timeTaken.toFixed(3) + " s");
+            trace("   " + (NUM_POINTS / timeTaken).toFixed(3) + " points per second");
         }
     }
 }
