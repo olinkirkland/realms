@@ -19,6 +19,9 @@ package graph {
         // Is it at the edge of the map?
         public var border:Boolean;
 
+        // Elevation
+        public var elevation:Number;
+
         public function Corner() {
             touches = new Vector.<Center>();
             protrudes = new Vector.<Edge>();

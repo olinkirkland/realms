@@ -14,7 +14,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 200;
+        public static var NUM_POINTS:int = 2000;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -22,6 +22,7 @@ package {
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
 
+        public var used:Array;
 
         public function Map() {
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
@@ -30,10 +31,36 @@ package {
         private function onCreationComplete(event:FlexEvent):void {
             pickRandomPoints();
             build();
-            for (var i:int = 0; i < 3; i++)
-                relaxPoints();
+            relaxPoints();
+            relaxPoints();
+            relaxPoints();
+
+            addIsland(5);
 
             draw();
+        }
+
+        private function addIsland(seed:int = 1):void {
+            var r:Rand = new Rand(seed);
+            var center:Center = centers[int(r.next() * centers.length)];
+
+            var elevation:Number = 1;
+            center.elevation = 1;
+            var queue:Array = [center];
+
+            for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
+                var c:Center = queue[i] as Center;
+                elevation = c.elevation * .9;
+
+                for each (var neighbor:Center in c.neighbors) {
+                    if (queue.indexOf(neighbor) < 0) {
+                        neighbor.elevation = elevation;
+                        if (!c.isBorder()) {
+                            queue.push(neighbor);
+                        }
+                    }
+                }
+            }
         }
 
         private function relaxPoints():void {
@@ -56,17 +83,19 @@ package {
         }
 
         private function draw():void {
+            var time:Number = new Date().time;
+
             // Clear
             graphics.clear();
 
-            // Draw Centers
-            graphics.lineStyle(1, 0x000000, .1);
+            // Draw Polygons
             for each (var center:Center in centers) {
-                // Fill polygons
-                var a:Number = .5 + Math.abs(Math.random() - .5);
+                graphics.beginFill(getColorFromElevation(center.elevation));
+                if (center.isBorder())
+                        graphics.beginFill(0xffffff);
+                //graphics.beginFill(0xff0000, center.elevation);
+
                 for each (var edge:Edge in center.borders) {
-                    graphics.beginFill(0x0000ff, a);
-                    //a += .05;
                     if (edge.v0 && edge.v1) {
                         graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                         graphics.lineTo(center.point.x, center.point.y);
@@ -78,28 +107,30 @@ package {
             graphics.endFill();
 
             // Draw outlines
-            for each (var edge:Edge in edges) {
+            graphics.lineStyle(.1, 0x000000, .2);
+            for each (edge in edges) {
                 if (edge.v0 && edge.v1) {
-//                    graphics.lineStyle(1, 0x000000);
-//                    graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-//                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                    graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                 } else {
                 }
             }
 
-            // Draw Corners
-            graphics.lineStyle(1, 0xff0000);
-            for each (var corner:Corner in corners) {
-                if (corner.border)
-                    graphics.drawCircle(corner.point.x, corner.point.y, 5);
-            }
+            var timeTaken:Number = ((new Date().time - time) / 1000);
+            trace("Drawing finished (" + NUM_POINTS + " points) in " + timeTaken.toFixed(3) + " s");
+            trace("   " + (NUM_POINTS / timeTaken).toFixed(3) + " points per second");
         }
 
-        public function pickRandomPoints():void {
+        private function getColorFromElevation(elevation:Number):uint {
+            var colors:Array = [0x5061AA, 0x4493B4, 0xC3E79F, 0xFDC676, 0xD9474A, 0xB51A47, 0x9E0142];
+            return colors[Math.floor((colors.length - 1) * elevation)];
+        }
+
+        public function pickRandomPoints(seed:int = 1):void {
             // Pick points
             points = new Vector.<Point>;
-            var r:Rand = new Rand(1);
-            for (var i:int = 0; i < NUM_POINTS; i++) {
+            var r:Rand = new Rand(seed);
+            for (var i:int = 0; i < NUM_POINTS - 4; i++) {
                 points.push(new Point(r.next() * width, r.next() * height));
             }
         }
@@ -185,46 +216,87 @@ package {
                 edge.d0 = centerDictionary[dEdge.p0];
                 edge.d1 = centerDictionary[dEdge.p1];
 
-                if (edge.d0 != null)
-                    edge.d0.borders.push(edge);
+                setupEdge(edge);
+            }
 
-                if (edge.d1 != null)
-                    edge.d1.borders.push(edge);
+            // Fill in gaps around the map's sides and corners
+            for each (center in centers) {
+                for (var i:int = 0; i < center.corners.length; i++) {
+                    var corner1:Corner = center.corners[i];
+                    if (corner1.border) {
 
-                if (edge.v0 != null)
-                    edge.v0.protrudes.push(edge);
+                        // Create border edges for this center
+                        for (var j:int = i + 1; j < center.corners.length; j++) {
+                            var corner2:Corner = center.corners[j];
+                            if (corner2.border) {
 
-                if (edge.v1 != null)
-                    edge.v1.protrudes.push(edge);
+                                // Create a new edge between these two corners
+                                edge = new Edge();
+                                edge.index = edges.length;
+                                edges.push(edge);
+                                edge.midpoint = Point.interpolate(corner1.point, corner2.point, 0.5);
 
-                if (edge.d0 != null && edge.d1 != null) {
-                    addToCenterList(edge.d0.neighbors, edge.d1);
-                    addToCenterList(edge.d1.neighbors, edge.d0);
+                                edge.v0 = makeCorner(corner1.point);
+                                edge.v1 = makeCorner(corner2.point);
+                                edge.d0 = centerDictionary[center.point];
+
+                                setupEdge(edge);
+                                break;
+                            }
+                        }
+
+
+                    }
                 }
+            }
 
-                if (edge.v0 != null && edge.v1 != null) {
-                    addToCornerList(edge.v0.adjacent, edge.v1);
-                    addToCornerList(edge.v1.adjacent, edge.v0);
-                }
 
-                if (edge.d0 != null) {
-                    addToCornerList(edge.d0.corners, edge.v0);
-                    addToCornerList(edge.d0.corners, edge.v1);
-                }
+            var timeTaken:Number = ((new Date().time - time) / 1000);
+            trace("Graph built in (" + NUM_POINTS + " points) in " + timeTaken.toFixed(3) + " s");
+            trace("   " + (NUM_POINTS / timeTaken).toFixed(3) + " points per second");
+        }
 
-                if (edge.d1 != null) {
-                    addToCornerList(edge.d1.corners, edge.v0);
-                    addToCornerList(edge.d1.corners, edge.v1);
-                }
+        private function setupEdge(edge:Edge):void {
+            if (edge.d0 != null)
+                edge.d0.borders.push(edge);
 
-                if (edge.v0 != null) {
-                    addToCenterList(edge.v0.touches, edge.d0);
-                    addToCenterList(edge.v0.touches, edge.d1);
-                }
-                if (edge.v1 != null) {
-                    addToCenterList(edge.v1.touches, edge.d0);
-                    addToCenterList(edge.v1.touches, edge.d1);
-                }
+            if (edge.d1 != null)
+                edge.d1.borders.push(edge);
+
+            if (edge.v0 != null)
+                edge.v0.protrudes.push(edge);
+
+            if (edge.v1 != null)
+                edge.v1.protrudes.push(edge);
+
+            if (edge.d0 != null && edge.d1 != null) {
+                addToCenterList(edge.d0.neighbors, edge.d1);
+                addToCenterList(edge.d1.neighbors, edge.d0);
+            }
+
+            if (edge.v0 != null && edge.v1 != null) {
+                addToCornerList(edge.v0.adjacent, edge.v1);
+                addToCornerList(edge.v1.adjacent, edge.v0);
+            }
+
+            if (edge.d0 != null) {
+                addToCornerList(edge.d0.corners, edge.v0);
+                addToCornerList(edge.d0.corners, edge.v1);
+            }
+
+            if (edge.d1 != null) {
+                addToCornerList(edge.d1.corners, edge.v0);
+                addToCornerList(edge.d1.corners, edge.v1);
+            }
+
+            if (edge.v0 != null) {
+                addToCenterList(edge.v0.touches, edge.d0);
+                addToCenterList(edge.v0.touches, edge.d1);
+            }
+
+            if (edge.v1 != null) {
+                addToCenterList(edge.v1.touches, edge.d0);
+                addToCenterList(edge.v1.touches, edge.d1);
             }
 
             function addToCornerList(v:Vector.<Corner>, x:Corner):void {
@@ -238,10 +310,7 @@ package {
                     v.push(x);
                 }
             }
-
-            var timeTaken:Number = ((new Date().time - time) / 1000);
-            trace("Finished (" + NUM_POINTS + " points) in " + timeTaken.toFixed(3) + " s");
-            trace("   " + (NUM_POINTS / timeTaken).toFixed(3) + " points per second");
         }
+
     }
 }
