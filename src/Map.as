@@ -5,7 +5,6 @@ package {
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.Dictionary;
-    import flash.utils.setTimeout;
 
     import graph.Center;
     import graph.Corner;
@@ -15,7 +14,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 100;
+        public static var NUM_POINTS:int = 200;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -30,16 +29,11 @@ package {
 
         private function onCreationComplete(event:FlexEvent):void {
             pickRandomPoints();
-            build(points);
-            test();
-        }
+            build();
+            for (var i:int = 0; i < 3; i++)
+                relaxPoints();
 
-        private function test():void {
-            relaxPoints();
-            build(points);
             draw();
-
-            setTimeout(test, 200);
         }
 
         private function relaxPoints():void {
@@ -56,6 +50,9 @@ package {
 
                 points.push(Point.interpolate(center.point, centroid, 0.5));
             }
+
+            // Rebuild graph
+            build();
         }
 
         private function draw():void {
@@ -63,26 +60,36 @@ package {
             graphics.clear();
 
             // Draw Centers
+            graphics.lineStyle(1, 0xff0000);
             for each (var center:Center in centers) {
-                graphics.beginFill(0xff0000);
-                graphics.drawCircle(center.point.x, center.point.y, 5);
-                graphics.endFill();
+                // Fill polygons
+                var a:Number = .5;
+                for each (var edge:Edge in center.borders) {
+                    graphics.beginFill(0x0000ff, a);
+                    a += .05;
+                    if (edge.v0 && edge.v1) {
+                        graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                        graphics.lineTo(center.point.x, center.point.y);
+                        graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                    } else {
+                    }
+                }
             }
 
-            // Draw Corner
-            for each (var corner:Corner in corners) {
-                graphics.beginFill(0x0000ff);
-                graphics.drawCircle(corner.point.x, corner.point.y, 2);
-                graphics.endFill();
-            }
-
-            // Draw Edges
-            graphics.lineStyle(1, 0x00ff00);
+            // Draw outlines
             for each (var edge:Edge in edges) {
                 if (edge.v0 && edge.v1) {
+                    graphics.lineStyle(1, 0x000000);
                     graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                     graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                } else {
                 }
+            }
+
+            // Draw Corners
+            graphics.lineStyle(1, 0xff0000);
+            for each (var corner:Corner in corners) {
+                graphics.drawCircle(corner.point.x, corner.point.y, 2);
             }
         }
 
@@ -95,11 +102,11 @@ package {
             }
         }
 
-        public function build(points:Vector.<Point>):void {
+        public function build():void {
             // Setup
             var time:Number = new Date().time;
 
-            var voronoi:Voronoi = new Voronoi(points, null, new Rectangle(0, 0, 800, 600));
+            var voronoi:Voronoi = new Voronoi(points, null, new Rectangle(0, 0, width, height));
             centers = new Vector.<Center>();
             corners = new Vector.<Corner>();
             edges = new Vector.<Edge>();
@@ -163,8 +170,8 @@ package {
 
             var libEdges:Vector.<com.nodename.Delaunay.Edge> = voronoi.edges();
             for each (var libEdge:com.nodename.Delaunay.Edge in libEdges) {
-                var dEdge:com.nodename.geom.LineSegment = libEdge.delaunayLine();
-                var vEdge:com.nodename.geom.LineSegment = libEdge.voronoiEdge();
+                var dEdge:LineSegment = libEdge.delaunayLine();
+                var vEdge:LineSegment = libEdge.voronoiEdge();
 
                 var edge:Edge = new Edge();
                 edge.index = edges.length;
