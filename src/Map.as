@@ -60,13 +60,13 @@ package {
             graphics.clear();
 
             // Draw Centers
-            graphics.lineStyle(1, 0xff0000);
+            graphics.lineStyle(1, 0x000000, .1);
             for each (var center:Center in centers) {
                 // Fill polygons
-                var a:Number = .5;
+                var a:Number = .5 + Math.abs(Math.random() - .5);
                 for each (var edge:Edge in center.borders) {
                     graphics.beginFill(0x0000ff, a);
-                    a += .05;
+                    //a += .05;
                     if (edge.v0 && edge.v1) {
                         graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                         graphics.lineTo(center.point.x, center.point.y);
@@ -75,13 +75,14 @@ package {
                     }
                 }
             }
+            graphics.endFill();
 
             // Draw outlines
             for each (var edge:Edge in edges) {
                 if (edge.v0 && edge.v1) {
-                    graphics.lineStyle(1, 0x000000);
-                    graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+//                    graphics.lineStyle(1, 0x000000);
+//                    graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+//                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                 } else {
                 }
             }
@@ -89,7 +90,8 @@ package {
             // Draw Corners
             graphics.lineStyle(1, 0xff0000);
             for each (var corner:Corner in corners) {
-                graphics.drawCircle(corner.point.x, corner.point.y, 2);
+                if (corner.border)
+                    graphics.drawCircle(corner.point.x, corner.point.y, 5);
             }
         }
 
@@ -157,8 +159,8 @@ package {
                 corners.push(corner);
 
                 corner.point = point;
-                corner.border = (point.x == 0 || point.x == NUM_POINTS
-                        || point.y == 0 || point.y == NUM_POINTS);
+                corner.border = (point.x == 0 || point.x == width
+                        || point.y == 0 || point.y == height);
 
                 _cornerMap[bucket].push(corner);
                 return corner;
