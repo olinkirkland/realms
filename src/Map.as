@@ -2,8 +2,13 @@ package {
     import com.nodename.Delaunay.Voronoi;
     import com.nodename.geom.LineSegment;
 
+    import flash.events.KeyboardEvent;
+
+    import flash.events.MouseEvent;
+
     import flash.geom.Point;
     import flash.geom.Rectangle;
+    import flash.ui.Keyboard;
     import flash.utils.Dictionary;
 
     import graph.Center;
@@ -22,8 +27,6 @@ package {
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
 
-        public var used:Array;
-
         public function Map() {
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
@@ -35,31 +38,85 @@ package {
             relaxPoints();
             relaxPoints();
 
-            addIsland(5);
+            draw();
+
+            addEventListener(MouseEvent.CLICK, onClick);
+            addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
+            systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+        }
+
+        public function onKeyDown(event:KeyboardEvent):void {
+            if (event.keyCode == Keyboard.SPACE) {
+                // Clear
+                for each (var center:Center in centers) {
+                    center.elevation = 0;
+                }
+            }
 
             draw();
         }
 
-        private function addIsland(seed:int = 1):void {
-            var r:Rand = new Rand(seed);
-            var center:Center = centers[int(r.next() * centers.length)];
+        private function onClick(event:MouseEvent):void {
+            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)));
+            draw();
+        }
 
-            var elevation:Number = 1;
-            center.elevation = 1;
-            var queue:Array = [center];
+        private function onRightClick(event:MouseEvent):void {
+            addIslandType2(getCenterClosestToPoint(new Point(event.localX, event.localY)));
+            draw();
+        }
+
+        private function addIslandType1(start:Center, elevation:Number = 1, radius:Number = .99):void {
+            var queue:Array = [];
+            start.elevation = elevation;
+            start.used = true;
+            queue.push(start);
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
-                var c:Center = queue[i] as Center;
-                elevation = c.elevation * .9;
+                elevation *= radius;
+                for each (var neighbor:Center in (queue[i] as Center).neighbors) {
+                    if (!neighbor.used) {
+                        neighbor.elevation += elevation;
 
-                for each (var neighbor:Center in c.neighbors) {
-                    if (queue.indexOf(neighbor) < 0) {
-                        neighbor.elevation = elevation;
-                        if (!c.isBorder()) {
-                            queue.push(neighbor);
-                        }
+                        if (neighbor.elevation > 1)
+                            neighbor.elevation = 1;
+
+                        neighbor.used = true;
+                        queue.push(neighbor);
                     }
                 }
+            }
+
+            unuseCenters();
+        }
+
+        private function addIslandType2(start:Center, elevation:Number = 1, radius:Number = .99):void {
+            var queue:Array = [];
+            start.elevation = elevation;
+            start.used = true;
+            queue.push(start);
+
+            for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
+                elevation *= radius;
+                for each (var neighbor:Center in (queue[i] as Center).neighbors) {
+                    if (!neighbor.used) {
+                        neighbor.elevation += elevation;
+
+                        if (neighbor.elevation > 1)
+                            neighbor.elevation = 1;
+
+                        neighbor.used = true;
+                        queue.push(neighbor);
+                    }
+                }
+            }
+
+            unuseCenters();
+        }
+
+        private function unuseCenters():void {
+            for each (var center:Center in centers) {
+                center.used = false;
             }
         }
 
@@ -82,6 +139,22 @@ package {
             build();
         }
 
+        public function getCenterClosestToPoint(p:Point):Center {
+            var shortestDistance:Number = Number.POSITIVE_INFINITY;
+            var closestCenter:Center;
+            var distance:Number;
+
+            for each (var center:Center in centers) {
+                distance = (center.point.x - p.x) * (center.point.x - p.x) + (center.point.y - p.y) * (center.point.y - p.y);
+                if (distance < shortestDistance) {
+                    closestCenter = center;
+                    shortestDistance = distance;
+                }
+            }
+
+            return closestCenter;
+        }
+
         private function draw():void {
             var time:Number = new Date().time;
 
@@ -90,10 +163,8 @@ package {
 
             // Draw Polygons
             for each (var center:Center in centers) {
-                graphics.beginFill(getColorFromElevation(center.elevation));
-                if (center.isBorder())
-                        graphics.beginFill(0xffffff);
-                //graphics.beginFill(0xff0000, center.elevation);
+//                graphics.beginFill(getColorFromElevation(center.elevation));
+                graphics.beginFill(0x0000ff, center.elevation);
 
                 for each (var edge:Edge in center.borders) {
                     if (edge.v0 && edge.v1) {
@@ -103,12 +174,25 @@ package {
                     } else {
                     }
                 }
+
+//                graphics.beginFill(0xff0000);
+//                graphics.drawCircle(center.point.x, center.point.y, 5);
             }
             graphics.endFill();
 
             // Draw outlines
-            graphics.lineStyle(.1, 0x000000, .2);
             for each (edge in edges) {
+
+                // Draw delaunay diagram
+                graphics.lineStyle(1, 0xff0000, .5);
+                if (edge.d0 && edge.d1) {
+                    graphics.moveTo(edge.d0.point.x, edge.d0.point.y);
+                    graphics.lineTo(edge.d1.point.x, edge.d1.point.y);
+                } else {
+                }
+
+                // Draw voronoi diagram
+                graphics.lineStyle(1, 0x000000, 1);
                 if (edge.v0 && edge.v1) {
                     graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                     graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
@@ -122,7 +206,16 @@ package {
         }
 
         private function getColorFromElevation(elevation:Number):uint {
-            var colors:Array = [0x5061AA, 0x4493B4, 0xC3E79F, 0xFDC676, 0xD9474A, 0xB51A47, 0x9E0142];
+            var colors:Array = [0xFF6633, 0xFFB399, 0xFF33FF, 0xFFFF99, 0x00B3E6,
+                0xE6B333, 0x3366E6, 0x999966, 0x99FF99, 0xB34D4D,
+                0x80B300, 0x809900, 0xE6B3B3, 0x6680B3, 0x66991A,
+                0xFF99E6, 0xCCFF1A, 0xFF1A66, 0xE6331A, 0x33FFCC,
+                0x66994D, 0xB366CC, 0x4D8000, 0xB33300, 0xCC80CC,
+                0x66664D, 0x991AFF, 0xE666FF, 0x4DB3FF, 0x1AB399,
+                0xE666B3, 0x33991A, 0xCC9999, 0xB3B31A, 0x00E680,
+                0x4D8066, 0x809980, 0xE6FF80, 0x1AFF33, 0x999933,
+                0xFF3380, 0xCCCC00, 0x66E64D, 0x4D80CC, 0x9900B3,
+                0xE64D66, 0x4DB380, 0xFF4D4D, 0x99E6E6, 0x6666FF];
             return colors[Math.floor((colors.length - 1) * elevation)];
         }
 
@@ -219,7 +312,10 @@ package {
                 setupEdge(edge);
             }
 
-            // Fill in gaps around the map's sides and corners
+            /**
+             * Border Control
+             */
+
             for each (center in centers) {
                 for (var i:int = 0; i < center.corners.length; i++) {
                     var corner1:Corner = center.corners[i];
@@ -229,7 +325,6 @@ package {
                         for (var j:int = i + 1; j < center.corners.length; j++) {
                             var corner2:Corner = center.corners[j];
                             if (corner2.border) {
-
                                 // Create a new edge between these two corners
                                 edge = new Edge();
                                 edge.index = edges.length;
@@ -246,6 +341,36 @@ package {
                         }
 
 
+                    }
+                }
+            }
+
+            /**
+             * Remove neighbors from centers that don't share corners
+             */
+
+            for each (center in centers) {
+                for each (var neighbor:Center in center.neighbors) {
+                    var foundSharedCorner:Boolean = false;
+                    for each (var corner:Corner in center.corners) {
+                        for each (var neighborCorner:Corner in neighbor.corners) {
+                            if (corner == neighborCorner) {
+                                foundSharedCorner = true;
+                            }
+                        }
+                    }
+
+                    if (!foundSharedCorner) {
+                        // Remove
+                        center.neighbors.removeAt(center.neighbors.indexOf(neighbor));
+                        neighbor.neighbors.removeAt(neighbor.neighbors.indexOf(center));
+
+                        for each (edge in center.borders) {
+                            if ((edge.d0 == center && edge.d1 == neighbor) || (edge.d0 == neighbor && edge.d1 == center)) {
+                                edge.d0 = null;
+                                edge.d1 = null;
+                            }
+                        }
                     }
                 }
             }

@@ -4,7 +4,16 @@ package graph {
     public class Center {
         public var index:int;
 
-        // Point
+        /**
+         * For generation only
+         */
+
+        public var used:Boolean = false;
+
+        /**
+         * Properties
+         */
+
         public var point:Point;
 
         // A set of adjacent polygons
@@ -18,14 +27,6 @@ package graph {
 
         // Elevation (0 to 1)
         public var elevation:Number = 0;
-
-        public function isBorder():Boolean {
-            for each (var corner:Corner in corners) {
-                if (corner.border)
-                    return true;
-            }
-            return false;
-        }
 
         public function Center() {
             neighbors = new Vector.<Center>();
