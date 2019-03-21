@@ -27,6 +27,9 @@ package {
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
 
+        // Testing
+        private var showOutlines:Boolean = true;
+
         public function Map() {
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
@@ -50,6 +53,10 @@ package {
                 // Clear
                 clear();
             }
+            if (event.keyCode == Keyboard.R) {
+                // Toggle outlines
+                showOutlines = !showOutlines;
+            }
 
             draw();
         }
@@ -61,12 +68,12 @@ package {
         }
 
         private function onClick(event:MouseEvent):void {
-            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)),1,.90);
+            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)), 1, .90);
             draw();
         }
 
         private function onRightClick(event:MouseEvent):void {
-            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)),.5,.98);
+            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)), .5, .98);
             draw();
         }
 
@@ -189,14 +196,16 @@ package {
             }
             graphics.endFill();
 
-            // Draw outlines
-            for each (edge in edges) {
-                // Draw voronoi diagram
-                graphics.lineStyle(1, 0x000000, .2);
-                if (edge.v0 && edge.v1) {
-                    graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                } else {
+            if (showOutlines) {
+                // Draw outlines
+                for each (edge in edges) {
+                    // Draw voronoi diagram
+                    graphics.lineStyle(1, 0x000000, .2);
+                    if (edge.v0 && edge.v1) {
+                        graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                        graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                    } else {
+                    }
                 }
             }
 
