@@ -26,7 +26,13 @@ package graph {
         public var corners:Vector.<Corner>;
 
         // Elevation (0 to 1)
-        public var elevation:Number = 0;
+        private var _elevation:Number = 0;
+        public function get elevation():Number {
+            return _elevation;
+        }
+        public function set elevation(value:Number):void {
+            _elevation = neighbors.length > 0 ? value : 0;
+        }
 
         public function Center() {
             neighbors = new Vector.<Center>();

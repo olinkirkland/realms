@@ -19,7 +19,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 200;
+        public static var NUM_POINTS:int = 2000;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -61,38 +61,8 @@ package {
         }
 
         private function onClick(event:MouseEvent):void {
-            //addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)));
-
-            clear();
-
-            var c:Center = getCenterClosestToPoint(new Point(event.localX, event.localY));
-            c.elevation = 1;
-            for each (var n:Center in c.neighbors) {
-                n.elevation = .5;
-            }
-
+            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)));
             draw();
-
-            trace("\n");
-            for each (n in c.neighbors) {
-                graphics.lineStyle(1, 0x00ffff);
-                graphics.drawCircle(n.point.x, n.point.y, 7);
-                for each (var nr:Corner in n.corners) {
-                    trace("#");
-                    for each (var cr:Corner in c.corners) {
-                        if (nr == cr) {
-                            trace(humanReadablePoint(nr.point), humanReadablePoint(cr.point));
-                            graphics.lineStyle(1, 0xffff00);
-                            graphics.drawCircle(nr.point.x, nr.point.y, 5)
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        private function humanReadablePoint(p:Point):String {
-            return "(" + p.x.toFixed(1) + ", " + p.y.toFixed(1) + ")";
         }
 
         private function onRightClick(event:MouseEvent):void {
@@ -190,15 +160,23 @@ package {
         }
 
         private function draw():void {
+            /**
+             * Main Draw Call
+             */
+
             var time:Number = new Date().time;
 
             // Clear
             graphics.clear();
 
+            // Draw background
+            graphics.beginFill(getColorFromElevation(0));
+            graphics.drawRect(0, 0, width, height);
+
             // Draw Polygons
             for each (var center:Center in centers) {
-//                graphics.beginFill(getColorFromElevation(center.elevation));
-                graphics.beginFill(0x0000ff, center.elevation);
+                graphics.beginFill(getColorFromElevation(center.elevation));
+//                graphics.beginFill(0x0000ff, center.elevation);
 
                 for each (var edge:Edge in center.borders) {
                     if (edge.v0 && edge.v1) {
@@ -208,25 +186,13 @@ package {
                     } else {
                     }
                 }
-
-//                graphics.beginFill(0xff0000);
-//                graphics.drawCircle(center.point.x, center.point.y, 5);
             }
             graphics.endFill();
 
             // Draw outlines
             for each (edge in edges) {
-
-                // Draw delaunay diagram
-                graphics.lineStyle(1, 0xff0000, .5);
-                if (edge.d0 && edge.d1) {
-                    graphics.moveTo(edge.d0.point.x, edge.d0.point.y);
-                    graphics.lineTo(edge.d1.point.x, edge.d1.point.y);
-                } else {
-                }
-
                 // Draw voronoi diagram
-                graphics.lineStyle(1, 0x000000, 1);
+                graphics.lineStyle(1, 0x000000, .2);
                 if (edge.v0 && edge.v1) {
                     graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                     graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
@@ -241,15 +207,7 @@ package {
 
         private function getColorFromElevation(elevation:Number):uint {
             var colors:Array = [0xFF6633, 0xFFB399, 0xFF33FF, 0xFFFF99, 0x00B3E6,
-                0xE6B333, 0x3366E6, 0x999966, 0x99FF99, 0xB34D4D,
-                0x80B300, 0x809900, 0xE6B3B3, 0x6680B3, 0x66991A,
-                0xFF99E6, 0xCCFF1A, 0xFF1A66, 0xE6331A, 0x33FFCC,
-                0x66994D, 0xB366CC, 0x4D8000, 0xB33300, 0xCC80CC,
-                0x66664D, 0x991AFF, 0xE666FF, 0x4DB3FF, 0x1AB399,
-                0xE666B3, 0x33991A, 0xCC9999, 0xB3B31A, 0x00E680,
-                0x4D8066, 0x809980, 0xE6FF80, 0x1AFF33, 0x999933,
-                0xFF3380, 0xCCCC00, 0x66E64D, 0x4D80CC, 0x9900B3,
-                0xE64D66, 0x4DB380, 0xFF4D4D, 0x99E6E6, 0x6666FF];
+                0xE6B333, 0x3366E6, 0x999966, 0x99FF99, 0xB34D4D];
             return colors[Math.floor((colors.length - 1) * elevation)];
         }
 
@@ -418,6 +376,10 @@ package {
                     v.push(x);
                 }
             }
+        }
+
+        private function humanReadablePoint(p:Point):String {
+            return "(" + p.x.toFixed(1) + ", " + p.y.toFixed(1) + ")";
         }
 
     }
