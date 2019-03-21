@@ -206,8 +206,7 @@ package {
         }
 
         private function getColorFromElevation(elevation:Number):uint {
-            var colors:Array = [0xFF6633, 0xFFB399, 0xFF33FF, 0xFFFF99, 0x00B3E6,
-                0xE6B333, 0x3366E6, 0x999966, 0x99FF99, 0xB34D4D];
+            var colors:Array = [0x4890B1, 0x6DC0A8, 0x82CCA5, 0xC9E99F, 0xE6F5A3];
             return colors[Math.floor((colors.length - 1) * elevation)];
         }
 
