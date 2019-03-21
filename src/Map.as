@@ -19,7 +19,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 2000;
+        public static var NUM_POINTS:int = 200;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -48,17 +48,51 @@ package {
         public function onKeyDown(event:KeyboardEvent):void {
             if (event.keyCode == Keyboard.SPACE) {
                 // Clear
-                for each (var center:Center in centers) {
-                    center.elevation = 0;
-                }
+                clear();
             }
 
             draw();
         }
 
+        private function clear():void {
+            for each (var center:Center in centers) {
+                center.elevation = 0;
+            }
+        }
+
         private function onClick(event:MouseEvent):void {
-            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)));
+            //addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)));
+
+            clear();
+
+            var c:Center = getCenterClosestToPoint(new Point(event.localX, event.localY));
+            c.elevation = 1;
+            for each (var n:Center in c.neighbors) {
+                n.elevation = .5;
+            }
+
             draw();
+
+            trace("\n");
+            for each (n in c.neighbors) {
+                graphics.lineStyle(1, 0x00ffff);
+                graphics.drawCircle(n.point.x, n.point.y, 7);
+                for each (var nr:Corner in n.corners) {
+                    trace("#");
+                    for each (var cr:Corner in c.corners) {
+                        if (nr == cr) {
+                            trace(humanReadablePoint(nr.point), humanReadablePoint(cr.point));
+                            graphics.lineStyle(1, 0xffff00);
+                            graphics.drawCircle(nr.point.x, nr.point.y, 5)
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private function humanReadablePoint(p:Point):String {
+            return "(" + p.x.toFixed(1) + ", " + p.y.toFixed(1) + ")";
         }
 
         private function onRightClick(event:MouseEvent):void {
@@ -313,68 +347,17 @@ package {
             }
 
             /**
-             * Border Control
+             * Deal with borders
              */
 
             for each (center in centers) {
-                for (var i:int = 0; i < center.corners.length; i++) {
-                    var corner1:Corner = center.corners[i];
-                    if (corner1.border) {
-
-                        // Create border edges for this center
-                        for (var j:int = i + 1; j < center.corners.length; j++) {
-                            var corner2:Corner = center.corners[j];
-                            if (corner2.border) {
-                                // Create a new edge between these two corners
-                                edge = new Edge();
-                                edge.index = edges.length;
-                                edges.push(edge);
-                                edge.midpoint = Point.interpolate(corner1.point, corner2.point, 0.5);
-
-                                edge.v0 = makeCorner(corner1.point);
-                                edge.v1 = makeCorner(corner2.point);
-                                edge.d0 = centerDictionary[center.point];
-
-                                setupEdge(edge);
-                                break;
-                            }
-                        }
-
-
+                for each (var corner:Corner in center.corners) {
+                    if (corner.border) {
+                        center.neighbors = new Vector.<Center>();
+                        break;
                     }
                 }
             }
-
-            /**
-             * Remove neighbors from centers that don't share corners
-             */
-
-            for each (center in centers) {
-                for each (var neighbor:Center in center.neighbors) {
-                    var foundSharedCorner:Boolean = false;
-                    for each (var corner:Corner in center.corners) {
-                        for each (var neighborCorner:Corner in neighbor.corners) {
-                            if (corner == neighborCorner) {
-                                foundSharedCorner = true;
-                            }
-                        }
-                    }
-
-                    if (!foundSharedCorner) {
-                        // Remove
-                        center.neighbors.removeAt(center.neighbors.indexOf(neighbor));
-                        neighbor.neighbors.removeAt(neighbor.neighbors.indexOf(center));
-
-                        for each (edge in center.borders) {
-                            if ((edge.d0 == center && edge.d1 == neighbor) || (edge.d0 == neighbor && edge.d1 == center)) {
-                                edge.d0 = null;
-                                edge.d1 = null;
-                            }
-                        }
-                    }
-                }
-            }
-
 
             var timeTaken:Number = ((new Date().time - time) / 1000);
             trace("Graph built in (" + NUM_POINTS + " points) in " + timeTaken.toFixed(3) + " s");
