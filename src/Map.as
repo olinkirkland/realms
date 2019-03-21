@@ -19,7 +19,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 2000;
+        public static var NUM_POINTS:int = 8000;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -61,12 +61,12 @@ package {
         }
 
         private function onClick(event:MouseEvent):void {
-            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)));
+            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)),1,.90);
             draw();
         }
 
         private function onRightClick(event:MouseEvent):void {
-            addIslandType2(getCenterClosestToPoint(new Point(event.localX, event.localY)));
+            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)),.5,.98);
             draw();
         }
 
@@ -206,7 +206,7 @@ package {
         }
 
         private function getColorFromElevation(elevation:Number):uint {
-            var colors:Array = [0x4890B1, 0x6DC0A8, 0x82CCA5, 0xC9E99F, 0xE6F5A3];
+            var colors:Array = [0x4890B1, 0x6DC0A8, 0x82CCA5, 0xC9E99F, 0xE6F5A3, 0xFECC7B, 0xED6648];
             return colors[Math.floor((colors.length - 1) * elevation)];
         }
 
