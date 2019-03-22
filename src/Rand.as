@@ -4,7 +4,7 @@ package {
         private const max:Number = 1 / int.MAX_VALUE;
         private const min:Number = -max;
 
-        public function Rand(seed:Number = 0) {
+        public function Rand(seed:Number = 1) {
             this.seed = seed;
         }
 
@@ -14,6 +14,10 @@ package {
             seed ^= (seed << 4);
             if (seed > 0) return seed * max;
             return seed * min;
+        }
+
+        public function between(start:Number, end:Number):Number {
+            return (next() * (end - start)) + start;
         }
     }
 }

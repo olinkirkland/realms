@@ -43,9 +43,27 @@ package {
 
             draw();
 
+            testSequence();
+
             addEventListener(MouseEvent.CLICK, onClick);
             addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
             systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+        }
+
+        private function testSequence():void {
+            // Test Sequence
+
+            var r:Rand = new Rand();
+            var w:Number = width / 2;
+            var h:Number = height / 2;
+
+            addIslandType2(getCenterClosestToPoint(new Point(w, h)), .4, .95, .2);
+
+            for (var i:int = 0; i < 10; i++) {
+                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w / 3, w / 3), h + r.between(-h / 3, h / 3))), r.next(), r.between(.9, .95), r.between(0, .05));
+            }
+
+            draw();
         }
 
         public function onKeyDown(event:KeyboardEvent):void {
@@ -68,26 +86,28 @@ package {
         }
 
         private function onClick(event:MouseEvent):void {
-            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)), 1, .90);
+            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)), 1, .95);
             draw();
         }
 
         private function onRightClick(event:MouseEvent):void {
-            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)), .5, .98);
+            addIslandType2(getCenterClosestToPoint(new Point(event.localX, event.localY)), 1, .95, 0.2);
             draw();
         }
 
-        private function addIslandType1(start:Center, elevation:Number = 1, radius:Number = .99):void {
+        private function addIslandType1(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
             var queue:Array = [];
-            start.elevation = elevation;
+            start.elevation += elevation;
             start.used = true;
             queue.push(start);
+            var r:Rand = new Rand();
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
                 elevation *= radius;
                 for each (var neighbor:Center in (queue[i] as Center).neighbors) {
                     if (!neighbor.used) {
-                        neighbor.elevation += elevation;
+                        var mod:Number = sharpness > 0 ? r.next() * sharpness + 1.1 - sharpness : 1;
+                        neighbor.elevation += elevation * mod;
 
                         if (neighbor.elevation > 1)
                             neighbor.elevation = 1;
@@ -101,17 +121,22 @@ package {
             unuseCenters();
         }
 
-        private function addIslandType2(start:Center, elevation:Number = 1, radius:Number = .99):void {
+        private function addIslandType2(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
             var queue:Array = [];
-            start.elevation = elevation;
+            start.elevation += elevation;
             start.used = true;
             queue.push(start);
+            var r:Rand = new Rand();
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
-                elevation *= radius;
+                elevation = (queue[i] as Center).elevation * radius;
                 for each (var neighbor:Center in (queue[i] as Center).neighbors) {
                     if (!neighbor.used) {
-                        neighbor.elevation += elevation;
+                        var mod:Number = (r.next() * sharpness) + 1.1 - sharpness;
+                        if (sharpness == 0)
+                            mod = 1;
+
+                        neighbor.elevation += elevation * mod;
 
                         if (neighbor.elevation > 1)
                             neighbor.elevation = 1;
