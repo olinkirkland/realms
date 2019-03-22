@@ -50,17 +50,21 @@ package {
             systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         }
 
-        private function testSequence():void {
+        private function testSequence(seed:Number = 1):void {
             // Test Sequence
 
-            var r:Rand = new Rand();
+            trace("Test sequence @Seed: " + seed);
+
+            clear();
+
+            var r:Rand = new Rand(seed);
             var w:Number = width / 2;
             var h:Number = height / 2;
 
-            addIslandType2(getCenterClosestToPoint(new Point(w, h)), .4, .95, .2);
+            addIslandType2(getCenterClosestToPoint(new Point(w, h)), .8, .95, .3, r.next() * 100);
 
             for (var i:int = 0; i < 10; i++) {
-                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w / 3, w / 3), h + r.between(-h / 3, h / 3))), r.next(), r.between(.9, .95), r.between(0, .05));
+                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * .8, w * .8), h + r.between(-h * .8, h * .8))), r.next(), r.between(.9, .95), r.between(0, .05), r.next());
             }
 
             draw();
@@ -86,21 +90,21 @@ package {
         }
 
         private function onClick(event:MouseEvent):void {
-            addIslandType1(getCenterClosestToPoint(new Point(event.localX, event.localY)), 1, .95);
-            draw();
+            testSequence(int(Math.random() * 9999));
         }
 
         private function onRightClick(event:MouseEvent):void {
-            addIslandType2(getCenterClosestToPoint(new Point(event.localX, event.localY)), 1, .95, 0.2);
-            draw();
         }
 
-        private function addIslandType1(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+        private function addIslandType1(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
             var queue:Array = [];
             start.elevation += elevation;
+            if (start.elevation > 1)
+                start.elevation = 1;
+
             start.used = true;
             queue.push(start);
-            var r:Rand = new Rand();
+            var r:Rand = new Rand(seed);
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
                 elevation *= radius;
@@ -121,12 +125,14 @@ package {
             unuseCenters();
         }
 
-        private function addIslandType2(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+        private function addIslandType2(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
             var queue:Array = [];
             start.elevation += elevation;
+            if (start.elevation > 1)
+                start.elevation = 1;
             start.used = true;
             queue.push(start);
-            var r:Rand = new Rand();
+            var r:Rand = new Rand(seed);
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
                 elevation = (queue[i] as Center).elevation * radius;
@@ -241,10 +247,18 @@ package {
 
         private function getColorFromElevation(elevation:Number):uint {
             var colors:Array = [0x4890B1, 0x6DC0A8, 0x82CCA5, 0xC9E99F, 0xE6F5A3, 0xFECC7B, 0xED6648];
-            return colors[Math.floor((colors.length - 1) * elevation)];
+
+            var preciseIndex:Number = (colors.length - 1) * elevation;
+            var index:int = Math.floor(preciseIndex);
+
+            var color:uint = colors[index];
+            if (index < colors.length - 1)
+                color = Util.getColorBetweenColor(colors[index], colors[index + 1], preciseIndex - index);
+
+            return color;
         }
 
-        public function pickRandomPoints(seed:int = 1):void {
+        public function pickRandomPoints(seed:Number = 1):void {
             // Pick points
             points = new Vector.<Point>;
             var r:Rand = new Rand(seed);
