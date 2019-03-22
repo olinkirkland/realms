@@ -3,13 +3,14 @@ package {
     import com.nodename.geom.LineSegment;
 
     import flash.events.KeyboardEvent;
-
     import flash.events.MouseEvent;
-
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.ui.Keyboard;
     import flash.utils.Dictionary;
+
+    import geography.Feature;
+    import geography.FeatureManager;
 
     import graph.Center;
     import graph.Corner;
@@ -26,11 +27,21 @@ package {
         public var centers:Vector.<Center>;
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
+        public var borders:Vector.<Center>;
 
-        // Testing
-        private var showOutlines:Boolean = true;
+        // Managers
+        private var featureManager:FeatureManager;
+
+        // Generation
+        private var seaLevel:Number = .2;
+
+        // Miscellaneous
+        private var showOutlines:Boolean = false;
 
         public function Map() {
+            // Initialize Singletons
+            featureManager = FeatureManager.getInstance()
+
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
 
@@ -41,46 +52,139 @@ package {
             relaxPoints();
             relaxPoints();
 
+            generate();
+            defineFeatures();
             draw();
 
-            testSequence();
+            for each (var feature:Object in featureManager.features) {
+                trace(feature.type + " ... " + feature.centers.length);
+            }
 
             addEventListener(MouseEvent.CLICK, onClick);
             addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
             systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         }
 
-        private function testSequence(seed:Number = 1):void {
-            // Test Sequence
+        function defineFeatures():void {
+            var queue:Array = [];
 
-            trace("Test sequence @Seed: " + seed);
+            // Start with a site that is at 0 elevation and is in the upper left
+            // Don't pick a border site because they're fucky
+            for each (var start:Center in centers) {
+                if (start.elevation == 0 && start.neighbors.length > 0)
+                    break;
+            }
 
+            var currentFeature:String = featureManager.registerFeature(Feature.OCEAN);
+            featureManager.addCenterToFeature(start, currentFeature);
+            start.used = true;
+            queue.push(start);
+
+            // Define Ocean
+            while (queue.length > 0) {
+                var center:Center = queue.shift();
+                for each (var neighbor:Center in center.neighbors) {
+                    if (!neighbor.used && neighbor.elevation < seaLevel) {
+                        featureManager.addCenterToFeature(neighbor, currentFeature);
+                        queue.push(neighbor);
+                        neighbor.used = true;
+                    }
+                }
+            }
+
+            // Override all borders to be part of the Ocean
+            for each (center in borders) {
+                featureManager.addCenterToFeature(center, currentFeature);
+            }
+
+
+            // Define Land and Lakes
+            var nonOceans:Vector.<Center> = new Vector.<Center>();
+            for each (center in centers)
+                if (center.features.indexOf(currentFeature) < 0)
+                    nonOceans.push(center);
+
+            while (nonOceans.length > 0) {
+                start = nonOceans[0];
+
+                var lower:Number;
+                var upper:Number;
+
+                // If the elevation of the center is higher than sea level, define it as Land otherwise define it as a Lake
+                currentFeature = (start.elevation >= seaLevel) ? featureManager.registerFeature(Feature.LAND) : featureManager.registerFeature(Feature.LAKE);
+                if (start.elevation >= seaLevel) {
+                    lower = seaLevel;
+                    upper = 100;
+                } else {
+                    lower = -100;
+                    upper = seaLevel;
+                }
+
+                featureManager.addCenterToFeature(start, currentFeature);
+                start.used = true;
+
+                // Fill touching Land or Lake centers
+                queue.push(start);
+                while (queue.length > 0) {
+                    center = queue[0];
+                    queue.shift();
+                    for each (neighbor in center.neighbors) {
+                        if (!neighbor.used && neighbor.elevation >= lower && neighbor.elevation < upper) {
+                            featureManager.addCenterToFeature(neighbor, currentFeature);
+                            queue.push(neighbor);
+                            neighbor.used = true;
+                        }
+                    }
+                }
+
+                nonOceans = new Vector.<Center>();
+                for each (center in centers)
+                    if (center.features.length == 0)
+                        nonOceans.push(center);
+            }
+
+            unuseCenters();
+        }
+
+        private function generate(seed:Number = 1):void {
+            // Generate a height map
+            trace("Generating @seed: " + seed);
             clear();
 
             var r:Rand = new Rand(seed);
             var w:Number = width / 2;
             var h:Number = height / 2;
 
-            addIslandType2(getCenterClosestToPoint(new Point(w, h)), .8, .95, .3, r.next() * 100);
+            var placementRadius:Number = .5;
+
+            addIslandType2(getCenterClosestToPoint(new Point(w, h)), 1, .9, .2, r.next() * 9999);
 
             for (var i:int = 0; i < 10; i++) {
-                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * .8, w * .8), h + r.between(-h * .8, h * .8))), r.next(), r.between(.9, .95), r.between(0, .05), r.next());
+                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * placementRadius, w * placementRadius), h + r.between(-h * placementRadius, h * placementRadius))), r.between(.4, .6), r.between(.93, .98), r.between(0, .1), r.next());
             }
-
-            draw();
         }
 
         public function onKeyDown(event:KeyboardEvent):void {
-            if (event.keyCode == Keyboard.SPACE) {
-                // Clear
-                clear();
-            }
             if (event.keyCode == Keyboard.R) {
-                // Toggle outlines
-                showOutlines = !showOutlines;
+                // Reset and generate with a new seed
+                reset();
+                generate(Math.random() * 9999);
+                defineFeatures();
+                draw();
+            }
+        }
+
+        private function reset():void {
+            // Reset FeatureManager
+            featureManager.reset();
+
+            // Reset centers
+            for each (var center:Center in centers) {
+                center.features = new Vector.<String>();
             }
 
-            draw();
+            clear();
+            unuseCenters();
         }
 
         private function clear():void {
@@ -90,10 +194,26 @@ package {
         }
 
         private function onClick(event:MouseEvent):void {
-            testSequence(int(Math.random() * 9999));
+            var center:Center = getCenterClosestToPoint(mouse);
+            trace(humanReadableCenter(center));
+        }
+
+        private function humanReadableCenter(center:Center):String {
+            var str:String = "#" + center.index + ", " + center.elevation.toFixed(3) + " elevation";
+            for each (var f:String in center.features) {
+                var feature:Object = featureManager.getFeature(f);
+                str += "\n > " + feature.type + " (" + feature.centers.length + ")";
+            }
+
+            return str;
         }
 
         private function onRightClick(event:MouseEvent):void {
+        }
+
+        private function get mouse():Point {
+            // Return a point referring to the current mouse position
+            return new Point(mouseX, mouseY);
         }
 
         private function addIslandType1(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
@@ -214,7 +334,7 @@ package {
             // Draw Polygons
             for each (var center:Center in centers) {
                 graphics.beginFill(getColorFromElevation(center.elevation));
-//                graphics.beginFill(0x0000ff, center.elevation);
+//                graphics.beginFill(getColorFromFeatures(center.features));
 
                 for each (var edge:Edge in center.borders) {
                     if (edge.v0 && edge.v1) {
@@ -240,19 +360,56 @@ package {
                 }
             }
 
+            drawCoastline();
+
             var timeTaken:Number = ((new Date().time - time) / 1000);
-            trace("Drawing finished (" + NUM_POINTS + " points) in " + timeTaken.toFixed(3) + " s");
-            trace("   " + (NUM_POINTS / timeTaken).toFixed(3) + " points per second");
+            trace("Drawing finished in " + timeTaken.toFixed(3) + " s");
+        }
+
+        private function drawCoastline():void {
+            drawFeatureOutlines(Feature.LAND);
+            drawFeatureOutlines(Feature.LAKE);
+        }
+
+        private function drawFeatureOutlines(type:String):void {
+            for (var key:String in featureManager.getFeaturesByType(type)) {
+                var feature:Object = featureManager.features[key];
+                graphics.lineStyle(1, feature.color);
+                if (feature.type != Feature.OCEAN) {
+
+                    trace("Outlining " + feature.type + "-" + key);
+
+                    for each (var center:Center in feature.centers) {
+                        for each (var edge:Edge in center.borders) {
+                            if (edge.d0 && edge.d1 && edge.d1.features.indexOf(key) < 0 || edge.d1 && edge.d0 && edge.d0.features.indexOf(key) < 0) {
+                                // Draw a line
+                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private function getColorFromFeature(feature:String):uint {
+            return featureManager.getFeature(feature).color
+        }
+
+        private function getColorFromFeatures(features:Vector.<String>):uint {
+            if (features.length > 0)
+                return getColorFromFeature(features[0]);
+            return 0x000000;
         }
 
         private function getColorFromElevation(elevation:Number):uint {
-            var colors:Array = [0x4890B1, 0x6DC0A8, 0x82CCA5, 0xC9E99F, 0xE6F5A3, 0xFECC7B, 0xED6648];
+            var colors:Array = [0x4890B1, 0x6DC0A8, 0xC9E99F, 0xE6F5A3, 0xFECC7B, 0xED6648];
 
             var preciseIndex:Number = (colors.length - 1) * elevation;
             var index:int = Math.floor(preciseIndex);
 
             var color:uint = colors[index];
-            if (index < colors.length - 1)
+            if (index < colors.length - 1 && elevation >= seaLevel)
                 color = Util.getColorBetweenColor(colors[index], colors[index + 1], preciseIndex - index);
 
             return color;
@@ -355,9 +512,11 @@ package {
              * Deal with borders
              */
 
+            borders = new Vector.<Center>();
             for each (center in centers) {
                 for each (var corner:Corner in center.corners) {
                     if (corner.border) {
+                        borders.push(center);
                         center.neighbors = new Vector.<Center>();
                         break;
                     }
@@ -365,8 +524,7 @@ package {
             }
 
             var timeTaken:Number = ((new Date().time - time) / 1000);
-            trace("Graph built in (" + NUM_POINTS + " points) in " + timeTaken.toFixed(3) + " s");
-            trace("   " + (NUM_POINTS / timeTaken).toFixed(3) + " points per second");
+            trace(NUM_POINTS + " point graph built in " + timeTaken.toFixed(3) + " s");
         }
 
         private function setupEdge(edge:Edge):void {

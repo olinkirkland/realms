@@ -11,5 +11,9 @@ package {
 
             return (r << 16 | g << 8 | b);
         }
+
+        public static function randomColor():uint {
+            return 0xffffff * Math.random();
+        }
     }
 }

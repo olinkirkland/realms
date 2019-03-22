@@ -25,11 +25,15 @@ package graph {
         // A set of polygon corners
         public var corners:Vector.<Corner>;
 
+        // A set of unique feature ids
+        public var features:Vector.<String>;
+
         // Elevation (0 to 1)
         private var _elevation:Number = 0;
         public function get elevation():Number {
             return _elevation;
         }
+
         public function set elevation(value:Number):void {
             _elevation = neighbors.length > 0 ? value : 0;
         }
@@ -38,6 +42,7 @@ package graph {
             neighbors = new Vector.<Center>();
             borders = new Vector.<Edge>();
             corners = new Vector.<Corner>();
+            features = new Vector.<String>;
         }
     }
 }
