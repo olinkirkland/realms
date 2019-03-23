@@ -12,5 +12,9 @@ package graph {
 
         // Halfway between v0 and v1
         public var midpoint:Point;
+
+        // Directions
+        public var delaunayAngle:Number;
+        public var voronoiAngle:Number;
     }
 }

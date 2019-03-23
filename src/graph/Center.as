@@ -28,8 +28,19 @@ package graph {
         // A set of unique feature ids
         public var features:Vector.<String>;
 
+        // Temperature
+        public var temperature:Number;
+
+        // Wind
+        public var windDirection:Number;
+        public var windDirectionAnalysis:Number;
+        public var windSpeed:Number;
+
+        // Moisture
+        public var moisture:Number;
+
         // Elevation (0 to 1)
-        private var _elevation:Number = 0;
+        private var _elevation:Number;
         public function get elevation():Number {
             return _elevation;
         }
@@ -43,6 +54,21 @@ package graph {
             borders = new Vector.<Edge>();
             corners = new Vector.<Corner>();
             features = new Vector.<String>;
+
+            reset();
+        }
+
+        public function reset():void {
+            // Generation
+            used = false;
+
+            // Properties
+            features = new Vector.<String>();
+            temperature = 0;
+            windDirection = 0;
+            windSpeed = 0;
+            moisture = 0;
+            elevation = 0;
         }
     }
 }

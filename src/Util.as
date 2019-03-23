@@ -15,5 +15,13 @@ package {
         public static function randomColor():uint {
             return 0xffffff * Math.random();
         }
+
+        public static function radiansToDegrees(value:Number):Number {
+            return value * 180 / Math.PI
+        }
+
+        public static function degreesToRadians(value:Number):Number {
+            return value * Math.PI / 180
+        }
     }
 }

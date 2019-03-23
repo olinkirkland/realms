@@ -52,9 +52,7 @@ package {
             relaxPoints();
             relaxPoints();
 
-            generate();
-            defineFeatures();
-            draw();
+            start();
 
             for each (var feature:Object in featureManager.features) {
                 trace(feature.type + " ... " + feature.centers.length);
@@ -65,7 +63,101 @@ package {
             systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         }
 
-        function defineFeatures():void {
+        private function start(seed:Number = 1):void {
+            generateHeightMap(seed);
+            defineFeatures();
+            calculateBaseTemperatures();
+            calculateWind();
+            draw();
+        }
+
+        private function calculateBaseTemperatures():void {
+            for each (var center:Center in centers) {
+                center.temperature = 1 - Math.abs((center.point.y / (height / 2)) - 1);
+            }
+        }
+
+        private function calculateWind():void {
+            trace("Calculating wind ...");
+            var queue:Array = [];
+            // Start with a site that is at 0 elevation and is in the upper left
+            // Don't pick a border site because they're fucky
+            for each (var start:Center in centers) {
+                if (start.elevation == 0 && start.neighbors.length > 0)
+                    break;
+            }
+
+            // Set up wind source
+            start.windSpeed = 1;
+            start.moisture = 1;
+            // Direction is bottom right
+            start.windDirection = 135;
+            start.used = true;
+            queue.push(start);
+
+            // Define Ocean
+            while (queue.length > 0) {
+                var center:Center = queue.shift();
+                for each (var neighbor:Center in center.neighbors) {
+                    if (!neighbor.used && neighbor.neighbors.length > 0) {
+                        neighbor.windDirection = center.windDirection;
+                        neighbor.windSpeed = center.windSpeed;
+
+                        // Wind Speed is affected by difference in elevation
+                        var differenceInElevation:Number = neighbor.elevation - center.elevation;
+                        neighbor.windSpeed -= differenceInElevation;
+
+                        // Wind direction is affected by elevation
+                        // Get two edges currently closest to wind direction
+                        var r:Number = Util.degreesToRadians(neighbor.windDirection);
+                        var closestEdge:Edge = neighbor.borders[0];
+                        var secondClosestEdge:Edge = neighbor.borders[1];
+                        for each (var edge:Edge in neighbor.borders) {
+                            if (edge.delaunayAngle - r < closestEdge.delaunayAngle - r) {
+                                secondClosestEdge = closestEdge;
+                                closestEdge = edge;
+                            } else if (edge.delaunayAngle - r < secondClosestEdge.delaunayAngle - r) {
+                                secondClosestEdge = edge;
+                            }
+                        }
+
+                        // Get the centers of those edges
+                        var closestCenter:Center = (closestEdge.d0 == neighbor) ? closestEdge.d1 : closestEdge.d0;
+                        var secondClosestCenter:Center = (secondClosestEdge.d0 == neighbor) ? secondClosestEdge.d1 : secondClosestEdge.d0;
+
+                        // Compare elevations
+                        if (neighbor.elevation >= seaLevel) {
+                            if (closestCenter.elevation > secondClosestCenter.elevation) {
+                                // Bend the wind toward the second closest center
+                                // todo use wind speed here
+                                neighbor.windDirection -= Util.radiansToDegrees(secondClosestEdge.delaunayAngle - Util.degreesToRadians(neighbor.windDirection)) / 10;
+                            } else if (closestCenter.elevation < secondClosestCenter.elevation) {
+                                // Bend the wind toward the closest center
+                                // todo and here
+                                neighbor.windDirection -= Util.radiansToDegrees(closestEdge.delaunayAngle - Util.degreesToRadians(neighbor.windDirection)) / 10;
+                            }
+                        }
+
+                        if (neighbor.windSpeed > 1)
+                            neighbor.windSpeed = 1;
+
+                        // Moisture is affected by wind speed
+                        if (neighbor.elevation < seaLevel)
+                            neighbor.moisture = 1;
+                        else
+                            neighbor.moisture = 1 - neighbor.windSpeed;
+
+                        queue.push(neighbor);
+                        neighbor.used = true;
+                    }
+                }
+            }
+
+            unuseCenters();
+        }
+
+        private function defineFeatures():void {
+            trace("Defining features ...");
             var queue:Array = [];
 
             // Start with a site that is at 0 elevation and is in the upper left
@@ -146,10 +238,10 @@ package {
             unuseCenters();
         }
 
-        private function generate(seed:Number = 1):void {
+        private function generateHeightMap(seed:Number = 1):void {
             // Generate a height map
             trace("Generating @seed: " + seed);
-            clear();
+            reset();
 
             var r:Rand = new Rand(seed);
             var w:Number = width / 2;
@@ -166,10 +258,12 @@ package {
 
         public function onKeyDown(event:KeyboardEvent):void {
             if (event.keyCode == Keyboard.R) {
-                // Reset and generate with a new seed
-                reset();
-                generate(Math.random() * 9999);
-                defineFeatures();
+                // Generate with a new seed
+                start(Math.random() * 9999);
+            }
+            if (event.keyCode == Keyboard.T) {
+                // Toggle outlines
+                showOutlines = !showOutlines;
                 draw();
             }
         }
@@ -180,17 +274,10 @@ package {
 
             // Reset centers
             for each (var center:Center in centers) {
-                center.features = new Vector.<String>();
+                center.reset();
             }
 
-            clear();
             unuseCenters();
-        }
-
-        private function clear():void {
-            for each (var center:Center in centers) {
-                center.elevation = 0;
-            }
         }
 
         private function onClick(event:MouseEvent):void {
@@ -200,6 +287,7 @@ package {
 
         private function humanReadableCenter(center:Center):String {
             var str:String = "#" + center.index + ", " + center.elevation.toFixed(3) + " elevation";
+            str += "\n  temperature: " + center.temperature;
             for each (var f:String in center.features) {
                 var feature:Object = featureManager.getFeature(f);
                 str += "\n > " + feature.type + " (" + feature.centers.length + ")";
@@ -334,7 +422,6 @@ package {
             // Draw Polygons
             for each (var center:Center in centers) {
                 graphics.beginFill(getColorFromElevation(center.elevation));
-//                graphics.beginFill(getColorFromFeatures(center.features));
 
                 for each (var edge:Edge in center.borders) {
                     if (edge.v0 && edge.v1) {
@@ -361,14 +448,37 @@ package {
             }
 
             drawCoastline();
+            drawWind();
+            //drawMoisture();
 
             var timeTaken:Number = ((new Date().time - time) / 1000);
             trace("Drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
+        private function drawMoisture():void {
+            graphics.lineStyle();
+            for each (var center:Center in centers) {
+                if (center.elevation >= seaLevel) {
+                    graphics.beginFill(0x0000ff, center.moisture);
+                    graphics.drawCircle(center.point.x, center.point.y, 3);
+                    graphics.endFill();
+                }
+            }
+        }
+
         private function drawCoastline():void {
             drawFeatureOutlines(Feature.LAND);
             drawFeatureOutlines(Feature.LAKE);
+        }
+
+        private function drawWind():void {
+            graphics.lineStyle(1, 0xff0000);
+            for each (var center:Center in centers) {
+                var d:Number = Util.degreesToRadians(center.windDirection + 90);
+                var p:Number = center.windSpeed * 3;
+                graphics.moveTo(center.point.x - p * Math.cos(d), center.point.y - p * Math.sin(d));
+                graphics.lineTo(center.point.x + p * Math.cos(d), center.point.y + p * Math.sin(d));
+            }
         }
 
         private function drawFeatureOutlines(type:String):void {
@@ -381,10 +491,16 @@ package {
 
                     for each (var center:Center in feature.centers) {
                         for each (var edge:Edge in center.borders) {
-                            if (edge.d0 && edge.d1 && edge.d1.features.indexOf(key) < 0 || edge.d1 && edge.d0 && edge.d0.features.indexOf(key) < 0) {
-                                // Draw a line
+                            if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
                                 graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                if (edge.d0.features.indexOf(key) < 0) {
+                                    // Draw a line
+                                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                    //graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
+                                } else if (edge.d1.features.indexOf(key) < 0) {
+                                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                    //graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
+                                }
                             }
                         }
                     }
@@ -392,14 +508,15 @@ package {
             }
         }
 
-        private function getColorFromFeature(feature:String):uint {
-            return featureManager.getFeature(feature).color
-        }
 
         private function getColorFromFeatures(features:Vector.<String>):uint {
             if (features.length > 0)
                 return getColorFromFeature(features[0]);
             return 0x000000;
+        }
+
+        private function getColorFromFeature(feature:String):uint {
+            return featureManager.getFeature(feature).color;
         }
 
         private function getColorFromElevation(elevation:Number):uint {
@@ -569,6 +686,13 @@ package {
                 addToCenterList(edge.v1.touches, edge.d0);
                 addToCenterList(edge.v1.touches, edge.d1);
             }
+
+            // Calculate Angles
+            if (edge.d0 && edge.d1)
+                edge.delaunayAngle = Math.atan2(edge.d1.point.y - edge.d0.point.y, edge.d1.point.x - edge.d0.point.x);
+
+            if (edge.v0 && edge.v1)
+                edge.voronoiAngle = Math.atan2(edge.v1.point.y - edge.v0.point.y, edge.v1.point.x - edge.v0.point.x);
 
             function addToCornerList(v:Vector.<Corner>, x:Corner):void {
                 if (x != null && v.indexOf(x) < 0) {
