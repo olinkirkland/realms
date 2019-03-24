@@ -44,7 +44,10 @@ package graph {
         // Moisture
         public var moisture:Number;
 
-        // Elevation (0 to 1)
+        // Precipitation
+        public var precipitation:Number;
+
+        // Elevation
         private var _elevation:Number;
         public function get elevation():Number {
             return _elevation;
@@ -71,6 +74,7 @@ package graph {
             features = new Vector.<String>();
             temperature = 0;
             moisture = 0;
+            precipitation = 0;
             elevation = 0;
         }
     }

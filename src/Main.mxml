@@ -2,7 +2,7 @@
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
                        xmlns:s="library://ns.adobe.com/flex/spark"
                        xmlns:local="*"
-                       width="1136" height="640" showStatusBar="false"
+                       width="1600" height="900" showStatusBar="false"
                        creationComplete="onCreationComplete(event)">
     <fx:Script>
         import mx.events.FlexEvent;

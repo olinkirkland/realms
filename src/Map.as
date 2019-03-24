@@ -38,7 +38,7 @@ package {
         // Miscellaneous
         private var showOutlines:Boolean = false;
         private var showTerrain:Boolean = true;
-        private var showFlux:Boolean = true;
+        private var showRivers:Boolean = true;
 
         public function Map() {
             // Initialize Singletons
@@ -73,13 +73,42 @@ package {
         }
 
         private function calculateRivers():void {
-            // Add water sources
+            // Sort all centers neighbors by their elevation from lowest to highest
             for each (var center:Center in centers) {
                 if (center.neighbors.length > 0) {
-                    // Pass moisture on to lowest neighbor
-                    center.neighbors[0].moisture += center.moisture;
+                    center.neighbors.sort(sortByLowestElevation);
                 }
             }
+
+            // Create rivers
+            for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
+                for each (center in land.centers) {
+                    center.precipitation = center.moisture;
+                }
+
+                land.centers.sort(sortByHighestElevation);
+                for each (center in land.centers) {
+                    center.neighbors[0].precipitation += center.precipitation;
+                }
+            }
+        }
+
+        private function sortByLowestElevation(n1:Center, n2:Center):Number {
+            if (n1.elevation > n2.elevation)
+                return 1;
+            else if (n1.elevation < n2.elevation)
+                return -1;
+            else
+                return 0;
+        }
+
+        private function sortByHighestElevation(n1:Center, n2:Center):Number {
+            if (n1.elevation < n2.elevation)
+                return 1;
+            else if (n1.elevation > n2.elevation)
+                return -1;
+            else
+                return 0;
         }
 
         private function resolveDepressions():void {
@@ -91,7 +120,7 @@ package {
                     if (center.neighbors.length > 0) {
                         var d:Boolean = center.elevation >= seaLevel;
                         for each (var neighbor:Center in center.neighbors) {
-                            if (neighbor.elevation <= center.elevation)
+                            if (neighbor.elevation < center.elevation)
                                 d = false;
                         }
                     }
@@ -101,20 +130,6 @@ package {
                     }
                 }
             } while (depressions > 0);
-
-            // Sort all centers neighbors by their elevation from lowest to highest
-            for each (center in centers) {
-                if (center.neighbors.length > 0) {
-                    center.neighbors.sort(function (n1:Center, n2:Center):Number {
-                        if (n1.elevation > n2.elevation)
-                            return 1;
-                        else if (n1.elevation < n2.elevation)
-                            return -1;
-                        else
-                            return 0;
-                    });
-                }
-            }
         }
 
         private function calculateMoisture():void {
@@ -237,7 +252,7 @@ package {
                     draw();
                     break;
                 case Keyboard.W:
-                    showFlux = !showFlux;
+                    showRivers = !showRivers;
                     draw();
                     break;
                 case Keyboard.E:
@@ -433,18 +448,20 @@ package {
                 }
             }
 
-            if (showFlux) {
-                // Draw flux
-                graphics.lineStyle(1, 0x0000ff);
+            drawCoastline();
+
+            if (showRivers) {
+                // Draw rivers
                 for each (center in centers) {
                     if (center.neighbors.length > 0 && center.elevation >= seaLevel) {
-                        graphics.moveTo(center.point.x, center.point.y);
-                        graphics.lineTo(center.neighbors[0].point.x, center.neighbors[0].point.y);
+                        if (center.precipitation > 3) {
+                            graphics.lineStyle(Math.sqrt(center.precipitation) / 2, getColorFromElevation(0));
+                            graphics.moveTo(center.point.x, center.point.y);
+                            graphics.lineTo(center.neighbors[0].point.x, center.neighbors[0].point.y);
+                        }
                     }
                 }
             }
-
-            drawCoastline();
 
             var timeTaken:Number = ((new Date().time - time) / 1000);
             trace("Drawing finished in " + timeTaken.toFixed(3) + " s");
@@ -494,6 +511,9 @@ package {
         }
 
         private function getColorFromElevation(elevation:Number):uint {
+            if (elevation > 1)
+                elevation = 1;
+
             var colors:Array = [0x4890B1, 0x6DC0A8, 0xC9E99F, 0xE6F5A3, 0xFECC7B];
 
             var preciseIndex:Number = (colors.length - 1) * elevation;
