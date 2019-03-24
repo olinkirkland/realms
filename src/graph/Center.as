@@ -33,7 +33,6 @@ package graph {
 
         // Wind
         public var windDirection:Number;
-        public var windDirectionAnalysis:Number;
         public var windSpeed:Number;
 
         // Moisture

@@ -40,7 +40,7 @@ package {
 
         public function Map() {
             // Initialize Singletons
-            featureManager = FeatureManager.getInstance()
+            featureManager = FeatureManager.getInstance();
 
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
@@ -79,6 +79,8 @@ package {
 
         private function calculateWind():void {
             trace("Calculating wind ...");
+
+            // Add trade wind
             var queue:Array = [];
             // Start with a site that is at 0 elevation and is in the upper left
             // Don't pick a border site because they're fucky
@@ -87,70 +89,24 @@ package {
                     break;
             }
 
-            // Set up wind source
-            start.windSpeed = 1;
-            start.moisture = 1;
-            // Direction is bottom right
-            start.windDirection = 135;
-            start.used = true;
-            queue.push(start);
 
-            // Define Ocean
-            while (queue.length > 0) {
-                var center:Center = queue.shift();
-                for each (var neighbor:Center in center.neighbors) {
-                    if (!neighbor.used && neighbor.neighbors.length > 0) {
-                        neighbor.windDirection = center.windDirection;
-                        neighbor.windSpeed = center.windSpeed;
-
-                        // Wind Speed is affected by difference in elevation
-                        var differenceInElevation:Number = neighbor.elevation - center.elevation;
-                        neighbor.windSpeed -= differenceInElevation;
-
-                        // Wind direction is affected by elevation
-                        // Get two edges currently closest to wind direction
-                        var r:Number = Util.degreesToRadians(neighbor.windDirection);
-                        var closestEdge:Edge = neighbor.borders[0];
-                        var secondClosestEdge:Edge = neighbor.borders[1];
-                        for each (var edge:Edge in neighbor.borders) {
-                            if (edge.delaunayAngle - r < closestEdge.delaunayAngle - r) {
-                                secondClosestEdge = closestEdge;
-                                closestEdge = edge;
-                            } else if (edge.delaunayAngle - r < secondClosestEdge.delaunayAngle - r) {
-                                secondClosestEdge = edge;
-                            }
-                        }
-
-                        // Get the centers of those edges
-                        var closestCenter:Center = (closestEdge.d0 == neighbor) ? closestEdge.d1 : closestEdge.d0;
-                        var secondClosestCenter:Center = (secondClosestEdge.d0 == neighbor) ? secondClosestEdge.d1 : secondClosestEdge.d0;
-
-                        // Compare elevations
-                        if (neighbor.elevation >= seaLevel) {
-                            if (closestCenter.elevation > secondClosestCenter.elevation) {
-                                // Bend the wind toward the second closest center
-                                // todo use wind speed here
-                                neighbor.windDirection -= Util.radiansToDegrees(secondClosestEdge.delaunayAngle - Util.degreesToRadians(neighbor.windDirection)) / 10;
-                            } else if (closestCenter.elevation < secondClosestCenter.elevation) {
-                                // Bend the wind toward the closest center
-                                // todo and here
-                                neighbor.windDirection -= Util.radiansToDegrees(closestEdge.delaunayAngle - Util.degreesToRadians(neighbor.windDirection)) / 10;
-                            }
-                        }
-
-                        if (neighbor.windSpeed > 1)
-                            neighbor.windSpeed = 1;
-
-                        // Moisture is affected by wind speed
-                        if (neighbor.elevation < seaLevel)
-                            neighbor.moisture = 1;
-                        else
-                            neighbor.moisture = 1 - neighbor.windSpeed;
-
-                        queue.push(neighbor);
-                        neighbor.used = true;
-                    }
+            var f:Number = start.point.y;
+            while (f < height) {
+                start = getCenterClosestToPoint(new Point(start.point.x, f));
+                if (queue.indexOf(start) < 0) {
+                    queue.push(start);
                 }
+
+                f++;
+            }
+
+            for each (var center:Center in queue) {
+                center.used = true;
+                center.windDirection = 90;
+                center.windSpeed = 1;
+
+                // Get the center being pointed at by the wind and set its properties
+
             }
 
             unuseCenters();
@@ -481,8 +437,8 @@ package {
             }
         }
 
-        private function drawFeatureOutlines(type:String):void {
-            for (var key:String in featureManager.getFeaturesByType(type)) {
+        private function drawFeatureOutlines(featureType:String):void {
+            for (var key:String in featureManager.getFeaturesByType(featureType)) {
                 var feature:Object = featureManager.features[key];
                 graphics.lineStyle(1, feature.color);
                 if (feature.type != Feature.OCEAN) {
