@@ -18,6 +18,7 @@ package {
 
     import mx.core.UIComponent;
     import mx.events.FlexEvent;
+    import mx.utils.UIDUtil;
 
     public class Map extends UIComponent {
         public static var NUM_POINTS:int = 8000;
@@ -28,6 +29,7 @@ package {
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
         public var borders:Vector.<Center>;
+        public var rivers:Object;
 
         // Managers
         private var featureManager:FeatureManager;
@@ -37,7 +39,7 @@ package {
 
         // Miscellaneous
         private var showOutlines:Boolean = false;
-        private var showTerrain:Boolean = true;
+        private var showTerrain:Boolean = false;
         private var showRivers:Boolean = true;
 
         public function Map() {
@@ -73,6 +75,7 @@ package {
         }
 
         private function calculateRivers():void {
+            trace("Calculating rivers");
             // Sort all centers neighbors by their elevation from lowest to highest
             for each (var center:Center in centers) {
                 if (center.neighbors.length > 0) {
@@ -81,6 +84,7 @@ package {
             }
 
             // Create rivers
+            rivers = {};
             for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
                 for each (center in land.centers) {
                     center.precipitation = center.moisture;
@@ -88,9 +92,24 @@ package {
 
                 land.centers.sort(sortByHighestElevation);
                 for each (center in land.centers) {
-                    center.neighbors[0].precipitation += center.precipitation;
+                    pour(center, center.neighbors[0]);
                 }
             }
+
+            function pour(c:Center, t:Center):void {
+                t.precipitation += c.precipitation;
+                if (c.precipitation > 3) {
+                    if (c.river) {
+                        t.river = c.river;
+                        rivers[t.river].centers.push(t);
+                    } else {
+                        t.river = c.river = UIDUtil.createUID();
+                        rivers[t.river] = {centers: [c, t]};
+                    }
+                }
+            }
+
+            unuseCenters();
         }
 
         private function sortByLowestElevation(n1:Center, n2:Center):Number {
@@ -270,6 +289,9 @@ package {
         private function reset():void {
             // Reset FeatureManager
             featureManager.reset();
+
+            // Reset Rivers
+            rivers = {};
 
             // Reset centers
             for each (var center:Center in centers) {
@@ -452,15 +474,38 @@ package {
 
             if (showRivers) {
                 // Draw rivers
-                for each (center in centers) {
-                    if (center.neighbors.length > 0 && center.elevation >= seaLevel) {
-                        if (center.precipitation > 3) {
-                            graphics.lineStyle(Math.sqrt(center.precipitation) / 2, getColorFromElevation(0));
-                            graphics.moveTo(center.point.x, center.point.y);
-                            graphics.lineTo(center.neighbors[0].point.x, center.neighbors[0].point.y);
-                        }
+//                for each (center in centers) {
+//                    if (center.neighbors.length > 0 && center.elevation >= seaLevel) {
+//                        if (center.precipitation > 3) {
+//                            graphics.lineStyle(Math.sqrt(center.precipitation) / 2, getColorFromElevation(0));
+//                            graphics.moveTo(center.point.x, center.point.y);
+//                            graphics.lineTo(center.neighbors[0].point.x, center.neighbors[0].point.y);
+//                        }
+//                    }
+//                }
+
+                for each (var river:Object in rivers) {
+                    var color:uint = 0xffffff * Math.random();
+                    graphics.lineStyle();
+                    graphics.beginFill(color);
+                    graphics.drawCircle(river.centers[0].point.x, river.centers[0].point.y, 3);
+                    graphics.endFill();
+                    graphics.lineStyle(1, color);
+
+                    graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
+                    for each (center in river.centers) {
+                        graphics.lineTo(center.point.x, center.point.y);
                     }
                 }
+
+//                for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
+//                    var color:uint = 0xffffff * Math.random();
+//                    for each(center in river.centers) {
+//                        graphics.lineStyle(Math.sqrt(center.precipitation) / 2, color);
+//                        graphics.moveTo(center.point.x, center.point.y);
+//                        graphics.lineTo(center.neighbors[0].point.x, center.neighbors[0].point.y);
+//                    }
+//                }
             }
 
             var timeTaken:Number = ((new Date().time - time) / 1000);

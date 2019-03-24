@@ -29,6 +29,7 @@ package graph {
 
         // A set of unique feature ids
         public var features:Vector.<String>;
+        public var river:String;
 
         public function hasFeatureType(value:String):Boolean {
             for (var key:String in FeatureManager.getInstance().getFeaturesByType(value)) {
@@ -36,6 +37,16 @@ package graph {
                     return true;
             }
             return false;
+        }
+
+        public function getFeaturesByType(value:String):Object {
+            var obj:Object = {};
+            for (var key:String in FeatureManager.getInstance().getFeaturesByType(value)) {
+                if (features.indexOf(key) >= 0) {
+                    obj[key] = FeatureManager.getInstance().getFeature(key);
+                }
+            }
+            return obj;
         }
 
         // Temperature
@@ -76,6 +87,7 @@ package graph {
             moisture = 0;
             precipitation = 0;
             elevation = 0;
+            river = null;
         }
     }
 }
