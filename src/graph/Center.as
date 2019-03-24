@@ -1,6 +1,8 @@
 package graph {
     import flash.geom.Point;
 
+    import geography.FeatureManager;
+
     public class Center {
         public var index:int;
 
@@ -28,12 +30,16 @@ package graph {
         // A set of unique feature ids
         public var features:Vector.<String>;
 
+        public function hasFeatureType(value:String):Boolean {
+            for (var key:String in FeatureManager.getInstance().getFeaturesByType(value)) {
+                if (features.indexOf(key) >= 0)
+                    return true;
+            }
+            return false;
+        }
+
         // Temperature
         public var temperature:Number;
-
-        // Wind
-        public var windDirection:Number;
-        public var windSpeed:Number;
 
         // Moisture
         public var moisture:Number;
@@ -64,8 +70,6 @@ package graph {
             // Properties
             features = new Vector.<String>();
             temperature = 0;
-            windDirection = 0;
-            windSpeed = 0;
             moisture = 0;
             elevation = 0;
         }

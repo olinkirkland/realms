@@ -14,8 +14,8 @@ package geography {
             _instance = this;
 
             // Setup
-            colors[Feature.OCEAN] = 0x000000;
-            colors[Feature.LAND] = 0x000000;
+            colors[Feature.OCEAN] = 0x387089;
+            colors[Feature.LAND] = 0x387089;
             colors[Feature.LAKE] = 0x387089;
         }
 
