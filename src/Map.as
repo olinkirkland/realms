@@ -9,8 +9,11 @@ package {
     import flash.ui.Keyboard;
     import flash.utils.Dictionary;
 
+    import geography.Biome;
     import geography.Feature;
     import geography.Geography;
+    import geography.Moisture;
+    import geography.Temperature;
 
     import graph.Center;
     import graph.Corner;
@@ -18,7 +21,6 @@ package {
 
     import mx.core.UIComponent;
     import mx.events.FlexEvent;
-    import mx.utils.UIDUtil;
 
     public class Map extends UIComponent {
         public static var NUM_POINTS:int = 8000;
@@ -40,6 +42,7 @@ package {
         private var showOutlines:Boolean = false;
         private var showTerrain:Boolean = false;
         private var showRivers:Boolean = true;
+        private var showBiomes:Boolean = true;
 
         public function Map() {
             // Initialize Singletons
@@ -71,16 +74,62 @@ package {
             calculateBaseTemperatures();
             calculateMoisture();
             calculateRivers();
+            defineBiomes();
 
             draw();
+
+            for each (var feature:Object in featureManager.features) {
+                if (feature.type != Feature.RIVER && feature.type != Feature.OCEAN && feature.type != Feature.LAND && feature.type != Feature.LAKE)
+                    trace(feature.type, feature.centers.length);
+            }
 
             var timeTaken:Number = ((new Date().time - time) / 1000);
             trace("Generation and drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
+        private function defineBiomes():void {
+            trace("Defining biomes");
+            for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
+                var landCenters:Vector.<Center> = land.centers.concat();
+                var queue:Array = [];
+                while (landCenters.length > 0) {
+                    var start:Center = landCenters[0];
+                    // Pick a starting biome
+
+                    var currentBiome:String = Biome.determineBiome(start.flux, start.temperature);
+                    var currentFeature:String = featureManager.registerFeature(currentBiome);
+                    featureManager.addCenterToFeature(start, currentFeature);
+                    start.used = true;
+
+                    // Fill touching centers
+                    queue.push(start);
+                    var center:Center;
+                    while (queue.length > 0) {
+                        center = queue[0];
+                        queue.shift();
+                        for each (var neighbor:Center in center.neighbors) {
+                            if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && Biome.determineBiome(neighbor.flux, neighbor.temperature) == currentBiome) {
+                                featureManager.addCenterToFeature(neighbor, currentFeature);
+                                queue.push(neighbor);
+                                neighbor.used = true;
+                            }
+                        }
+                    }
+
+                    landCenters = new Vector.<Center>();
+                    for each (center in land.centers)
+                        if (!center.used)
+                            landCenters.push(center);
+                }
+            }
+
+            unuseCenters();
+        }
+
+
         private function calculateRivers():void {
             trace("Calculating rivers");
-            // Sort all centers neighbors by their elevation from lowest to highest
+            // Sort list centers neighbors by their elevation from lowest to highest
             for each (var center:Center in centers) {
                 if (center.neighbors.length > 0) {
                     center.neighbors.sort(sortByLowestElevation);
@@ -90,7 +139,7 @@ package {
             // Create rivers
             for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
                 for each (center in land.centers) {
-                    center.precipitation = center.moisture;
+                    center.flux = center.moisture;
                 }
 
                 land.centers.sort(sortByHighestElevation);
@@ -100,8 +149,8 @@ package {
             }
 
             function pour(c:Center, t:Center):void {
-                t.precipitation += c.precipitation;
-                if (c.precipitation > 8) {
+                t.flux += c.flux;
+                if (c.flux > 8) {
                     var river:String;
                     if (c.hasFeatureType(Feature.RIVER)) {
                         // Extend river
@@ -120,6 +169,12 @@ package {
                         featureManager.addCenterToFeature(t, river);
                     }
                 }
+            }
+
+            for each (center in centers) {
+                center.flux = Math.sqrt(center.flux) / 2;
+                if (center.flux > 5)
+                    center.flux = 5;
             }
 
             unuseCenters();
@@ -204,7 +259,7 @@ package {
                 }
             }
 
-            // Override all borders to be part of the Ocean
+            // Override list borders to be part of the Ocean
             for each (center in borders) {
                 featureManager.addCenterToFeature(center, currentFeature);
             }
@@ -298,13 +353,18 @@ package {
                     draw();
                     break;
                 case Keyboard.E:
-                    // Toggle terrain
-                    showTerrain = !showTerrain;
+                    // Toggle biomes
+                    showBiomes = !showBiomes;
                     draw();
                     break;
                 case Keyboard.R:
                     // Generate with a new seed
                     start(Math.random() * 9999);
+                    break;
+                case Keyboard.T:
+                    // Toggle terrain
+                    showTerrain = !showTerrain;
+                    draw();
                     break;
             }
         }
@@ -329,6 +389,8 @@ package {
         private function humanReadableCenter(center:Center):String {
             var str:String = "#" + center.index + ", " + center.elevation.toFixed(3) + " elevation";
             str += "\n  temperature: " + center.temperature;
+            str += "\n  moisture: " + center.moisture;
+            str += "\n  flux: " + center.flux;
             for each (var f:String in center.features) {
                 var feature:Object = featureManager.getFeature(f);
                 str += "\n > " + feature.type + " (" + feature.centers.length + ")";
@@ -451,6 +513,8 @@ package {
              * Main Draw Call
              */
 
+            var r:Rand = new Rand(1);
+
             // Clear
             graphics.clear();
 
@@ -459,7 +523,6 @@ package {
                 graphics.beginFill(getColorFromElevation(0));
                 graphics.drawRect(0, 0, width, height);
 
-                // Draw Polygons
                 for each (var center:Center in centers) {
                     graphics.beginFill(getColorFromElevation(center.elevation));
 
@@ -490,29 +553,36 @@ package {
 
             drawCoastline();
 
+            if (showBiomes) {
+                // Draw Biomes
+                graphics.lineStyle();
+                for each (var biomeName:String in Biome.list) {
+                    graphics.beginFill(Biome.colors[biomeName]);
+                    for each (var biome:Object in featureManager.getFeaturesByType(biomeName)) {
+                        for each (center in biome.centers) {
+                            for each (var edge:Edge in center.borders) {
+                                if (edge.v0 && edge.v1) {
+                                    graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                    graphics.lineTo(center.point.x, center.point.y);
+                                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                } else {
+                                }
+                            }
+                        }
+                    }
+                    graphics.endFill();
+                }
+            }
+
             if (showRivers) {
                 // Draw rivers
-//                for each (var river:Object in rivers) {
-//                    var color:uint = getColorFromElevation(0);
-//                    graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
-//                    graphics.lineStyle(1, color);
-//                    for each (center in river.centers) {
-//                        graphics.lineTo(center.point.x, center.point.y);
-//                        graphics.lineStyle(Math.sqrt(center.precipitation) / 2, color);
-//                    }
-//                }
-
                 for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
-                    var color:uint = 0xffffff * Math.random();
-                    graphics.lineStyle();
-                    graphics.beginFill(color);
-                    graphics.drawCircle(river.centers[0].point.x, river.centers[0].point.y, 3);
-                    graphics.endFill();
-                    graphics.lineStyle(1, color);
-
+                    var color:uint = getColorFromElevation(0);
                     graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
+                    graphics.lineStyle(1, color);
                     for each (center in river.centers) {
                         graphics.lineTo(center.point.x, center.point.y);
+                        graphics.lineStyle(center.flux, color);
                     }
                 }
             }
