@@ -99,6 +99,8 @@ package {
                     var currentBiome:String = Biome.determineBiome(start.flux, start.temperature);
                     var currentFeature:String = featureManager.registerFeature(currentBiome);
                     featureManager.addCenterToFeature(start, currentFeature);
+                    start.biome = currentFeature;
+                    start.biomeType = currentBiome;
                     start.used = true;
 
                     // Fill touching centers
@@ -110,6 +112,8 @@ package {
                         for each (var neighbor:Center in center.neighbors) {
                             if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && Biome.determineBiome(neighbor.flux, neighbor.temperature) == currentBiome) {
                                 featureManager.addCenterToFeature(neighbor, currentFeature);
+                                neighbor.biome = currentFeature;
+                                neighbor.biomeType = currentBiome;
                                 queue.push(neighbor);
                                 neighbor.used = true;
                             }

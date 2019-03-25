@@ -21,7 +21,7 @@ package geography {
 
             var biome:String;
 
-            if (moisture > .5) {
+            if (moisture > .48) {
                 biome = TEMPERATE_FOREST;
             } else {
                 biome = GRASSLAND;

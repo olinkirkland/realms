@@ -29,7 +29,10 @@ package graph {
 
         // A set of unique feature ids
         public var features:Vector.<String>;
-        public var river:String;
+
+        // Unique features
+        public var biome:String;
+        public var biomeType:String;
 
         public function hasFeatureType(value:String):Boolean {
             for (var key:String in Geography.getInstance().getFeaturesByType(value)) {
@@ -87,7 +90,7 @@ package graph {
             moisture = 0;
             flux = 0;
             elevation = 0;
-            river = null;
+            biome = null;
         }
     }
 }

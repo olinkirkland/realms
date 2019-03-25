@@ -32,16 +32,25 @@ package geography {
         public function registerFeature(type:String):String {
             var id:String = UIDUtil.createUID();
 
-            features[id] = {type: type, centers: new Vector.<Center>(), color: colors[type]};
+            features[id] = {id: id, type: type, centers: new Vector.<Center>(), color: colors[type]};
             if (type == Feature.OCEAN)
                 features[id].color = 0x4890B1;
 
             return id;
         }
 
+        public function deleteFeature(id:String):void {
+            delete features[id];
+        }
+
         public function addCenterToFeature(center:Center, feature:String):void {
             center.features.push(feature);
             features[feature].centers.push(center);
+        }
+
+        public function removeCenterFromFeature(center:Center, feature:String):void {
+            center.features.removeAt(center.features.indexOf(feature));
+            features[feature].centers.removeAt(features[feature].centers.indexOf(center));
         }
 
         public function getFeature(id:String):Object {
