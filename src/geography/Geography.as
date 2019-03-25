@@ -3,12 +3,12 @@ package geography {
 
     import mx.utils.UIDUtil;
 
-    public class FeatureManager {
-        private static var _instance:FeatureManager;
+    public class Geography {
+        private static var _instance:Geography;
         public var features:Object = {};
         public var colors:Object = {};
 
-        public function FeatureManager() {
+        public function Geography() {
             if (_instance)
                 throw new Error("Singleton; Use getInstance() instead");
             _instance = this;
@@ -19,9 +19,9 @@ package geography {
             colors[Feature.LAKE] = 0x387089;
         }
 
-        public static function getInstance():FeatureManager {
+        public static function getInstance():Geography {
             if (!_instance)
-                new FeatureManager();
+                new Geography();
             return _instance;
         }
 

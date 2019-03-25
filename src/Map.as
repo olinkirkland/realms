@@ -10,7 +10,7 @@ package {
     import flash.utils.Dictionary;
 
     import geography.Feature;
-    import geography.FeatureManager;
+    import geography.Geography;
 
     import graph.Center;
     import graph.Corner;
@@ -29,10 +29,9 @@ package {
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
         public var borders:Vector.<Center>;
-        public var rivers:Object;
 
         // Managers
-        private var featureManager:FeatureManager;
+        private var featureManager:Geography;
 
         // Generation
         private var seaLevel:Number = .2;
@@ -44,7 +43,7 @@ package {
 
         public function Map() {
             // Initialize Singletons
-            featureManager = FeatureManager.getInstance();
+            featureManager = Geography.getInstance();
 
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
@@ -64,6 +63,8 @@ package {
         }
 
         private function start(seed:Number = 1):void {
+            var time:Number = new Date().time;
+
             generateHeightMap(seed);
             resolveDepressions();
             defineOceanLandsAndLakes();
@@ -72,6 +73,9 @@ package {
             calculateRivers();
 
             draw();
+
+            var timeTaken:Number = ((new Date().time - time) / 1000);
+            trace("Generation and drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
         private function calculateRivers():void {
@@ -84,7 +88,6 @@ package {
             }
 
             // Create rivers
-            rivers = {};
             for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
                 for each (center in land.centers) {
                     center.precipitation = center.moisture;
@@ -98,13 +101,23 @@ package {
 
             function pour(c:Center, t:Center):void {
                 t.precipitation += c.precipitation;
-                if (c.precipitation > 3) {
-                    if (c.river) {
-                        t.river = c.river;
-                        rivers[t.river].centers.push(t);
+                if (c.precipitation > 8) {
+                    var river:String;
+                    if (c.hasFeatureType(Feature.RIVER)) {
+                        // Extend river
+                        var rivers:Object = c.getFeaturesByType(Feature.RIVER);
+                        for (var v:String in rivers) {
+                            // Pick the longest river to continue
+                            if (!river || rivers[v].centers.length > rivers[river].centers.length) {
+                                river = v;
+                            }
+                        }
+                        featureManager.addCenterToFeature(t, river);
                     } else {
-                        t.river = c.river = UIDUtil.createUID();
-                        rivers[t.river] = {centers: [c, t]};
+                        // Start new river
+                        river = featureManager.registerFeature(Feature.RIVER);
+                        featureManager.addCenterToFeature(c, river);
+                        featureManager.addCenterToFeature(t, river);
                     }
                 }
             }
@@ -256,11 +269,21 @@ package {
 
             var placementRadius:Number = .5;
 
+            // Add binding island
             addIslandType2(getCenterClosestToPoint(new Point(w, h)), 1, .9, .2, r.next() * 9999);
 
-            for (var i:int = 0; i < 10; i++) {
+            // Add big islands
+            for (var i:int = 0; i < 10; i++)
                 addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * placementRadius, w * placementRadius), h + r.between(-h * placementRadius, h * placementRadius))), r.between(.4, .6), r.between(.93, .98), r.between(0, .1), r.next());
-            }
+
+            // Add medium islands
+            for (i = 0; i < 3; i++)
+                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * placementRadius, w * placementRadius), h + r.between(-h * placementRadius, h * placementRadius))), r.between(.2, .4), r.between(.96, .99), r.between(0, .2), r.next());
+
+            // Add small islands
+            placementRadius = .6;
+            for (i = 0; i < 10; i++)
+                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * placementRadius, w * placementRadius), h + r.between(-h * placementRadius, h * placementRadius))), r.between(.2, .4), r.between(.8, .9), r.between(.1, .2), r.next());
         }
 
         public function onKeyDown(event:KeyboardEvent):void {
@@ -287,11 +310,8 @@ package {
         }
 
         private function reset():void {
-            // Reset FeatureManager
+            // Reset Geography
             featureManager.reset();
-
-            // Reset Rivers
-            rivers = {};
 
             // Reset centers
             for each (var center:Center in centers) {
@@ -431,8 +451,6 @@ package {
              * Main Draw Call
              */
 
-            var time:Number = new Date().time;
-
             // Clear
             graphics.clear();
 
@@ -474,17 +492,17 @@ package {
 
             if (showRivers) {
                 // Draw rivers
-//                for each (center in centers) {
-//                    if (center.neighbors.length > 0 && center.elevation >= seaLevel) {
-//                        if (center.precipitation > 3) {
-//                            graphics.lineStyle(Math.sqrt(center.precipitation) / 2, getColorFromElevation(0));
-//                            graphics.moveTo(center.point.x, center.point.y);
-//                            graphics.lineTo(center.neighbors[0].point.x, center.neighbors[0].point.y);
-//                        }
+//                for each (var river:Object in rivers) {
+//                    var color:uint = getColorFromElevation(0);
+//                    graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
+//                    graphics.lineStyle(1, color);
+//                    for each (center in river.centers) {
+//                        graphics.lineTo(center.point.x, center.point.y);
+//                        graphics.lineStyle(Math.sqrt(center.precipitation) / 2, color);
 //                    }
 //                }
 
-                for each (var river:Object in rivers) {
+                for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
                     var color:uint = 0xffffff * Math.random();
                     graphics.lineStyle();
                     graphics.beginFill(color);
@@ -497,19 +515,7 @@ package {
                         graphics.lineTo(center.point.x, center.point.y);
                     }
                 }
-
-//                for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
-//                    var color:uint = 0xffffff * Math.random();
-//                    for each(center in river.centers) {
-//                        graphics.lineStyle(Math.sqrt(center.precipitation) / 2, color);
-//                        graphics.moveTo(center.point.x, center.point.y);
-//                        graphics.lineTo(center.neighbors[0].point.x, center.neighbors[0].point.y);
-//                    }
-//                }
             }
-
-            var timeTaken:Number = ((new Date().time - time) / 1000);
-            trace("Drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
         private function drawCoastline():void {

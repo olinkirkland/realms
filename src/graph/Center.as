@@ -1,7 +1,7 @@
 package graph {
     import flash.geom.Point;
 
-    import geography.FeatureManager;
+    import geography.Geography;
 
     public class Center {
         public var index:int;
@@ -32,7 +32,7 @@ package graph {
         public var river:String;
 
         public function hasFeatureType(value:String):Boolean {
-            for (var key:String in FeatureManager.getInstance().getFeaturesByType(value)) {
+            for (var key:String in Geography.getInstance().getFeaturesByType(value)) {
                 if (features.indexOf(key) >= 0)
                     return true;
             }
@@ -41,9 +41,9 @@ package graph {
 
         public function getFeaturesByType(value:String):Object {
             var obj:Object = {};
-            for (var key:String in FeatureManager.getInstance().getFeaturesByType(value)) {
+            for (var key:String in Geography.getInstance().getFeaturesByType(value)) {
                 if (features.indexOf(key) >= 0) {
-                    obj[key] = FeatureManager.getInstance().getFeature(key);
+                    obj[key] = Geography.getInstance().getFeature(key);
                 }
             }
             return obj;
