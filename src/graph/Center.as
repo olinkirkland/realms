@@ -33,6 +33,8 @@ package graph {
         // Unique features
         public var biome:String;
         public var biomeType:String;
+        public var windDirection:Number;
+        public var windStrength:Number;
 
         public function hasFeatureType(value:String):Boolean {
             for (var key:String in Geography.getInstance().getFeaturesByType(value)) {
@@ -91,6 +93,8 @@ package graph {
             flux = 0;
             elevation = 0;
             biome = null;
+            windDirection = 0;
+            windStrength = 1;
         }
     }
 }

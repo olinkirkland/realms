@@ -14,6 +14,10 @@ package graph {
         public var midpoint:Point;
 
         // Directions
+        public function getDelaunayAngle(center:Center):Number {
+            return center == d0 ? delaunayAngle : Util.oppositeDegree(delaunayAngle);
+        }
+
         public var delaunayAngle:Number;
         public var voronoiAngle:Number;
     }

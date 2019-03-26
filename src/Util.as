@@ -23,5 +23,13 @@ package {
         public static function degreesToRadians(value:Number):Number {
             return value * Math.PI / 180
         }
+
+        public static function differenceBetweenTwoDegrees(degrees1:Number, degrees2:Number):Number {
+            return 180 - Math.abs(Math.abs(degrees1 - degrees2) - 180);
+        }
+
+        public static function oppositeDegree(degree:Number):Number {
+            return (degree + 180) % 360;
+        }
     }
 }

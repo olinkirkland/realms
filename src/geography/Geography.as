@@ -44,8 +44,12 @@ package geography {
         }
 
         public function addCenterToFeature(center:Center, feature:String):void {
-            center.features.push(feature);
-            features[feature].centers.push(center);
+            if (center.features.indexOf(feature) < 0) {
+                // Add feature to center
+                center.features.push(feature);
+                // Add center to feature
+                features[feature].centers.push(center);
+            }
         }
 
         public function removeCenterFromFeature(center:Center, feature:String):void {

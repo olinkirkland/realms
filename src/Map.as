@@ -32,6 +32,7 @@ package {
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
         public var borders:Vector.<Center>;
+        public var wind:Array;
 
         // Managers
         private var featureManager:Geography;
@@ -40,9 +41,9 @@ package {
         private var seaLevel:Number = .2;
 
         // Miscellaneous
-        private var showOutlines:Boolean = false;
+        private var showOutlines:Boolean = true;
         private var showTerrain:Boolean = false;
-        private var showRivers:Boolean = true;
+        private var showRivers:Boolean = false;
         private var showBiomes:Boolean = false;
         private var showWind:Boolean = true;
 
@@ -57,10 +58,11 @@ package {
             // Determine if points file exists
             var pointsData:Object;
             var file:File = File.applicationStorageDirectory.resolvePath("points.json");
+            var stream:FileStream;
             if (file.exists) {
                 // Load the points file
                 trace("Points file found; Loading points from file")
-                var stream:FileStream = new FileStream();
+                stream = new FileStream();
                 stream.open(file, FileMode.READ);
                 pointsData = JSON.parse(stream.readUTFBytes(stream.bytesAvailable));
                 stream.close();
@@ -80,7 +82,7 @@ package {
                 relaxPoints();
 
                 trace("Saving new points file to " + file.url);
-                var stream:FileStream = new FileStream();
+                stream = new FileStream();
                 stream.open(file, FileMode.WRITE);
                 stream.writeUTFBytes(JSON.stringify(points));
                 stream.close();
@@ -100,9 +102,11 @@ package {
             resolveDepressions();
             defineOceanLandsAndLakes();
             calculateBaseTemperatures();
+            calculateWind();
             calculateMoisture();
             calculateRivers();
-            defineBiomes();
+
+            //defineBiomes();
 
             draw();
 
@@ -115,6 +119,77 @@ package {
             trace("Generation and drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
+        private function calculateWind():void {
+            trace("Calculating wind");
+
+            // Start with a site that is at 0 elevation and is in the upper left
+            // Don't pick a border site because they're fucky
+            for each (var start:Center in centers) {
+                if (start.elevation == 0 && start.neighbors.length > 0)
+                    break;
+            }
+
+            wind = [];
+
+            // Create a gust of wind
+            start.windDirection = 0;
+
+            wind.push([start]);
+            callLater(go);
+
+            function go():void {
+                graphics.lineStyle(1, 0xff0000);
+                graphics.moveTo(start.point.x, start.point.y);
+                iterateWind(start);
+            }
+        }
+
+        public function gust():void {
+            // Find next lowest center
+            var o:Center = wind[wind.length - 1][0];
+            var n:Center = o;
+            var v:Number = o.point.y += 5;
+            while (v < height && (n == o || n.neighbors.length == 0)) {
+                n = getCenterClosestToPoint(new Point(wind[0][0].point.x, v));
+                v += 5;
+            }
+
+            if (n.neighbors.length > 0) {
+                n.used = true;
+                graphics.lineStyle(1, 0xff0000);
+                graphics.moveTo(n.point.x, n.point.y);
+                wind[wind.length] = [];
+                iterateWind(n);
+            } else {
+
+            }
+        }
+
+        public function iterateWind(c:Center):void {
+            // Get two edges currently closest to the wind direction
+            var closestEdge:Edge = c.borders[0];
+            var differenceToEdge:Number;
+            var differenceToClosestEdge:Number;
+            for each (var edge:Edge in c.borders) {
+                differenceToEdge = Util.differenceBetweenTwoDegrees(c.windDirection, edge.getDelaunayAngle(c));
+                differenceToClosestEdge = Util.differenceBetweenTwoDegrees(c.windDirection, closestEdge.getDelaunayAngle(c));
+
+                if (differenceToEdge < differenceToClosestEdge) {
+                    closestEdge = edge;
+                }
+            }
+
+            var next:Center = (closestEdge.d0 == c) ? closestEdge.d1 : closestEdge.d0;
+            next.windDirection = c.windDirection;
+            next.windStrength = c.windStrength;
+            graphics.lineTo(next.point.x, next.point.y);
+            wind[wind.length - 1].push(next);
+            if (next.neighbors.length > 0)
+                iterateWind(next);
+            else
+                callLater(gust);
+        }
+
         private function defineBiomes():void {
             trace("Defining biomes");
             for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
@@ -123,7 +198,6 @@ package {
                 while (landCenters.length > 0) {
                     var start:Center = landCenters[0];
                     // Pick a starting biome
-
                     var currentBiome:String = Biome.determineBiome(start.flux, start.temperature);
                     var currentFeature:String = featureManager.registerFeature(currentBiome);
                     featureManager.addCenterToFeature(start, currentFeature);
@@ -404,6 +478,7 @@ package {
         private function reset():void {
             // Reset Geography
             featureManager.reset();
+            wind = [];
 
             // Reset centers
             for each (var center:Center in centers) {
@@ -423,6 +498,7 @@ package {
             str += "\n  temperature: " + center.temperature;
             str += "\n  moisture: " + center.moisture;
             str += "\n  flux: " + center.flux;
+            str += "\n  wind direction: " + center.windDirection;
             for each (var f:String in center.features) {
                 var feature:Object = featureManager.getFeature(f);
                 str += "\n > " + feature.type + " (" + feature.centers.length + ")";
@@ -592,7 +668,7 @@ package {
                     graphics.beginFill(Biome.colors[biomeName]);
                     for each (var biome:Object in featureManager.getFeaturesByType(biomeName)) {
                         for each (center in biome.centers) {
-                            for each (var edge:Edge in center.borders) {
+                            for each (edge in center.borders) {
                                 if (edge.v0 && edge.v1) {
                                     graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                                     graphics.lineTo(center.point.x, center.point.y);
@@ -617,6 +693,21 @@ package {
                         graphics.lineStyle(center.flux, color);
                     }
                 }
+            }
+
+            if (showWind) {
+                // Draw wind
+//                for each (center in centers) {
+//                    if (center.windDirection) {
+//                        var d:Number = Util.degreesToRadians(center.windDirection);
+//                        var p:Number = center.windStrength * 5;
+//                        graphics.lineStyle(3, 0xff0000);
+//                        graphics.moveTo(center.point.x - p * Math.cos(d), center.point.y - p * Math.sin(d));
+//                        graphics.lineTo(center.point.x, center.point.y);
+//                        graphics.lineStyle(1, 0xff0000);
+//                        graphics.lineTo(center.point.x + p * Math.cos(d), center.point.y + p * Math.sin(d));
+//                    }
+//                }
             }
         }
 
@@ -838,10 +929,10 @@ package {
 
             // Calculate Angles
             if (edge.d0 && edge.d1)
-                edge.delaunayAngle = Math.atan2(edge.d1.point.y - edge.d0.point.y, edge.d1.point.x - edge.d0.point.x);
+                edge.delaunayAngle = Util.radiansToDegrees(Math.atan2(edge.d1.point.y - edge.d0.point.y, edge.d1.point.x - edge.d0.point.x));
 
             if (edge.v0 && edge.v1)
-                edge.voronoiAngle = Math.atan2(edge.v1.point.y - edge.v0.point.y, edge.v1.point.x - edge.v0.point.x);
+                edge.voronoiAngle = Util.radiansToDegrees(Math.atan2(edge.v1.point.y - edge.v0.point.y, edge.v1.point.x - edge.v0.point.x));
 
             function addToCornerList(v:Vector.<Corner>, x:Corner):void {
                 if (x != null && v.indexOf(x) < 0) {
@@ -859,6 +950,5 @@ package {
         private function humanReadablePoint(p:Point):String {
             return "(" + p.x.toFixed(1) + ", " + p.y.toFixed(1) + ")";
         }
-
     }
 }
