@@ -54,12 +54,19 @@ package graph {
 
         // Temperature
         public var temperature:Number;
+        public var temperaturePercent:Number;
+
+        // Latitude
+        public var latitude:Number;
+        public var latitudePercent:Number;
 
         // Moisture
         public var moisture:Number;
+        public var moisturePercent:Number;
 
         // Precipitation
-        public var flux:Number;
+        public var precipitation:Number;
+        public var precipitationPercent:Number;
 
         // Elevation
         private var _elevation:Number;
@@ -88,7 +95,7 @@ package graph {
             features = new Vector.<String>();
             temperature = 0;
             moisture = 0;
-            flux = 0;
+            precipitation = 0;
             elevation = 0;
             biome = null;
         }

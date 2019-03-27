@@ -12,8 +12,6 @@ package {
     import geography.Biome;
     import geography.Feature;
     import geography.Geography;
-    import geography.Moisture;
-    import geography.Temperature;
 
     import graph.Center;
     import graph.Corner;
@@ -40,9 +38,10 @@ package {
 
         // Miscellaneous
         private var showOutlines:Boolean = false;
-        private var showTerrain:Boolean = false;
+        private var showTerrain:Boolean = true;
         private var showRivers:Boolean = true;
-        private var showBiomes:Boolean = true;
+        private var showBiomes:Boolean = false;
+        private var showTemperature:Boolean = true;
 
         public function Map() {
             // Initialize Singletons
@@ -71,7 +70,7 @@ package {
             generateHeightMap(seed);
             resolveDepressions();
             defineOceanLandsAndLakes();
-            calculateBaseTemperatures();
+            calculateTemperature();
             calculateMoisture();
             calculateRivers();
             defineBiomes();
@@ -96,7 +95,7 @@ package {
                     var start:Center = landCenters[0];
                     // Pick a starting biome
 
-                    var currentBiome:String = Biome.determineBiome(start.flux, start.temperature);
+                    var currentBiome:String = Biome.determineBiome(start.precipitation, start.temperature);
                     var currentFeature:String = featureManager.registerFeature(currentBiome);
                     featureManager.addCenterToFeature(start, currentFeature);
                     start.biome = currentFeature;
@@ -110,7 +109,7 @@ package {
                         center = queue[0];
                         queue.shift();
                         for each (var neighbor:Center in center.neighbors) {
-                            if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && Biome.determineBiome(neighbor.flux, neighbor.temperature) == currentBiome) {
+                            if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && Biome.determineBiome(neighbor.precipitation, neighbor.temperature) == currentBiome) {
                                 featureManager.addCenterToFeature(neighbor, currentFeature);
                                 neighbor.biome = currentFeature;
                                 neighbor.biomeType = currentBiome;
@@ -143,7 +142,7 @@ package {
             // Create rivers
             for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
                 for each (center in land.centers) {
-                    center.flux = center.moisture;
+                    center.precipitation = center.moisture;
                 }
 
                 land.centers.sort(sortByHighestElevation);
@@ -153,8 +152,8 @@ package {
             }
 
             function pour(c:Center, t:Center):void {
-                t.flux += c.flux;
-                if (c.flux > 8) {
+                t.precipitation += c.precipitation;
+                if (c.precipitation > 8) {
                     var river:String;
                     if (c.hasFeatureType(Feature.RIVER)) {
                         // Extend river
@@ -176,9 +175,9 @@ package {
             }
 
             for each (center in centers) {
-                center.flux = Math.sqrt(center.flux) / 2;
-                if (center.flux > 5)
-                    center.flux = 5;
+                center.precipitation = Math.sqrt(center.precipitation) / 2;
+                if (center.precipitation > 5)
+                    center.precipitation = 5;
             }
 
             unuseCenters();
@@ -229,9 +228,16 @@ package {
             }
         }
 
-        private function calculateBaseTemperatures():void {
+        private function calculateTemperature():void {
             for each (var center:Center in centers) {
-                center.temperature = 1 - Math.abs((center.point.y / (height / 2)) - 1);
+                // Mapping 0 to 90 latitude for this section of the world
+                center.latitudePercent = center.point.y / height;
+                center.latitude = center.latitudePercent * 90;
+                var temperature:Number = center.latitudePercent;
+
+                // Consider elevation in the temperature (higher places are colder)
+                center.temperaturePercent = (temperature - (center.elevation * .3)) / 2;
+                center.temperature = (center.temperaturePercent * 40) - 10;
             }
         }
 
@@ -357,8 +363,8 @@ package {
                     draw();
                     break;
                 case Keyboard.E:
-                    // Toggle biomes
-                    showBiomes = !showBiomes;
+                    // Toggle temperature
+                    showTemperature = !showTemperature;
                     draw();
                     break;
                 case Keyboard.R:
@@ -394,7 +400,7 @@ package {
             var str:String = "#" + center.index + ", " + center.elevation.toFixed(3) + " elevation";
             str += "\n  temperature: " + center.temperature;
             str += "\n  moisture: " + center.moisture;
-            str += "\n  flux: " + center.flux;
+            str += "\n  precipitation: " + center.precipitation;
             for each (var f:String in center.features) {
                 var feature:Object = featureManager.getFeature(f);
                 str += "\n > " + feature.type + " (" + feature.centers.length + ")";
@@ -586,7 +592,27 @@ package {
                     graphics.lineStyle(1, color);
                     for each (center in river.centers) {
                         graphics.lineTo(center.point.x, center.point.y);
-                        graphics.lineStyle(center.flux, color);
+                        graphics.lineStyle(center.precipitation, color);
+                    }
+                }
+            }
+
+            if (showTemperature) {
+                // Draw temperature
+                var coldColor:uint = 0x74d6f7;
+                var hotColor:uint = 0xf45f42;
+                graphics.lineStyle();
+                for each (center in centers) {
+                    if (center.elevation > seaLevel) {
+                        graphics.beginFill(Util.getColorBetweenColors(coldColor, hotColor, center.temperaturePercent));
+                        for each (var edge:Edge in center.borders) {
+                            if (edge.v0 && edge.v1) {
+                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                graphics.lineTo(center.point.x, center.point.y);
+                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            } else {
+                            }
+                        }
                     }
                 }
             }
@@ -646,7 +672,7 @@ package {
 
             var color:uint = colors[index];
             if (index < colors.length - 1 && elevation >= seaLevel)
-                color = Util.getColorBetweenColor(colors[index], colors[index + 1], preciseIndex - index);
+                color = Util.getColorBetweenColors(colors[index], colors[index + 1], preciseIndex - index);
 
             return color;
         }
