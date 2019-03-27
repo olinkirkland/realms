@@ -56,11 +56,12 @@ package {
         private function onCreationComplete(event:FlexEvent):void {
             // Determine if points file exists
             var pointsData:Object;
+            var stream:FileStream;
             var file:File = File.applicationStorageDirectory.resolvePath("points.json");
             if (file.exists) {
                 // Load the points file
                 trace("Points file found; Loading points from file")
-                var stream:FileStream = new FileStream();
+                stream = new FileStream();
                 stream.open(file, FileMode.READ);
                 pointsData = JSON.parse(stream.readUTFBytes(stream.bytesAvailable));
                 stream.close();
@@ -80,7 +81,7 @@ package {
                 relaxPoints();
 
                 trace("Saving new points file to " + file.url);
-                var stream:FileStream = new FileStream();
+                stream = new FileStream();
                 stream.open(file, FileMode.WRITE);
                 stream.writeUTFBytes(JSON.stringify(points));
                 stream.close();
@@ -628,12 +629,10 @@ package {
 
             if (showTemperature) {
                 // Draw temperature
-                var coldColor:uint = 0x74d6f7;
-                var hotColor:uint = 0xf45f42;
                 graphics.lineStyle();
                 for each (center in centers) {
                     if (center.elevation > seaLevel) {
-                        graphics.beginFill(Util.getColorBetweenColors(coldColor, hotColor, center.temperaturePercent));
+                        graphics.beginFill(getColorFromTemperature(center.temperaturePercent));
                         for each (var edge:Edge in center.borders) {
                             if (edge.v0 && edge.v1) {
                                 graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
@@ -701,6 +700,19 @@ package {
 
             var color:uint = colors[index];
             if (index < colors.length - 1 && elevation >= seaLevel)
+                color = Util.getColorBetweenColors(colors[index], colors[index + 1], preciseIndex - index);
+
+            return color;
+        }
+
+        private function getColorFromTemperature(temperature:Number):uint {
+            var colors:Array = [0xffffff, 0x59684b, 0x9ec47b, 0xc4b97b, 0xff7d38];
+
+            var preciseIndex:Number = (colors.length - 1) * temperature;
+            var index:int = Math.floor(preciseIndex);
+
+            var color:uint = colors[index];
+            if (index < colors.length - 1 && temperature >= seaLevel)
                 color = Util.getColorBetweenColors(colors[index], colors[index + 1], preciseIndex - index);
 
             return color;
