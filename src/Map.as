@@ -4,6 +4,9 @@ package {
 
     import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
+    import flash.filesystem.File;
+    import flash.filesystem.FileMode;
+    import flash.filesystem.FileStream;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.ui.Keyboard;
@@ -51,11 +54,37 @@ package {
         }
 
         private function onCreationComplete(event:FlexEvent):void {
-            pickRandomPoints();
-            build();
-            relaxPoints();
-            relaxPoints();
-            relaxPoints();
+            // Determine if points file exists
+            var pointsData:Object;
+            var file:File = File.applicationStorageDirectory.resolvePath("points.json");
+            if (file.exists) {
+                // Load the points file
+                trace("Points file found; Loading points from file")
+                var stream:FileStream = new FileStream();
+                stream.open(file, FileMode.READ);
+                pointsData = JSON.parse(stream.readUTFBytes(stream.bytesAvailable));
+                stream.close();
+
+                points = new Vector.<Point>();
+                for each (var pointData:Object in pointsData) {
+                    points.push(new Point(pointData.x, pointData.y));
+                }
+                build();
+            } else {
+                // Generate points and save them
+                trace("Points file not found; Generating new points");
+                pickRandomPoints();
+                relaxPoints();
+                relaxPoints();
+                relaxPoints();
+                relaxPoints();
+
+                trace("Saving new points file to " + file.url);
+                var stream:FileStream = new FileStream();
+                stream.open(file, FileMode.WRITE);
+                stream.writeUTFBytes(JSON.stringify(points));
+                stream.close();
+            }
 
             start();
 
