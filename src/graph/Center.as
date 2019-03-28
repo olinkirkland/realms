@@ -70,6 +70,7 @@ package graph {
 
         // Elevation
         private var _elevation:Number;
+
         public function get elevation():Number {
             return _elevation;
         }
@@ -78,9 +79,7 @@ package graph {
             _elevation = neighbors.length > 0 ? value : 0;
         }
 
-        public function get realElevation():Number {
-            return Math.floor(_elevation * 2500);
-        }
+        public var realElevation:Number;
 
         public function Center() {
             neighbors = new Vector.<Center>();

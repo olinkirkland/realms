@@ -213,7 +213,7 @@ package {
 
             function pour(c:Center, t:Center):void {
                 t.precipitation += c.precipitation;
-                if (c.precipitation > 8) {
+                if (c.precipitation > 10) {
                     var river:String;
                     if (c.hasFeatureType(Feature.RIVER)) {
                         // Extend river
@@ -643,12 +643,15 @@ package {
                 for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
                     // Create an array of points
                     var riverPoints:Array = [];
+                    var riverThicknesses:Array = [];
                     for each (center in river.centers) {
                         riverPoints.push(center.point);
+                        riverThicknesses.push(Math.sqrt(center.precipitation) / 2);
                     }
 
-                    //getColorFromElevation(0)
-                    CubicBezier.curveThroughPoints(graphics, riverPoints, Util.randomColor());
+                    trace("r:" + riverPoints.length);
+
+                    CubicBezier.curveThroughPoints(graphics, riverPoints, riverThicknesses, getColorFromElevation(0));
                 }
             }
 
@@ -947,7 +950,10 @@ package {
         }
 
         private function humanReadableCenter(center:Center):String {
-            var str:String = "#" + center.index + ", " + center.elevation.toFixed(3) + " elevation";
+            var str:String = "#" + center.index;
+            str += "\n  elevation: " + center.elevation;
+            str += "\n  realElevation: " + center.realElevation;
+            str += "\n  latitude: " + center.latitude;
             str += "\n  realLatitude: " + center.realLatitude;
             str += "\n  temperature: " + center.temperature;
             str += "\n  realTemperature: " + center.realTemperature;
