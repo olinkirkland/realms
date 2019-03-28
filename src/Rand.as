@@ -6,6 +6,12 @@ package {
 
         public function Rand(seed:Number = 1) {
             this.seed = seed;
+            // Deal with zeroes
+            if (seed < 1)
+                seed *= 9999;
+            // Deal with negatives
+            if (seed < 1)
+                seed = 1;
         }
 
         public function next():Number {

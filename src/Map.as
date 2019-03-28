@@ -1,7 +1,9 @@
 package {
     import com.nodename.Delaunay.Voronoi;
     import com.nodename.geom.LineSegment;
+    import com.woodruff.CubicBezier;
 
+    import flash.display.Shape;
     import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
     import flash.filesystem.File;
@@ -24,7 +26,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 8000;
+        public static var NUM_POINTS:int = 24000;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -37,14 +39,16 @@ package {
         private var featureManager:Geography;
 
         // Generation
+        private var pointsFile:File;
         private var seaLevel:Number = .2;
+        private var outlines:Shape;
 
         // Miscellaneous
         private var showOutlines:Boolean = false;
         private var showTerrain:Boolean = true;
         private var showRivers:Boolean = true;
         private var showBiomes:Boolean = false;
-        private var showTemperature:Boolean = true;
+        private var showTemperature:Boolean = false;
 
         public function Map() {
             // Initialize Singletons
@@ -54,15 +58,31 @@ package {
         }
 
         private function onCreationComplete(event:FlexEvent):void {
+            tryToLoadPoints();
+            start();
+
+            addEventListener(MouseEvent.CLICK, onClick);
+
+            addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
+            systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+        }
+
+        override protected function createChildren():void {
+            super.createChildren();
+
+            outlines = new Shape();
+            addChild(outlines);
+        }
+
+        private function tryToLoadPoints():void {
             // Determine if points file exists
             var pointsData:Object;
-            var stream:FileStream;
-            var file:File = File.applicationStorageDirectory.resolvePath("points.json");
-            if (file.exists) {
+            pointsFile = File.applicationStorageDirectory.resolvePath("points.json");
+            if (pointsFile.exists) {
                 // Load the points file
                 trace("Points file found; Loading points from file")
-                stream = new FileStream();
-                stream.open(file, FileMode.READ);
+                var stream:FileStream = new FileStream();
+                stream.open(pointsFile, FileMode.READ);
                 pointsData = JSON.parse(stream.readUTFBytes(stream.bytesAvailable));
                 stream.close();
 
@@ -70,28 +90,38 @@ package {
                 for each (var pointData:Object in pointsData) {
                     points.push(new Point(pointData.x, pointData.y));
                 }
+                if (points.length != NUM_POINTS) {
+                    trace("Points file incompatible or corrupted, deleting points file");
+                    pointsFile.deleteFile();
+                    tryToLoadPoints();
+                }
+                trace("Building graph ...");
                 build();
             } else {
-                // Generate points and save them
-                trace("Points file not found; Generating new points");
-                pickRandomPoints();
-                relaxPoints();
-                relaxPoints();
-                relaxPoints();
-                relaxPoints();
-
-                trace("Saving new points file to " + file.url);
-                stream = new FileStream();
-                stream.open(file, FileMode.WRITE);
-                stream.writeUTFBytes(JSON.stringify(points));
-                stream.close();
+                generatePoints();
             }
+        }
 
-            start();
+        private function generatePoints():void {
+            // Generate points and save them
+            trace("Points file not found; Generating new points ...");
+            pickRandomPoints();
+            build();
+            trace("Building 1/4");
+            relaxPoints();
+            trace("Building 2/4");
+            relaxPoints();
+            trace("Building 3/4");
+            relaxPoints();
+            trace("Building 4/4");
+            relaxPoints();
+            trace("Points generated!");
 
-            addEventListener(MouseEvent.CLICK, onClick);
-            addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
-            systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+            var stream:FileStream = new FileStream();
+            stream.open(pointsFile, FileMode.WRITE);
+            stream.writeUTFBytes(JSON.stringify(points));
+            stream.close();
+            trace("Points saved to " + pointsFile.url);
         }
 
         private function start(seed:Number = 1):void {
@@ -103,21 +133,21 @@ package {
             calculateTemperature();
             calculateMoisture();
             calculateRivers();
-            defineBiomes();
+            determineBiomes();
 
             draw();
 
-            for each (var feature:Object in featureManager.features) {
-                if (feature.type != Feature.RIVER && feature.type != Feature.OCEAN && feature.type != Feature.LAND && feature.type != Feature.LAKE)
-                    trace(feature.type, feature.centers.length);
-            }
+//            for each (var feature:Object in featureManager.features) {
+//                if (feature.type != Feature.RIVER && feature.type != Feature.OCEAN && feature.type != Feature.LAND && feature.type != Feature.LAKE)
+//                    trace(feature.type, feature.centers.length);
+//            }
 
             var timeTaken:Number = ((new Date().time - time) / 1000);
             trace("Generation and drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
-        private function defineBiomes():void {
-            trace("Defining biomes");
+        private function determineBiomes():void {
+            trace("Determining biomes");
             for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
                 var landCenters:Vector.<Center> = land.centers.concat();
                 var queue:Array = [];
@@ -204,12 +234,6 @@ package {
                 }
             }
 
-            for each (center in centers) {
-                center.precipitation = Math.sqrt(center.precipitation) / 2;
-                if (center.precipitation > 5)
-                    center.precipitation = 5;
-            }
-
             unuseCenters();
         }
 
@@ -260,14 +284,19 @@ package {
 
         private function calculateTemperature():void {
             for each (var center:Center in centers) {
-                // Mapping 0 to 90 latitude for this section of the world
-                center.latitudePercent = center.point.y / height;
-                center.latitude = center.latitudePercent * 90;
-                var temperature:Number = center.latitudePercent;
+                // Mapping 0 to 90 realLatitude for this section of the world
+                center.latitude = 1 - (center.point.y / height);
+                center.realLatitude = center.latitude * 90;
+                var temperature:Number = 1 - center.latitude;
 
                 // Consider elevation in the temperature (higher places are colder)
-                center.temperaturePercent = (temperature - (center.elevation * .3)) / 2;
-                center.temperature = (center.temperaturePercent * 40) - 10;
+                center.temperature = temperature - (center.elevation * .3);
+                if (center.temperature < 0)
+                    center.temperature = 0;
+                if (center.temperature > 1)
+                    center.temperature = 1;
+
+                center.realTemperature = -10 + (center.temperature * 40);
             }
         }
 
@@ -358,96 +387,87 @@ package {
             trace("Generating @seed: " + seed);
             reset();
 
+            var center:Center;
             var r:Rand = new Rand(seed);
             var w:Number = width / 2;
             var h:Number = height / 2;
 
-            var placementRadius:Number = .5;
+            // Add mountain
+            placeMountain(centerFromDistribution(0), .8, .95, .2, 1);
 
-            // Add binding island
-            addIslandType2(getCenterClosestToPoint(new Point(w, h)), 1, .9, .2, r.next() * 9999);
+            // Add hills
+            for (var i:int = 0; i < 30; i++)
+                placeHill(centerFromDistribution(.25), r.between(.5, .8), r.between(.95, .99), r.between(.1, .2), r.next());
 
-            // Add big islands
-            for (var i:int = 0; i < 10; i++)
-                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * placementRadius, w * placementRadius), h + r.between(-h * placementRadius, h * placementRadius))), r.between(.4, .6), r.between(.93, .98), r.between(0, .1), r.next());
+            // Add troughs
 
-            // Add medium islands
-            for (i = 0; i < 3; i++)
-                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * placementRadius, w * placementRadius), h + r.between(-h * placementRadius, h * placementRadius))), r.between(.2, .4), r.between(.96, .99), r.between(0, .2), r.next());
+            // Add pits
+            for (i = 0; i < 15; i++)
+                placePit(centerFromDistribution(.35), r.between(.2, .7), r.between(.8, .95), r.between(0, .2), r.next());
 
-            // Add small islands
-            placementRadius = .6;
-            for (i = 0; i < 10; i++)
-                addIslandType1(getCenterClosestToPoint(new Point(w + r.between(-w * placementRadius, w * placementRadius), h + r.between(-h * placementRadius, h * placementRadius))), r.between(.2, .4), r.between(.8, .9), r.between(.1, .2), r.next());
-        }
+            // Subtract .05 from land cells
+            addToLandCells(-.05);
 
-        public function onKeyDown(event:KeyboardEvent):void {
-            switch (event.keyCode) {
-                case Keyboard.Q:
-                    // Toggle outlines
-                    showOutlines = !showOutlines;
-                    draw();
-                    break;
-                case Keyboard.W:
-                    showRivers = !showRivers;
-                    draw();
-                    break;
-                case Keyboard.E:
-                    // Toggle temperature
-                    showTemperature = !showTemperature;
-                    draw();
-                    break;
-                case Keyboard.R:
-                    // Generate with a new seed
-                    start(Math.random() * 9999);
-                    break;
-                case Keyboard.T:
-                    // Toggle terrain
-                    showTerrain = !showTerrain;
-                    draw();
-                    break;
+            // Multiply land cells by .9
+            multiplyLandCellsBy(.9);
+
+            function centerFromDistribution(distribution:Number):Center {
+                // 0 is map center
+                // 1 is map border
+                var dw:Number = distribution * width;
+                var dh:Number = distribution * height;
+                var px:Number = w + ((r.next() * 2 * dw) - dw);
+                var py:Number = h + ((r.next() * 2 * dh) - dh);
+
+                return getCenterClosestToPoint(new Point(px, py));
+            }
+
+            function addToLandCells(value:Number):void {
+                for each (center in centers)
+                    if (center.elevation > seaLevel)
+                        center.elevation += value;
+            }
+
+            function multiplyLandCellsBy(value:Number):void {
+                for each (center in centers)
+                    if (center.elevation > seaLevel)
+                        center.elevation *= value;
             }
         }
 
-        private function reset():void {
-            // Reset Geography
-            featureManager.reset();
+        private function placeMountain(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
+            // Can only be placed once, at the beginning
+            var queue:Array = [];
+            start.elevation += elevation;
+            if (start.elevation > 1)
+                start.elevation = 1;
+            start.used = true;
+            queue.push(start);
+            var r:Rand = new Rand(seed);
 
-            // Reset centers
-            for each (var center:Center in centers) {
-                center.reset();
+            for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
+                elevation = (queue[i] as Center).elevation * radius;
+                for each (var neighbor:Center in (queue[i] as Center).neighbors) {
+                    if (!neighbor.used) {
+                        var mod:Number = (r.next() * sharpness) + 1.1 - sharpness;
+                        if (sharpness == 0)
+                            mod = 1;
+
+                        neighbor.elevation += elevation * mod;
+
+                        if (neighbor.elevation > 1)
+                            neighbor.elevation = 1;
+
+                        neighbor.used = true;
+                        queue.push(neighbor);
+                    }
+                }
             }
 
             unuseCenters();
         }
 
-        private function onClick(event:MouseEvent):void {
-            var center:Center = getCenterClosestToPoint(mouse);
-            trace(humanReadableCenter(center));
-        }
-
-        private function humanReadableCenter(center:Center):String {
-            var str:String = "#" + center.index + ", " + center.elevation.toFixed(3) + " elevation";
-            str += "\n  temperature: " + center.temperature;
-            str += "\n  moisture: " + center.moisture;
-            str += "\n  precipitation: " + center.precipitation;
-            for each (var f:String in center.features) {
-                var feature:Object = featureManager.getFeature(f);
-                str += "\n > " + feature.type + " (" + feature.centers.length + ")";
-            }
-
-            return str;
-        }
-
-        private function onRightClick(event:MouseEvent):void {
-        }
-
-        private function get mouse():Point {
-            // Return a point referring to the current mouse position
-            return new Point(mouseX, mouseY);
-        }
-
-        private function addIslandType1(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
+        private function placeHill(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
             var queue:Array = [];
             start.elevation += elevation;
             if (start.elevation > 1)
@@ -476,27 +496,26 @@ package {
             unuseCenters();
         }
 
-        private function addIslandType2(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
+        private function placePit(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
             var queue:Array = [];
+            elevation *= -1;
             start.elevation += elevation;
-            if (start.elevation > 1)
-                start.elevation = 1;
+            if (start.elevation < 0)
+                start.elevation = 0;
+
             start.used = true;
             queue.push(start);
             var r:Rand = new Rand(seed);
 
-            for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
-                elevation = (queue[i] as Center).elevation * radius;
+            for (var i:int = 0; i < queue.length && elevation < seaLevel - .01; i++) {
+                elevation *= radius;
                 for each (var neighbor:Center in (queue[i] as Center).neighbors) {
                     if (!neighbor.used) {
-                        var mod:Number = (r.next() * sharpness) + 1.1 - sharpness;
-                        if (sharpness == 0)
-                            mod = 1;
-
+                        var mod:Number = sharpness > 0 ? r.next() * sharpness + 1.1 - sharpness : 1;
                         neighbor.elevation += elevation * mod;
 
-                        if (neighbor.elevation > 1)
-                            neighbor.elevation = 1;
+                        if (neighbor.elevation < 0)
+                            neighbor.elevation = 0;
 
                         neighbor.used = true;
                         queue.push(neighbor);
@@ -553,10 +572,9 @@ package {
              * Main Draw Call
              */
 
-            var r:Rand = new Rand(1);
-
             // Clear
             graphics.clear();
+            outlines.graphics.clear();
 
             if (showTerrain) {
                 // Draw terrain
@@ -578,19 +596,6 @@ package {
                 graphics.endFill();
             }
 
-            if (showOutlines) {
-                // Draw outlines
-                for each (edge in edges) {
-                    // Draw voronoi diagram
-                    graphics.lineStyle(1, 0x000000, .2);
-                    if (edge.v0 && edge.v1) {
-                        graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                        graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                    } else {
-                    }
-                }
-            }
-
             drawCoastline();
 
             if (showBiomes) {
@@ -600,7 +605,7 @@ package {
                     graphics.beginFill(Biome.colors[biomeName]);
                     for each (var biome:Object in featureManager.getFeaturesByType(biomeName)) {
                         for each (center in biome.centers) {
-                            for each (var edge:Edge in center.borders) {
+                            for each (edge in center.borders) {
                                 if (edge.v0 && edge.v1) {
                                     graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                                     graphics.lineTo(center.point.x, center.point.y);
@@ -614,26 +619,13 @@ package {
                 }
             }
 
-            if (showRivers) {
-                // Draw rivers
-                for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
-                    var color:uint = getColorFromElevation(0);
-                    graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
-                    graphics.lineStyle(1, color);
-                    for each (center in river.centers) {
-                        graphics.lineTo(center.point.x, center.point.y);
-                        graphics.lineStyle(center.precipitation, color);
-                    }
-                }
-            }
-
             if (showTemperature) {
                 // Draw temperature
                 graphics.lineStyle();
                 for each (center in centers) {
                     if (center.elevation > seaLevel) {
-                        graphics.beginFill(getColorFromTemperature(center.temperaturePercent));
-                        for each (var edge:Edge in center.borders) {
+                        graphics.beginFill(getColorFromTemperature(center.temperature));
+                        for each (edge in center.borders) {
                             if (edge.v0 && edge.v1) {
                                 graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                                 graphics.lineTo(center.point.x, center.point.y);
@@ -641,6 +633,34 @@ package {
                             } else {
                             }
                         }
+                        graphics.endFill();
+                    }
+                }
+            }
+
+            if (showRivers) {
+                // Draw rivers
+                for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
+                    // Create an array of points
+                    var riverPoints:Array = [];
+                    for each (center in river.centers) {
+                        riverPoints.push(center.point);
+                    }
+
+                    //getColorFromElevation(0)
+                    CubicBezier.curveThroughPoints(graphics, riverPoints, Util.randomColor());
+                }
+            }
+
+            if (showOutlines) {
+                // Draw outlines
+                for each (edge in edges) {
+                    // Draw voronoi diagram
+                    outlines.graphics.lineStyle(1, 0x000000, .2);
+                    if (edge.v0 && edge.v1) {
+                        outlines.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                        outlines.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                    } else {
                     }
                 }
             }
@@ -657,7 +677,7 @@ package {
                 graphics.lineStyle(1, feature.color);
                 if (feature.type != Feature.OCEAN) {
 
-                    trace("Outlining " + feature.type + "-" + key);
+//                    trace("Outlining " + feature.type + "-" + key);
 
                     for each (var center:Center in feature.centers) {
                         for each (var edge:Edge in center.borders) {
@@ -678,17 +698,6 @@ package {
             }
         }
 
-
-        private function getColorFromFeatures(features:Vector.<String>):uint {
-            if (features.length > 0)
-                return getColorFromFeature(features[0]);
-            return 0x000000;
-        }
-
-        private function getColorFromFeature(feature:String):uint {
-            return featureManager.getFeature(feature).color;
-        }
-
         private function getColorFromElevation(elevation:Number):uint {
             if (elevation > 1)
                 elevation = 1;
@@ -706,13 +715,13 @@ package {
         }
 
         private function getColorFromTemperature(temperature:Number):uint {
-            var colors:Array = [0xffffff, 0x59684b, 0x9ec47b, 0xc4b97b, 0xff7d38];
+            var colors:Array = [0x0000ff, 0xf49242];
 
             var preciseIndex:Number = (colors.length - 1) * temperature;
             var index:int = Math.floor(preciseIndex);
 
             var color:uint = colors[index];
-            if (index < colors.length - 1 && temperature >= seaLevel)
+            if (index < colors.length - 1)
                 color = Util.getColorBetweenColors(colors[index], colors[index + 1], preciseIndex - index);
 
             return color;
@@ -722,15 +731,13 @@ package {
             // Pick points
             points = new Vector.<Point>;
             var r:Rand = new Rand(seed);
-            for (var i:int = 0; i < NUM_POINTS - 4; i++) {
+            for (var i:int = 0; i < NUM_POINTS; i++) {
                 points.push(new Point(r.next() * width, r.next() * height));
             }
         }
 
         public function build():void {
             // Setup
-            var time:Number = new Date().time;
-
             var voronoi:Voronoi = new Voronoi(points, null, new Rectangle(0, 0, width, height));
             centers = new Vector.<Center>();
             corners = new Vector.<Corner>();
@@ -825,9 +832,6 @@ package {
                     }
                 }
             }
-
-            var timeTaken:Number = ((new Date().time - time) / 1000);
-            trace(NUM_POINTS + " point graph built in " + timeTaken.toFixed(3) + " s");
         }
 
         private function setupEdge(edge:Edge):void {
@@ -897,5 +901,72 @@ package {
             return "(" + p.x.toFixed(1) + ", " + p.y.toFixed(1) + ")";
         }
 
+        public function onKeyDown(event:KeyboardEvent):void {
+            switch (event.keyCode) {
+                case Keyboard.Q:
+                    // Toggle outlines
+                    showOutlines = !showOutlines;
+                    draw();
+                    break;
+                case Keyboard.W:
+                    showRivers = !showRivers;
+                    draw();
+                    break;
+                case Keyboard.E:
+                    // Toggle realTemperature
+                    showTemperature = !showTemperature;
+                    draw();
+                    break;
+                case Keyboard.R:
+                    // Generate with a new seed
+                    start(Math.random() * 9999);
+                    break;
+                case Keyboard.T:
+                    // Toggle terrain
+                    showTerrain = !showTerrain;
+                    draw();
+                    break;
+            }
+        }
+
+        private function reset():void {
+            // Reset Geography
+            featureManager.reset();
+
+            // Reset centers
+            for each (var center:Center in centers) {
+                center.reset();
+            }
+
+            unuseCenters();
+        }
+
+        private function onClick(event:MouseEvent):void {
+            var center:Center = getCenterClosestToPoint(mouse);
+            trace(humanReadableCenter(center));
+        }
+
+        private function humanReadableCenter(center:Center):String {
+            var str:String = "#" + center.index + ", " + center.elevation.toFixed(3) + " elevation";
+            str += "\n  realLatitude: " + center.realLatitude;
+            str += "\n  temperature: " + center.temperature;
+            str += "\n  realTemperature: " + center.realTemperature;
+            str += "\n  realMoisture: " + center.realMoisture;
+            str += "\n  realPrecipitation: " + center.realPrecipitation;
+            for each (var f:String in center.features) {
+                var feature:Object = featureManager.getFeature(f);
+                str += "\n > " + feature.type + " (" + feature.centers.length + ")";
+            }
+
+            return str;
+        }
+
+        private function onRightClick(event:MouseEvent):void {
+        }
+
+        public function get mouse():Point {
+            // Return a point referring to the current mouse position
+            return new Point(mouseX, mouseY);
+        }
     }
 }

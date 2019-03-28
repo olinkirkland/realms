@@ -53,20 +53,20 @@ package graph {
         }
 
         // Temperature
+        public var realTemperature:Number;
         public var temperature:Number;
-        public var temperaturePercent:Number;
 
         // Latitude
+        public var realLatitude:Number;
         public var latitude:Number;
-        public var latitudePercent:Number;
 
         // Moisture
         public var moisture:Number;
-        public var moisturePercent:Number;
+        public var realMoisture:Number;
 
         // Precipitation
         public var precipitation:Number;
-        public var precipitationPercent:Number;
+        public var realPrecipitation:Number;
 
         // Elevation
         private var _elevation:Number;
@@ -76,6 +76,10 @@ package graph {
 
         public function set elevation(value:Number):void {
             _elevation = neighbors.length > 0 ? value : 0;
+        }
+
+        public function get realElevation():Number {
+            return Math.floor(_elevation * 2500);
         }
 
         public function Center() {
@@ -93,7 +97,7 @@ package graph {
 
             // Properties
             features = new Vector.<String>();
-            temperature = 0;
+            realTemperature = 0;
             moisture = 0;
             precipitation = 0;
             elevation = 0;
