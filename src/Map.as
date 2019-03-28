@@ -640,18 +640,16 @@ package {
 
             if (showRivers) {
                 // Draw rivers
+                var seaColor:uint = getColorFromElevation(0);
                 for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
                     // Create an array of points
-                    var riverPoints:Array = [];
-                    var riverThicknesses:Array = [];
+                    graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
+                    var i:int = 0;
                     for each (center in river.centers) {
-                        riverPoints.push(center.point);
-                        riverThicknesses.push(Math.sqrt(center.precipitation) / 2);
+                        i++;
+                        graphics.lineStyle(1 + ((i / river.centers.length) * river.centers.length) / 3, seaColor);
+                        graphics.lineTo(center.point.x, center.point.y);
                     }
-
-                    trace("r:" + riverPoints.length);
-
-                    CubicBezier.curveThroughPoints(graphics, riverPoints, riverThicknesses, getColorFromElevation(0));
                 }
             }
 
