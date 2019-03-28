@@ -9,10 +9,10 @@ http://mewo2.com/notes/terrain/
 
 
 Requires
-AS3 Delaunay http://nodename.github.io/as3delaunay/
-Greensock https://greensock.com/tweenlite-as
-Andy Woodruff's Continuous Curves http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/
-Flash.swc
+AS3 Delaunay http://nodename.github.io/as3delaunay/  
+Greensock https://greensock.com/tweenlite-as  
+Andy Woodruff's Continuous Curves http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/  
+Flash.swc  
 
 
 ![Procedurally Generated Island Map 1](https://i.imgur.com/jfRGyjT.png)
