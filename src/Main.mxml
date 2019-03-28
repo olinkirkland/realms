@@ -45,5 +45,20 @@
     </fx:Script>
 
     <local:Map id="map" cacheAsBitmap="true"
-               width="3000" height="2000"/>
+               width="3000" height="2000" includeInLayout="false"/>
+    <s:VGroup width="100%" height="100%">
+        <s:Spacer height="100%"/>
+        <s:Group width="100%" height="20">
+            <s:Rect width="100%" height="100%">
+                <s:fill>
+                    <s:SolidColor color="0x000000" alpha=".6"/>
+                </s:fill>
+            </s:Rect>
+            <s:HGroup width="100%" height="100%"  padding="2" verticalAlign="middle">
+                <s:Label width="100%" color="white"
+                         text="Q: Outlines  W: Rivers  E: Temperature  R: Regenerate random map  T: Terrain  P: Precipitation"/>
+            </s:HGroup>
+        </s:Group>
+    </s:VGroup>
+
 </s:WindowedApplication>

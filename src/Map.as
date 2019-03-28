@@ -48,6 +48,7 @@ package {
         private var showTerrain:Boolean = true;
         private var showRivers:Boolean = true;
         private var showBiomes:Boolean = false;
+        private var showPrecipitation:Boolean = false;
         private var showTemperature:Boolean = false;
 
         public function Map() {
@@ -155,7 +156,7 @@ package {
                     var start:Center = landCenters[0];
                     // Pick a starting biome
 
-                    var currentBiome:String = Biome.determineBiome(start.precipitation, start.temperature);
+                    var currentBiome:String = Biome.determineBiome(start.flux, start.temperature);
                     var currentFeature:String = featureManager.registerFeature(currentBiome);
                     featureManager.addCenterToFeature(start, currentFeature);
                     start.biome = currentFeature;
@@ -169,7 +170,7 @@ package {
                         center = queue[0];
                         queue.shift();
                         for each (var neighbor:Center in center.neighbors) {
-                            if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && Biome.determineBiome(neighbor.precipitation, neighbor.temperature) == currentBiome) {
+                            if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && Biome.determineBiome(neighbor.flux, neighbor.temperature) == currentBiome) {
                                 featureManager.addCenterToFeature(neighbor, currentFeature);
                                 neighbor.biome = currentFeature;
                                 neighbor.biomeType = currentBiome;
@@ -202,7 +203,7 @@ package {
             // Create rivers
             for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
                 for each (center in land.centers) {
-                    center.precipitation = center.moisture;
+                    center.flux = center.moisture;
                 }
 
                 land.centers.sort(sortByHighestElevation);
@@ -212,8 +213,8 @@ package {
             }
 
             function pour(c:Center, t:Center):void {
-                t.precipitation += c.precipitation;
-                if (c.precipitation > 10) {
+                t.flux += c.flux;
+                if (c.flux > 10) {
                     var river:String;
                     if (c.hasFeatureType(Feature.RIVER)) {
                         // Extend river
@@ -279,6 +280,7 @@ package {
         private function calculateMoisture():void {
             for each (var center:Center in centers) {
                 center.moisture = center.elevation;
+                center.precipitation = 200 + (center.moisture * 1800);
             }
         }
 
@@ -653,6 +655,14 @@ package {
                 }
             }
 
+            if (showPrecipitation) {
+                // Draw flux
+                graphics.lineStyle(1, 0x0000ff, 0.3);
+                for each (center in centers) {
+                    graphics.drawCircle(center.point.x, center.point.y, center.moisture * 5);
+                }
+            }
+
             if (showOutlines) {
                 // Draw outlines
                 for each (edge in edges) {
@@ -927,6 +937,11 @@ package {
                     showTerrain = !showTerrain;
                     draw();
                     break;
+                case Keyboard.P:
+                    // Toggle flux
+                    showPrecipitation = !showPrecipitation;
+                    draw();
+                    break;
             }
         }
 
@@ -949,14 +964,10 @@ package {
 
         private function humanReadableCenter(center:Center):String {
             var str:String = "#" + center.index;
-            str += "\n  elevation: " + center.elevation;
-            str += "\n  realElevation: " + center.realElevation;
-            str += "\n  latitude: " + center.latitude;
-            str += "\n  realLatitude: " + center.realLatitude;
-            str += "\n  temperature: " + center.temperature;
-            str += "\n  realTemperature: " + center.realTemperature;
-            str += "\n  realMoisture: " + center.realMoisture;
-            str += "\n  realPrecipitation: " + center.realPrecipitation;
+            str += "\n  elevation: " + center.realElevation + " m";
+            str += "\n  latitude: " + center.realLatitude + " °N";
+            str += "\n  temperature: " + center.realTemperature + " °C";
+            str += "\n  precipitation: " + center.precipitation + " mm/year";
             for each (var f:String in center.features) {
                 var feature:Object = featureManager.getFeature(f);
                 str += "\n > " + feature.type + " (" + feature.centers.length + ")";
