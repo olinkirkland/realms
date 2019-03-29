@@ -27,6 +27,7 @@ package {
 
     public class Map extends UIComponent {
         public static var NUM_POINTS:int = 24000;
+        public static var SEA_LEVEL:Number = .2;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -40,7 +41,6 @@ package {
 
         // Generation
         private var pointsFile:File;
-        private var seaLevel:Number = .2;
         private var outlines:Shape;
 
         // Miscellaneous
@@ -263,7 +263,7 @@ package {
                 depressions = 0;
                 for each (var center:Center in centers) {
                     if (center.neighbors.length > 0) {
-                        var d:Boolean = center.elevation >= seaLevel;
+                        var d:Boolean = center.elevation >= SEA_LEVEL;
                         for each (var neighbor:Center in center.neighbors) {
                             if (neighbor.elevation < center.elevation)
                                 d = false;
@@ -322,7 +322,7 @@ package {
             while (queue.length > 0) {
                 var center:Center = queue.shift();
                 for each (var neighbor:Center in center.neighbors) {
-                    if (!neighbor.used && neighbor.elevation < seaLevel) {
+                    if (!neighbor.used && neighbor.elevation < SEA_LEVEL) {
                         featureManager.addCenterToFeature(neighbor, currentFeature);
                         queue.push(neighbor);
                         neighbor.used = true;
@@ -349,13 +349,13 @@ package {
                 var upper:Number;
 
                 // If the elevation of the center is higher than sea level, define it as Land otherwise define it as a Lake
-                currentFeature = (start.elevation >= seaLevel) ? featureManager.registerFeature(Feature.LAND) : featureManager.registerFeature(Feature.LAKE);
-                if (start.elevation >= seaLevel) {
-                    lower = seaLevel;
+                currentFeature = (start.elevation >= SEA_LEVEL) ? featureManager.registerFeature(Feature.LAND) : featureManager.registerFeature(Feature.LAKE);
+                if (start.elevation >= SEA_LEVEL) {
+                    lower = SEA_LEVEL;
                     upper = 100;
                 } else {
                     lower = -100;
-                    upper = seaLevel;
+                    upper = SEA_LEVEL;
                 }
 
                 featureManager.addCenterToFeature(start, currentFeature);
@@ -426,13 +426,13 @@ package {
 
             function addToLandCells(value:Number):void {
                 for each (center in centers)
-                    if (center.elevation > seaLevel)
+                    if (center.elevation > SEA_LEVEL)
                         center.elevation += value;
             }
 
             function multiplyLandCellsBy(value:Number):void {
                 for each (center in centers)
-                    if (center.elevation > seaLevel)
+                    if (center.elevation > SEA_LEVEL)
                         center.elevation *= value;
             }
         }
@@ -509,7 +509,7 @@ package {
             queue.push(start);
             var r:Rand = new Rand(seed);
 
-            for (var i:int = 0; i < queue.length && elevation < seaLevel - .01; i++) {
+            for (var i:int = 0; i < queue.length && elevation < SEA_LEVEL - .01; i++) {
                 elevation *= radius;
                 for each (var neighbor:Center in (queue[i] as Center).neighbors) {
                     if (!neighbor.used) {
@@ -625,7 +625,7 @@ package {
                 // Draw temperature
                 graphics.lineStyle();
                 for each (center in centers) {
-                    if (center.elevation > seaLevel) {
+                    if (center.elevation > SEA_LEVEL) {
                         graphics.beginFill(getColorFromTemperature(center.temperature));
                         for each (edge in center.borders) {
                             if (edge.v0 && edge.v1) {
@@ -719,7 +719,7 @@ package {
             var index:int = Math.floor(preciseIndex);
 
             var color:uint = colors[index];
-            if (index < colors.length - 1 && elevation >= seaLevel)
+            if (index < colors.length - 1 && elevation >= SEA_LEVEL)
                 color = Util.getColorBetweenColors(colors[index], colors[index + 1], preciseIndex - index);
 
             return color;

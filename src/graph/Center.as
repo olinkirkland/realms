@@ -76,6 +76,8 @@ package graph {
 
         public function set elevation(value:Number):void {
             _elevation = neighbors.length > 0 ? value : 0;
+            var e:Number = _elevation < Map.SEA_LEVEL ? 0 : _elevation - Map.SEA_LEVEL;
+            realElevation = e * 2000;
         }
 
         public var realElevation:Number;
