@@ -3,6 +3,7 @@ package {
     import com.nodename.geom.LineSegment;
 
     import flash.display.Shape;
+    import flash.events.Event;
     import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
     import flash.filesystem.File;
@@ -40,18 +41,23 @@ package {
         // Generation
         private var pointsFile:File;
         private var outlines:Shape;
+        private var rand:Rand;
 
         // Miscellaneous
         private var showOutlines:Boolean = false;
-        private var showTerrain:Boolean = true;
+        private var showTerrain:Boolean = false;
         private var showRivers:Boolean = true;
         private var showBiomes:Boolean = true;
         private var showPrecipitation:Boolean = false;
         private var showTemperature:Boolean = false;
+        private var showForests:Boolean = true;
 
         public function Map() {
             // Initialize Singletons
             featureManager = Geography.getInstance();
+
+            // Seeded random generator
+            rand = new Rand(1);
 
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
@@ -129,12 +135,11 @@ package {
 
             generateHeightMap(seed);
             resolveDepressions();
-            defineOceanLandsAndLakes();
+            determineOceanLandsAndLakes();
             calculateTemperature();
             calculateMoisture();
             calculateRivers();
             determinePrimaryBiomes();
-            determineSecondaryBiomes();
 
             draw();
 
@@ -147,52 +152,6 @@ package {
             trace("Generation and drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
-        private function determineSecondaryBiomes():void {
-            trace("Determining secondary land biomes");
-            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
-                var landCenters:Vector.<Center> = land.centers.concat();
-                var queue:Array = [];
-                while (landCenters.length > 0) {
-                    var start:Center = landCenters[0];
-                    start.used = true;
-
-                    // Pick a starting biome
-                    var currentBiome:String = Biome.determineSecondaryBiome(start);
-                    if (currentBiome) {
-                        var currentFeature:String = featureManager.registerFeature(currentBiome);
-                        featureManager.addCenterToFeature(start, currentFeature);
-                        start.biome = currentFeature;
-                        start.biomeType = currentBiome;
-
-                        // Fill touching centers
-                        queue.push(start);
-                        var center:Center;
-                        while (queue.length > 0) {
-                            center = queue[0];
-                            queue.shift();
-                            for each (var neighbor:Center in center.neighbors) {
-                                var d:Boolean = Biome.determineSecondaryBiome(neighbor) == currentBiome;
-                                if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && d) {
-                                    featureManager.addCenterToFeature(neighbor, currentFeature);
-                                    neighbor.biome = currentFeature;
-                                    neighbor.biomeType = currentBiome;
-                                    queue.push(neighbor);
-                                    neighbor.used = true;
-                                }
-                            }
-                        }
-                    }
-
-                    landCenters = new Vector.<Center>();
-                    for each (center in land.centers)
-                        if (!center.used)
-                            landCenters.push(center);
-                }
-            }
-
-            unuseCenters();
-        }
-
         private function determinePrimaryBiomes():void {
             trace("Determining primary land biomes");
             for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
@@ -203,7 +162,7 @@ package {
                     start.used = true;
 
                     // Pick a starting biome
-                    var currentBiome:String = Biome.determinePrimaryBiome(start);
+                    var currentBiome:String = Biome.determineBiome(start);
                     var currentFeature:String = featureManager.registerFeature(currentBiome);
                     featureManager.addCenterToFeature(start, currentFeature);
                     start.biome = currentFeature;
@@ -216,7 +175,7 @@ package {
                         center = queue[0];
                         queue.shift();
                         for each (var neighbor:Center in center.neighbors) {
-                            var d:Boolean = Biome.determinePrimaryBiome(neighbor) == currentBiome;
+                            var d:Boolean = Biome.determineBiome(neighbor) == currentBiome;
                             if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && d) {
                                 featureManager.addCenterToFeature(neighbor, currentFeature);
                                 neighbor.biome = currentFeature;
@@ -355,8 +314,8 @@ package {
             }
         }
 
-        private function defineOceanLandsAndLakes():void {
-            trace("Defining ocean, lands, and lakes");
+        private function determineOceanLandsAndLakes():void {
+            trace("Determining ocean, lands, and lakes");
             var queue:Array = [];
 
             // Start with a site that is at 0 elevation and is in the upper left
@@ -423,6 +382,9 @@ package {
                 }
 
                 featureManager.addCenterToFeature(start, currentFeature);
+                if (biome)
+                    featureManager.addCenterToFeature(start, biome);
+
                 start.used = true;
 
                 // Fill touching Land or Lake centers
@@ -433,7 +395,6 @@ package {
                     for each (neighbor in center.neighbors) {
                         if (!neighbor.used && neighbor.elevation >= lower && neighbor.elevation < upper) {
                             featureManager.addCenterToFeature(neighbor, currentFeature);
-
                             if (biome)
                                 featureManager.addCenterToFeature(neighbor, biome);
 
@@ -458,22 +419,22 @@ package {
             reset();
 
             var center:Center;
-            var r:Rand = new Rand(seed);
+            rand = new Rand(seed);
             var w:Number = width / 2;
             var h:Number = height / 2;
 
             // Add mountain
-            placeMountain(centerFromDistribution(0), .8, .95, .2, 1);
+            placeMountain(centerFromDistribution(0), .8, .95, .2);
 
             // Add hills
             for (var i:int = 0; i < 30; i++)
-                placeHill(centerFromDistribution(.25), r.between(.5, .8), r.between(.95, .99), r.between(.1, .2), r.next());
+                placeHill(centerFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
 
             // Add troughs
 
             // Add pits
             for (i = 0; i < 15; i++)
-                placePit(centerFromDistribution(.35), r.between(.2, .7), r.between(.8, .95), r.between(0, .2), r.next());
+                placePit(centerFromDistribution(.35), rand.between(.2, .7), rand.between(.8, .95), rand.between(0, .2));
 
             // Subtract .05 from land cells
             addToLandCells(-.05);
@@ -486,8 +447,8 @@ package {
                 // 1 is map border
                 var dw:Number = distribution * width;
                 var dh:Number = distribution * height;
-                var px:Number = w + ((r.next() * 2 * dw) - dw);
-                var py:Number = h + ((r.next() * 2 * dh) - dh);
+                var px:Number = w + ((rand.next() * 2 * dw) - dw);
+                var py:Number = h + ((rand.next() * 2 * dh) - dh);
 
                 return getCenterClosestToPoint(new Point(px, py));
             }
@@ -505,7 +466,7 @@ package {
             }
         }
 
-        private function placeMountain(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
+        private function placeMountain(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
             // Can only be placed once, at the beginning
             var queue:Array = [];
             start.elevation += elevation;
@@ -513,13 +474,12 @@ package {
                 start.elevation = 1;
             start.used = true;
             queue.push(start);
-            var r:Rand = new Rand(seed);
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
                 elevation = (queue[i] as Center).elevation * radius;
                 for each (var neighbor:Center in (queue[i] as Center).neighbors) {
                     if (!neighbor.used) {
-                        var mod:Number = (r.next() * sharpness) + 1.1 - sharpness;
+                        var mod:Number = (rand.next() * sharpness) + 1.1 - sharpness;
                         if (sharpness == 0)
                             mod = 1;
 
@@ -537,7 +497,7 @@ package {
             unuseCenters();
         }
 
-        private function placeHill(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
+        private function placeHill(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
             var queue:Array = [];
             start.elevation += elevation;
             if (start.elevation > 1)
@@ -545,13 +505,12 @@ package {
 
             start.used = true;
             queue.push(start);
-            var r:Rand = new Rand(seed);
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
                 elevation *= radius;
                 for each (var neighbor:Center in (queue[i] as Center).neighbors) {
                     if (!neighbor.used) {
-                        var mod:Number = sharpness > 0 ? r.next() * sharpness + 1.1 - sharpness : 1;
+                        var mod:Number = sharpness > 0 ? rand.next() * sharpness + 1.1 - sharpness : 1;
                         neighbor.elevation += elevation * mod;
 
                         if (neighbor.elevation > 1)
@@ -566,7 +525,7 @@ package {
             unuseCenters();
         }
 
-        private function placePit(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0, seed:Number = 1):void {
+        private function placePit(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
             var queue:Array = [];
             elevation *= -1;
             start.elevation += elevation;
@@ -575,13 +534,12 @@ package {
 
             start.used = true;
             queue.push(start);
-            var r:Rand = new Rand(seed);
 
             for (var i:int = 0; i < queue.length && elevation < SEA_LEVEL - .01; i++) {
                 elevation *= radius;
                 for each (var neighbor:Center in (queue[i] as Center).neighbors) {
                     if (!neighbor.used) {
-                        var mod:Number = sharpness > 0 ? r.next() * sharpness + 1.1 - sharpness : 1;
+                        var mod:Number = sharpness > 0 ? rand.next() * sharpness + 1.1 - sharpness : 1;
                         neighbor.elevation += elevation * mod;
 
                         if (neighbor.elevation < 0)
@@ -646,11 +604,11 @@ package {
             graphics.clear();
             outlines.graphics.clear();
 
+            graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
+            graphics.drawRect(0, 0, width, height);
+
             if (showTerrain) {
                 // Draw terrain
-                graphics.beginFill(getColorFromElevation(0));
-                graphics.drawRect(0, 0, width, height);
-
                 for each (var center:Center in centers) {
                     graphics.beginFill(getColorFromElevation(center.elevation));
 
@@ -673,6 +631,7 @@ package {
                     graphics.beginFill(Biome.colors[biomeName]);
                     for each (var biome:Object in featureManager.getFeaturesByType(biomeName)) {
                         for each (center in biome.centers) {
+                            // Loop through edges
                             for each (edge in center.borders) {
                                 if (edge.v0 && edge.v1) {
                                     graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
@@ -710,7 +669,7 @@ package {
 
             if (showRivers) {
                 // Draw rivers
-                var seaColor:uint = getColorFromElevation(0);
+                var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
                 for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER)) {
                     // Create an array of points
                     graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
@@ -721,6 +680,11 @@ package {
                         graphics.lineTo(center.point.x, center.point.y);
                     }
                 }
+            }
+
+            if (showForests) {
+                drawForests(Biome.TEMPERATE_FOREST, Biome.colors["temperateForest"], Biome.colors["temperateForest_outline"], Biome.colors["temperateForest_bottomOutline"]);
+                drawForests(Biome.BOREAL_FOREST, Biome.colors["borealForest"], Biome.colors["borealForest_outline"], Biome.colors["borealForest_bottomOutline"]);
             }
 
             if (showPrecipitation) {
@@ -745,6 +709,67 @@ package {
             }
         }
 
+        private function drawForests(type:String, fillColor:uint, outlineColor:uint, bottomOutlineColor:uint):void {
+            // Draw forests
+            for each (var forest:Object in featureManager.getFeaturesByType(type)) {
+                // Fill
+                graphics.lineStyle();
+                graphics.beginFill(fillColor);
+                for each (var center:Center in forest.centers) {
+                    for (var i:int = 0; i < center.borders.length; i++) {
+                        var edge:Edge = center.borders[i];
+                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                            graphics.moveTo(center.point.x, center.point.y);
+                            graphics.lineTo(edge.v0.point.x, edge.v0.point.y);
+                            if (!edge.d0.features[forest.id]) {
+                                // Draw a curved line
+                                graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
+                            } else if (!edge.d1.features[forest.id]) {
+                                // Draw a curved line (opposite direction)
+                                graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
+                            } else {
+                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            }
+                        }
+                    }
+                    addCenterDetail(center);
+                }
+                graphics.endFill();
+
+                // Outline
+                for each (center in forest.centers) {
+                    for (i = 0; i < center.borders.length; i++) {
+                        edge = center.borders[i];
+                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                            graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                            if (!edge.d0.features[forest.id]) {
+                                // Draw a curved line
+                                graphics.lineStyle(1, outlineColor);
+                                graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
+                            } else if (!edge.d1.features[forest.id]) {
+                                graphics.lineStyle(1, bottomOutlineColor);
+                                // Draw a curved line (opposite direction)
+                                graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private function addCenterDetail(center:Center):void {
+            var icon:Shape = new Shape();
+            if (center.hasFeatureType(Biome.TEMPERATE_FOREST)) {
+                icon.graphics.lineStyle(rand.between(1, 2), Biome.colors["temperateForest_outline"], rand.between(.6, 1));
+                icon.graphics.moveTo(0, 0);
+                icon.graphics.curveTo(rand.between(2, 3), rand.between(-2, -4), rand.between(4, 6), 0);
+
+                addChild(icon);
+                icon.x = (center.point.x - icon.width / 2) + rand.between(-4, 4);
+                icon.y = (center.point.y - icon.height / 2) + rand.between(-4, 4);
+            }
+        }
+
         private function drawCoastline():void {
             drawFeatureOutlines(Geography.LAND);
             drawFeatureOutlines(Geography.LAKE);
@@ -753,7 +778,7 @@ package {
         private function drawFeatureOutlines(featureType:String):void {
             for (var key:String in featureManager.getFeaturesByType(featureType)) {
                 var feature:Object = featureManager.features[key];
-                graphics.lineStyle(1, feature.color);
+                graphics.lineStyle(1, Biome.colors.saltWater_outline);
                 if (feature.type != Geography.OCEAN) {
                     for each (var center:Center in feature.centers) {
                         for each (var edge:Edge in center.borders) {
@@ -801,12 +826,11 @@ package {
             return color;
         }
 
-        public function pickRandomPoints(seed:Number = 1):void {
+        public function pickRandomPoints():void {
             // Pick points
             points = new Vector.<Point>;
-            var r:Rand = new Rand(seed);
             for (var i:int = 0; i < NUM_POINTS; i++) {
-                points.push(new Point(r.next() * width, r.next() * height));
+                points.push(new Point(rand.next() * width, rand.next() * height));
             }
         }
 
@@ -992,6 +1016,11 @@ package {
                     showTemperature = !showTemperature;
                     draw();
                     break;
+                case Keyboard.F:
+                    // Toggle Forests
+                    showForests = !showForests;
+                    draw();
+                    break;
                 case Keyboard.R:
                     // Generate with a new seed
                     start(int(Math.random() * 9999));
@@ -1019,9 +1048,12 @@ package {
             featureManager.reset();
 
             // Reset centers
-            for each (var center:Center in centers) {
+            for each (var center:Center in centers)
                 center.reset();
-            }
+
+            // Reset details
+            while (numChildren > 0)
+                removeChildAt(0);
 
             unuseCenters();
         }

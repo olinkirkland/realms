@@ -48,6 +48,11 @@ package geography {
             features[feature].centers.push(center);
         }
 
+        public function removeCenterFromFeature(center:Center, feature:String):void {
+            delete center.features[feature];
+            features[feature].centers.removeAt(features[feature].centers.indexOf(center));
+        }
+
         public function getFeature(id:String):Object {
             return features[id];
         }
