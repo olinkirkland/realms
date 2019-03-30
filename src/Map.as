@@ -717,7 +717,7 @@ package {
                     var i:int = 0;
                     for each (center in river.centers) {
                         i++;
-                        graphics.lineStyle(1 + ((i / river.centers.length) * river.centers.length) / 3, seaColor);
+                        graphics.lineStyle(1 + ((i / river.centers.length) * river.centers.length) / 5, seaColor);
                         graphics.lineTo(center.point.x, center.point.y);
                     }
                 }

@@ -2,7 +2,7 @@ package geography {
     import graph.Center;
 
     public class Biome {
-        public static var list:Array = [FRESH_WATER, SALT_WATER, ICE_SHEET, TUNDRA, BOREAL_FOREST, GRASSLAND, TEMPERATE_FOREST, MARSH, SAVANNA, RAIN_FOREST, DESERT, MOUNTAIN];
+        public static var list:Array = [FRESH_WATER, SALT_WATER, ICE_SHEET, TUNDRA, BOREAL_FOREST, GRASSLAND, TEMPERATE_FOREST, SAVANNA, RAIN_FOREST, DESERT, MOUNTAIN];
 
         // Aquatic
         public static var FRESH_WATER:String = "freshWater";
@@ -18,6 +18,7 @@ package geography {
         // Temperate
         public static var GRASSLAND:String = "grassland";
         public static var TEMPERATE_FOREST:String = "temperateForest";
+
 
         // Tropical
         public static var SAVANNA:String = "savanna";
@@ -37,7 +38,6 @@ package geography {
             borealForest: 0x4e7053,
             grassland: 0x99aa6f,
             temperateForest: 0x568454,
-            marsh: 0x374046,
             savanna: 0xb0ba6a,
             rainForest: 0x3da334,
             desert: 0xefbc7a,
