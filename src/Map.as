@@ -133,7 +133,8 @@ package {
             calculateTemperature();
             calculateMoisture();
             calculateRivers();
-            determineLandBiomes();
+            determinePrimaryBiomes();
+            determineSecondaryBiomes();
 
             draw();
 
@@ -146,21 +147,67 @@ package {
             trace("Generation and drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
-        private function determineLandBiomes():void {
+        private function determineSecondaryBiomes():void {
+            trace("Determining secondary land biomes");
+            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+                var landCenters:Vector.<Center> = land.centers.concat();
+                var queue:Array = [];
+                while (landCenters.length > 0) {
+                    var start:Center = landCenters[0];
+                    start.used = true;
+
+                    // Pick a starting biome
+                    var currentBiome:String = Biome.determineSecondaryBiome(start);
+                    if (currentBiome) {
+                        var currentFeature:String = featureManager.registerFeature(currentBiome);
+                        featureManager.addCenterToFeature(start, currentFeature);
+                        start.biome = currentFeature;
+                        start.biomeType = currentBiome;
+
+                        // Fill touching centers
+                        queue.push(start);
+                        var center:Center;
+                        while (queue.length > 0) {
+                            center = queue[0];
+                            queue.shift();
+                            for each (var neighbor:Center in center.neighbors) {
+                                var d:Boolean = Biome.determineSecondaryBiome(neighbor) == currentBiome;
+                                if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && d) {
+                                    featureManager.addCenterToFeature(neighbor, currentFeature);
+                                    neighbor.biome = currentFeature;
+                                    neighbor.biomeType = currentBiome;
+                                    queue.push(neighbor);
+                                    neighbor.used = true;
+                                }
+                            }
+                        }
+                    }
+
+                    landCenters = new Vector.<Center>();
+                    for each (center in land.centers)
+                        if (!center.used)
+                            landCenters.push(center);
+                }
+            }
+
+            unuseCenters();
+        }
+
+        private function determinePrimaryBiomes():void {
             trace("Determining primary land biomes");
             for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
                 var landCenters:Vector.<Center> = land.centers.concat();
                 var queue:Array = [];
                 while (landCenters.length > 0) {
                     var start:Center = landCenters[0];
-                    // Pick a starting biome
+                    start.used = true;
 
+                    // Pick a starting biome
                     var currentBiome:String = Biome.determinePrimaryBiome(start);
                     var currentFeature:String = featureManager.registerFeature(currentBiome);
                     featureManager.addCenterToFeature(start, currentFeature);
                     start.biome = currentFeature;
                     start.biomeType = currentBiome;
-                    start.used = true;
 
                     // Fill touching centers
                     queue.push(start);
@@ -619,8 +666,6 @@ package {
                 graphics.endFill();
             }
 
-            drawCoastline();
-
             if (showBiomes) {
                 // Draw Biomes
                 graphics.lineStyle();
@@ -641,6 +686,8 @@ package {
                     graphics.endFill();
                 }
             }
+
+            drawCoastline();
 
             if (showTemperature) {
                 // Draw temperature
@@ -957,6 +1004,11 @@ package {
                 case Keyboard.P:
                     // Toggle flux
                     showPrecipitation = !showPrecipitation;
+                    draw();
+                    break;
+                case Keyboard.B:
+                    // Toggle biomes
+                    showBiomes = !showBiomes;
                     draw();
                     break;
             }

@@ -18,7 +18,6 @@ package geography {
         // Temperate
         public static var GRASSLAND:String = "grassland";
         public static var TEMPERATE_FOREST:String = "temperateForest";
-        public static var MARSH:String = "marsh";
 
         // Tropical
         public static var SAVANNA:String = "savanna";
@@ -38,8 +37,7 @@ package geography {
             borealForest: 0x4e7053,
             grassland: 0x99aa6f,
             temperateForest: 0x568454,
-//            marsh: 0x8eb565,
-            marsh: 0xff0000,
+            marsh: 0x374046,
             savanna: 0xb0ba6a,
             rainForest: 0x3da334,
             desert: 0xefbc7a,
@@ -125,30 +123,12 @@ package geography {
         public static function determineSecondaryBiome(center:Center):String {
             var biome:String;
 
-            // Calculate properties
-            var lakeAdjacent:Boolean = false;
-            for each (var neighbor:Center in center.neighbors) {
-                if (neighbor.hasFeatureType(Geography.LAKE))
-                    lakeAdjacent = true;
-            }
-
-            var r:Rand = new Rand(1);
-
             /**
              * High Elevation
              */
 
-            if (center.elevation > .7)
+            if (center.elevation > .9)
                 biome = MOUNTAIN;
-
-            /**
-             * Marsh
-             */
-
-            if (center.hasFeatureType(TEMPERATE_FOREST) && lakeAdjacent && r.next() < 0.5) {
-                //todo generate a marsh biome (neighboring biomes)
-                biome = MARSH;
-            }
 
             return biome;
         }
