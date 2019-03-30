@@ -11,7 +11,8 @@ package graph {
          */
 
         public var used:Boolean = false;
-
+        public var biome:String;
+        public var biomeType:String;
         /**
          * Properties
          */
@@ -27,26 +28,23 @@ package graph {
         // A set of polygon corners
         public var corners:Vector.<Corner>;
 
-        // A set of unique feature ids
-        public var features:Vector.<String>;
+        // A set feature references
+        public var features:Object;
 
-        // Unique features
-        public var biome:String;
-        public var biomeType:String;
-
-        public function hasFeatureType(value:String):Boolean {
-            for (var key:String in Geography.getInstance().getFeaturesByType(value)) {
-                if (features.indexOf(key) >= 0)
+        public function hasFeatureType(type:String):Boolean {
+            for each (var feature:Object in features) {
+                if (feature.type == type) {
                     return true;
+                }
             }
             return false;
         }
 
-        public function getFeaturesByType(value:String):Object {
+        public function getFeaturesByType(type:String):Object {
             var obj:Object = {};
-            for (var key:String in Geography.getInstance().getFeaturesByType(value)) {
-                if (features.indexOf(key) >= 0) {
-                    obj[key] = Geography.getInstance().getFeature(key);
+            for each (var feature:Object in features) {
+                if (feature.type == type) {
+                    obj[feature.id] = feature;
                 }
             }
             return obj;
@@ -77,7 +75,7 @@ package graph {
         public function set elevation(value:Number):void {
             _elevation = neighbors.length > 0 ? value : 0;
             var e:Number = _elevation < Map.SEA_LEVEL ? 0 : _elevation - Map.SEA_LEVEL;
-            realElevation = e * 2000;
+            realElevation = Util.round(e * 2000, 2);
         }
 
         public var realElevation:Number;
@@ -86,7 +84,6 @@ package graph {
             neighbors = new Vector.<Center>();
             borders = new Vector.<Edge>();
             corners = new Vector.<Corner>();
-            features = new Vector.<String>;
 
             reset();
         }
@@ -96,7 +93,7 @@ package graph {
             used = false;
 
             // Properties
-            features = new Vector.<String>();
+            features = {};
             realTemperature = 0;
             moisture = 0;
             flux = 0;

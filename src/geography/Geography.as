@@ -8,15 +8,21 @@ package geography {
         public var features:Object = {};
         public var colors:Object = {};
 
+        // Features
+        public static var OCEAN:String = "ocean";
+        public static var LAND:String = "land";
+        public static var LAKE:String = "lake";
+        public static var RIVER:String = "river";
+
         public function Geography() {
             if (_instance)
                 throw new Error("Singleton; Use getInstance() instead");
             _instance = this;
 
             // Setup
-            colors[Feature.OCEAN] = 0x387089;
-            colors[Feature.LAND] = 0x387089;
-            colors[Feature.LAKE] = 0x387089;
+            colors[OCEAN] = 0x4890B1;
+            colors[LAND] = 0x387089;
+            colors[LAKE] = 0x387089;
         }
 
         public static function getInstance():Geography {
@@ -33,24 +39,13 @@ package geography {
             var id:String = UIDUtil.createUID();
 
             features[id] = {id: id, type: type, centers: new Vector.<Center>(), color: colors[type]};
-            if (type == Feature.OCEAN)
-                features[id].color = 0x4890B1;
 
             return id;
         }
 
-        public function deleteFeature(id:String):void {
-            delete features[id];
-        }
-
         public function addCenterToFeature(center:Center, feature:String):void {
-            center.features.push(feature);
+            center.features[feature] = features[feature];
             features[feature].centers.push(center);
-        }
-
-        public function removeCenterFromFeature(center:Center, feature:String):void {
-            center.features.removeAt(center.features.indexOf(feature));
-            features[feature].centers.removeAt(features[feature].centers.indexOf(center));
         }
 
         public function getFeature(id:String):Object {
@@ -59,12 +54,11 @@ package geography {
 
         public function getFeaturesByType(type:String):Object {
             var obj:Object = {};
-            for (var key:String in features) {
-                if (features[key].type == type) {
-                    obj[key] = features[key];
+            for each (var feature:Object in features) {
+                if (feature.type == type) {
+                    obj[feature.id] = feature;
                 }
             }
-
             return obj;
         }
     }

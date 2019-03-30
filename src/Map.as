@@ -1,7 +1,6 @@
 package {
     import com.nodename.Delaunay.Voronoi;
     import com.nodename.geom.LineSegment;
-    import com.woodruff.CubicBezier;
 
     import flash.display.Shape;
     import flash.events.KeyboardEvent;
@@ -15,7 +14,6 @@ package {
     import flash.utils.Dictionary;
 
     import geography.Biome;
-    import geography.Feature;
     import geography.Geography;
 
     import graph.Center;
@@ -47,7 +45,7 @@ package {
         private var showOutlines:Boolean = false;
         private var showTerrain:Boolean = true;
         private var showRivers:Boolean = true;
-        private var showBiomes:Boolean = false;
+        private var showBiomes:Boolean = true;
         private var showPrecipitation:Boolean = false;
         private var showTemperature:Boolean = false;
 
@@ -107,6 +105,7 @@ package {
             // Generate points and save them
             trace("Points file not found; Generating new points ...");
             pickRandomPoints();
+            trace("Building 0/4");
             build();
             trace("Building 1/4");
             relaxPoints();
@@ -134,29 +133,29 @@ package {
             calculateTemperature();
             calculateMoisture();
             calculateRivers();
-            determineBiomes();
+            determineLandBiomes();
 
             draw();
 
 //            for each (var feature:Object in featureManager.features) {
-//                if (feature.type != Feature.RIVER && feature.type != Feature.OCEAN && feature.type != Feature.LAND && feature.type != Feature.LAKE)
-//                    trace(feature.type, feature.centers.length);
+//                if (Geography.type != Geography.RIVER && Geography.type != Geography.OCEAN && Geography.type != Geography.LAND && Geography.type != Geography.LAKE)
+//                    trace(Geography.type, Geography.centers.length);
 //            }
 
             var timeTaken:Number = ((new Date().time - time) / 1000);
             trace("Generation and drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
-        private function determineBiomes():void {
-            trace("Determining biomes");
-            for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
+        private function determineLandBiomes():void {
+            trace("Determining primary land biomes");
+            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
                 var landCenters:Vector.<Center> = land.centers.concat();
                 var queue:Array = [];
                 while (landCenters.length > 0) {
                     var start:Center = landCenters[0];
                     // Pick a starting biome
 
-                    var currentBiome:String = Biome.determineBiome(start.flux, start.temperature);
+                    var currentBiome:String = Biome.determinePrimaryBiome(start);
                     var currentFeature:String = featureManager.registerFeature(currentBiome);
                     featureManager.addCenterToFeature(start, currentFeature);
                     start.biome = currentFeature;
@@ -170,7 +169,8 @@ package {
                         center = queue[0];
                         queue.shift();
                         for each (var neighbor:Center in center.neighbors) {
-                            if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && Biome.determineBiome(neighbor.flux, neighbor.temperature) == currentBiome) {
+                            var d:Boolean = Biome.determinePrimaryBiome(neighbor) == currentBiome;
+                            if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && d) {
                                 featureManager.addCenterToFeature(neighbor, currentFeature);
                                 neighbor.biome = currentFeature;
                                 neighbor.biomeType = currentBiome;
@@ -201,7 +201,7 @@ package {
             }
 
             // Create rivers
-            for each (var land:Object in featureManager.getFeaturesByType(Feature.LAND)) {
+            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
                 for each (center in land.centers) {
                     center.flux = center.moisture;
                 }
@@ -216,9 +216,9 @@ package {
                 t.flux += c.flux;
                 if (c.flux > 10) {
                     var river:String;
-                    if (c.hasFeatureType(Feature.RIVER)) {
+                    if (c.hasFeatureType(Geography.RIVER)) {
                         // Extend river
-                        var rivers:Object = c.getFeaturesByType(Feature.RIVER);
+                        var rivers:Object = c.getFeaturesByType(Geography.RIVER);
                         for (var v:String in rivers) {
                             // Pick the longest river to continue
                             if (!river || rivers[v].centers.length > rivers[river].centers.length) {
@@ -228,7 +228,7 @@ package {
                         featureManager.addCenterToFeature(t, river);
                     } else {
                         // Start new river
-                        river = featureManager.registerFeature(Feature.RIVER);
+                        river = featureManager.registerFeature(Geography.RIVER);
                         featureManager.addCenterToFeature(c, river);
                         featureManager.addCenterToFeature(t, river);
                     }
@@ -279,8 +279,14 @@ package {
 
         private function calculateMoisture():void {
             for each (var center:Center in centers) {
-                center.moisture = center.elevation;
-                center.precipitation = 200 + (center.moisture * 1800);
+                var m:Number = 0;
+
+                for each (var neighbor:Center in center.neighbors)
+                    m += neighbor.elevation;
+                m /= center.neighbors.length;
+
+                center.moisture = m;
+                center.precipitation = Util.round(200 + (center.moisture * 1800), 2);
             }
         }
 
@@ -288,7 +294,7 @@ package {
             for each (var center:Center in centers) {
                 // Mapping 0 to 90 realLatitude for this section of the world
                 center.latitude = 1 - (center.point.y / height);
-                center.realLatitude = center.latitude * 90;
+                center.realLatitude = Util.round(center.latitude * 90, 2);
                 var temperature:Number = 1 - center.latitude;
 
                 // Consider elevation in the temperature (higher places are colder)
@@ -298,7 +304,7 @@ package {
                 if (center.temperature > 1)
                     center.temperature = 1;
 
-                center.realTemperature = -10 + (center.temperature * 40);
+                center.realTemperature = Util.round(-10 + (center.temperature * 40), 2);
             }
         }
 
@@ -313,17 +319,19 @@ package {
                     break;
             }
 
-            var currentFeature:String = featureManager.registerFeature(Feature.OCEAN);
-            featureManager.addCenterToFeature(start, currentFeature);
+            var ocean:String = featureManager.registerFeature(Geography.OCEAN);
+            featureManager.addCenterToFeature(start, ocean);
             start.used = true;
             queue.push(start);
 
             // Define Ocean
+            var biome:String = featureManager.registerFeature(Biome.SALT_WATER);
             while (queue.length > 0) {
                 var center:Center = queue.shift();
                 for each (var neighbor:Center in center.neighbors) {
                     if (!neighbor.used && neighbor.elevation < SEA_LEVEL) {
-                        featureManager.addCenterToFeature(neighbor, currentFeature);
+                        featureManager.addCenterToFeature(neighbor, ocean);
+                        featureManager.addCenterToFeature(neighbor, biome);
                         queue.push(neighbor);
                         neighbor.used = true;
                     }
@@ -332,16 +340,18 @@ package {
 
             // Override list borders to be part of the Ocean
             for each (center in borders) {
-                featureManager.addCenterToFeature(center, currentFeature);
+                featureManager.addCenterToFeature(center, ocean);
+                featureManager.addCenterToFeature(center, biome);
             }
 
 
             // Define Land and Lakes
             var nonOceans:Vector.<Center> = new Vector.<Center>();
             for each (center in centers)
-                if (center.features.indexOf(currentFeature) < 0)
+                if (Util.getLengthOfObject(center.features) == 0)
                     nonOceans.push(center);
 
+            var currentFeature:String;
             while (nonOceans.length > 0) {
                 start = nonOceans[0];
 
@@ -349,11 +359,18 @@ package {
                 var upper:Number;
 
                 // If the elevation of the center is higher than sea level, define it as Land otherwise define it as a Lake
-                currentFeature = (start.elevation >= SEA_LEVEL) ? featureManager.registerFeature(Feature.LAND) : featureManager.registerFeature(Feature.LAKE);
                 if (start.elevation >= SEA_LEVEL) {
+                    // Define it as land
+                    currentFeature = featureManager.registerFeature(Geography.LAND);
+                    biome = null;
+
                     lower = SEA_LEVEL;
                     upper = 100;
                 } else {
+                    // Define it as a lake
+                    currentFeature = featureManager.registerFeature(Geography.LAKE);
+                    biome = featureManager.registerFeature(Biome.FRESH_WATER);
+
                     lower = -100;
                     upper = SEA_LEVEL;
                 }
@@ -369,6 +386,10 @@ package {
                     for each (neighbor in center.neighbors) {
                         if (!neighbor.used && neighbor.elevation >= lower && neighbor.elevation < upper) {
                             featureManager.addCenterToFeature(neighbor, currentFeature);
+
+                            if (biome)
+                                featureManager.addCenterToFeature(neighbor, biome);
+
                             queue.push(neighbor);
                             neighbor.used = true;
                         }
@@ -377,7 +398,7 @@ package {
 
                 nonOceans = new Vector.<Center>();
                 for each (center in centers)
-                    if (center.features.length == 0)
+                    if (Util.getLengthOfObject(center.features) == 0)
                         nonOceans.push(center);
             }
 
@@ -643,7 +664,7 @@ package {
             if (showRivers) {
                 // Draw rivers
                 var seaColor:uint = getColorFromElevation(0);
-                for each (var river:Object in featureManager.getFeaturesByType(Feature.RIVER)) {
+                for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER)) {
                     // Create an array of points
                     graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
                     var i:int = 0;
@@ -678,29 +699,24 @@ package {
         }
 
         private function drawCoastline():void {
-            drawFeatureOutlines(Feature.LAND);
-            drawFeatureOutlines(Feature.LAKE);
+            drawFeatureOutlines(Geography.LAND);
+            drawFeatureOutlines(Geography.LAKE);
         }
 
         private function drawFeatureOutlines(featureType:String):void {
             for (var key:String in featureManager.getFeaturesByType(featureType)) {
                 var feature:Object = featureManager.features[key];
                 graphics.lineStyle(1, feature.color);
-                if (feature.type != Feature.OCEAN) {
-
-//                    trace("Outlining " + feature.type + "-" + key);
-
+                if (feature.type != Geography.OCEAN) {
                     for each (var center:Center in feature.centers) {
                         for each (var edge:Edge in center.borders) {
                             if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
                                 graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                if (edge.d0.features.indexOf(key) < 0) {
+                                if (!edge.d0.features[key]) {
                                     // Draw a line
                                     graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                                    //graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
-                                } else if (edge.d1.features.indexOf(key) < 0) {
+                                } else if (!edge.d1.features[key]) {
                                     graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                                    //graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
                                 }
                             }
                         }
@@ -812,6 +828,7 @@ package {
              */
 
             var libEdges:Vector.<com.nodename.Delaunay.Edge> = voronoi.edges();
+            var p:int = -1;
             for each (var libEdge:com.nodename.Delaunay.Edge in libEdges) {
                 var dEdge:LineSegment = libEdge.delaunayLine();
                 var vEdge:LineSegment = libEdge.voronoiEdge();
@@ -924,13 +941,13 @@ package {
                     draw();
                     break;
                 case Keyboard.E:
-                    // Toggle realTemperature
+                    // Toggle Temperature
                     showTemperature = !showTemperature;
                     draw();
                     break;
                 case Keyboard.R:
                     // Generate with a new seed
-                    start(Math.random() * 9999);
+                    start(int(Math.random() * 9999));
                     break;
                 case Keyboard.T:
                     // Toggle terrain
@@ -968,10 +985,8 @@ package {
             str += "\n  latitude: " + center.realLatitude + " °N";
             str += "\n  temperature: " + center.realTemperature + " °C";
             str += "\n  precipitation: " + center.precipitation + " mm/year";
-            for each (var f:String in center.features) {
-                var feature:Object = featureManager.getFeature(f);
+            for each (var feature:Object in center.features)
                 str += "\n > " + feature.type + " (" + feature.centers.length + ")";
-            }
 
             return str;
         }
