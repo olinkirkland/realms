@@ -51,6 +51,7 @@ package {
         private var showPrecipitation:Boolean = false;
         private var showTemperature:Boolean = false;
         private var showForests:Boolean = true;
+        private var showMountains:Boolean = true;
 
         public function Map() {
             // Initialize Singletons
@@ -132,8 +133,9 @@ package {
 
         private function start(seed:Number = 1):void {
             var time:Number = new Date().time;
+            rand = new Rand(seed);
 
-            generateHeightMap(seed);
+            generateHeightMap();
             resolveDepressions();
             determineOceanLandsAndLakes();
             calculateTemperature();
@@ -413,13 +415,12 @@ package {
             unuseCenters();
         }
 
-        private function generateHeightMap(seed:Number = 1):void {
+        private function generateHeightMap():void {
             // Generate a height map
-            trace("Generating @seed: " + seed);
+            trace("Generating @seed: " + rand.seed);
             reset();
 
             var center:Center;
-            rand = new Rand(seed);
             var w:Number = width / 2;
             var h:Number = height / 2;
 
@@ -603,6 +604,8 @@ package {
             // Clear
             graphics.clear();
             outlines.graphics.clear();
+            while (numChildren > 0)
+                removeChildAt(0);
 
             graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
             graphics.drawRect(0, 0, width, height);
@@ -648,25 +651,6 @@ package {
 
             drawCoastline();
 
-            if (showTemperature) {
-                // Draw temperature
-                graphics.lineStyle();
-                for each (center in centers) {
-                    if (center.elevation > SEA_LEVEL) {
-                        graphics.beginFill(getColorFromTemperature(center.temperature));
-                        for each (edge in center.borders) {
-                            if (edge.v0 && edge.v1) {
-                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                graphics.lineTo(center.point.x, center.point.y);
-                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                            } else {
-                            }
-                        }
-                        graphics.endFill();
-                    }
-                }
-            }
-
             if (showRivers) {
                 // Draw rivers
                 var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
@@ -683,8 +667,52 @@ package {
             }
 
             if (showForests) {
-                drawForests(Biome.TEMPERATE_FOREST, Biome.colors["temperateForest"], Biome.colors["temperateForest_outline"], Biome.colors["temperateForest_bottomOutline"]);
-                drawForests(Biome.BOREAL_FOREST, Biome.colors["borealForest"], Biome.colors["borealForest_outline"], Biome.colors["borealForest_bottomOutline"]);
+                // Draw forests
+                drawForests(Biome.TEMPERATE_FOREST, Biome.colors["temperateForest"], Biome.colors["temperateForest_stroke"], Biome.colors["temperateForest_bottomStroke"]);
+                drawForests(Biome.BOREAL_FOREST, Biome.colors["borealForest"], Biome.colors["borealForest_stroke"], Biome.colors["borealForest_bottomStroke"]);
+            }
+
+            if (showMountains) {
+                // Draw mountains
+                for each (var mountain:Object in featureManager.getFeaturesByType(Biome.MOUNTAIN)) {
+                    for each (center in mountain.centers) {
+                        for (i = 0; i < center.borders.length; i++) {
+                            edge = center.borders[i];
+                            if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                // Draw a line
+                                graphics.lineStyle(1, 0xff0000);
+                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (showBiomes) {
+                // Draw details on biomes
+                for each (center in centers) {
+                    addCenterDetail(center);
+                }
+            }
+
+            if (showTemperature) {
+                // Draw temperature
+                graphics.lineStyle();
+                for each (center in centers) {
+                    if (center.elevation > SEA_LEVEL) {
+                        graphics.beginFill(getColorFromTemperature(center.temperature), .6);
+                        for each (edge in center.borders) {
+                            if (edge.v0 && edge.v1) {
+                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                graphics.lineTo(center.point.x, center.point.y);
+                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            } else {
+                            }
+                        }
+                        graphics.endFill();
+                    }
+                }
             }
 
             if (showPrecipitation) {
@@ -732,7 +760,6 @@ package {
                             }
                         }
                     }
-                    addCenterDetail(center);
                 }
                 graphics.endFill();
 
@@ -758,16 +785,67 @@ package {
         }
 
         private function addCenterDetail(center:Center):void {
+            var iconDensity:Number = 0;
             var icon:Shape = new Shape();
+
             if (center.hasFeatureType(Biome.TEMPERATE_FOREST)) {
-                icon.graphics.lineStyle(rand.between(1, 2), Biome.colors["temperateForest_outline"], rand.between(.6, 1));
+                iconDensity = .4;
+
+                if (rand.next() > iconDensity)
+                    return;
+
+                if (bordersForeignType(Biome.TEMPERATE_FOREST))
+                    return;
+
+                icon.graphics.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
                 icon.graphics.moveTo(0, 0);
                 icon.graphics.curveTo(rand.between(2, 3), rand.between(-2, -4), rand.between(4, 6), 0);
 
-                addChild(icon);
                 icon.x = (center.point.x - icon.width / 2) + rand.between(-4, 4);
                 icon.y = (center.point.y - icon.height / 2) + rand.between(-4, 4);
             }
+            if (center.hasFeatureType(Biome.BOREAL_FOREST)) {
+                iconDensity = .8;
+
+                if (rand.next() > iconDensity)
+                    return;
+
+                icon.graphics.lineStyle(rand.between(.5, 1.5), Biome.colors["borealForest_stroke"], rand.between(.6, 1));
+                icon.graphics.moveTo(0, 0);
+                var r:Number = rand.between(2, 4);
+                icon.graphics.lineTo(r / 2, rand.between(-1, -3));
+                icon.graphics.lineTo(r, 0);
+
+                icon.x = (center.point.x - icon.width / 2) + rand.between(-4, 4);
+                icon.y = (center.point.y - icon.height / 2) + rand.between(-4, 4);
+            }
+//            if (center.hasFeatureType(Biome.GRASSLAND)) {
+//                iconDensity = .3;
+//
+//                if (rand.next() > iconDensity)
+//                        return;
+//
+//                icon.graphics.lineStyle(rand.between(1, 2), 0x000000, rand.between(.05, .1));
+//                icon.graphics.moveTo(0, 0);
+//                icon.graphics.lineTo(rand.between(3, 5), 0);
+//
+//                icon.x = (center.point.x - icon.width / 2) + rand.between(-2, 2);
+//                icon.y = (center.point.y - icon.height / 2) + rand.between(-2, 2);
+//            }
+
+            if (icon)
+                addChild(icon);
+
+            function bordersForeignType(type:String):Boolean {
+                // Check that the center isn't bordering any foreign biome types
+                for each (var neighbor:Center in center.neighbors)
+                    if (!neighbor.hasFeatureType(type))
+                        return true;
+                return false;
+            }
+
+            if (rand.next() < iconDensity)
+                addCenterDetail(center);
         }
 
         private function drawCoastline():void {
@@ -778,7 +856,7 @@ package {
         private function drawFeatureOutlines(featureType:String):void {
             for (var key:String in featureManager.getFeaturesByType(featureType)) {
                 var feature:Object = featureManager.features[key];
-                graphics.lineStyle(1, Biome.colors.saltWater_outline);
+                graphics.lineStyle(1, Biome.colors.saltWater_stroke);
                 if (feature.type != Geography.OCEAN) {
                     for each (var center:Center in feature.centers) {
                         for each (var edge:Edge in center.borders) {

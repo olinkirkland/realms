@@ -1,6 +1,6 @@
 package {
     public class Rand {
-        private var seed:Number;
+        public var seed:Number;
         private const max:Number = 1 / int.MAX_VALUE;
         private const min:Number = -max;
 

@@ -29,20 +29,20 @@ package geography {
 
         public static var colors:Object = {
             freshWater: 0x99A29D,
-            freshWater_outline: 0x6c7784,
+            freshWater_stroke: 0x6c7784,
             saltWater: 0x99A29D,
-            saltWater_outline: 0x6c7784,
+            saltWater_stroke: 0x6c7784,
             tundra: 0xEAD6B5,
             borealForest: 0x8ba975,
-            borealForest_outline: 0x517743,
-            borealForest_bottomOutline: 0x102900,
+            borealForest_stroke: 0x517743,
+            borealForest_bottomStroke: 0x102900,
             grassland: 0xEAD6B5,
             temperateForest: 0xAAAA76,
-            temperateForest_outline: 0x787643,
-            temperateForest_bottomOutline: 0x292500,
+            temperateForest_stroke: 0x787643,
+            temperateForest_bottomStroke: 0x292500,
             savanna: 0xEAD6B5,
             rainForest: 0xEAD6B5,
-            rainForest_outline: 0xEAD6B5,
+            rainForest_stroke: 0xEAD6B5,
             desert: 0xEAD6B5,
             mountain: 0xEAD6B5
         };
