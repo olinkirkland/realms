@@ -3,16 +3,14 @@ package {
     import com.nodename.geom.LineSegment;
 
     import flash.display.Shape;
-    import flash.events.Event;
-    import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
     import flash.filesystem.FileStream;
     import flash.geom.Point;
     import flash.geom.Rectangle;
-    import flash.ui.Keyboard;
     import flash.utils.Dictionary;
+    import flash.utils.setTimeout;
 
     import geography.Biome;
     import geography.Geography;
@@ -43,15 +41,18 @@ package {
         private var outlines:Shape;
         private var rand:Rand;
 
-        // Miscellaneous
-        private var showOutlines:Boolean = false;
-        private var showTerrain:Boolean = false;
-        private var showRivers:Boolean = true;
-        private var showBiomes:Boolean = true;
-        private var showPrecipitation:Boolean = false;
-        private var showTemperature:Boolean = false;
-        private var showForests:Boolean = true;
-        private var showMountains:Boolean = true;
+        // Draw Toggles
+        public var showOutlines:Boolean = false;
+        public var showTerrain:Boolean = false;
+        public var showRivers:Boolean = true;
+        public var showBiomes:Boolean = true;
+        public var showPrecipitation:Boolean = false;
+        public var showTemperature:Boolean = false;
+        public var showForests:Boolean = true;
+        public var showMountains:Boolean = true;
+
+        // Miscellanious
+        public static var MAP_PROGRESS:String = "mapProgress";
 
         public function Map() {
             // Initialize Singletons
@@ -64,13 +65,12 @@ package {
         }
 
         private function onCreationComplete(event:FlexEvent):void {
-            tryToLoadPoints();
-            start();
+            progress(0, "Preparing points");
+
+            callLater(tryToLoadPoints);
 
             addEventListener(MouseEvent.CLICK, onClick);
-
             addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
-            systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         }
 
         override protected function createChildren():void {
@@ -101,26 +101,25 @@ package {
                     pointsFile.deleteFile();
                     tryToLoadPoints();
                 }
-                trace("Building graph ...");
+
                 build();
             } else {
                 generatePoints();
             }
+
+            start();
         }
 
         private function generatePoints():void {
             // Generate points and save them
             trace("Points file not found; Generating new points ...");
             pickRandomPoints();
-            trace("Building 0/4");
             build();
-            trace("Building 1/4");
+            trace("Relaxing (1/3)");
             relaxPoints();
-            trace("Building 2/4");
+            trace("Relaxing (2/3)");
             relaxPoints();
-            trace("Building 3/4");
-            relaxPoints();
-            trace("Building 4/4");
+            trace("Relaxing (3/3)");
             relaxPoints();
             trace("Points generated!");
 
@@ -131,31 +130,47 @@ package {
             trace("Points saved to " + pointsFile.url);
         }
 
-        private function start(seed:Number = 1):void {
-            var time:Number = new Date().time;
+        private function progress(percent:Number, message:String):void {
+            this.dispatchEvent(new PayloadEvent(MAP_PROGRESS, {percent: percent, message: message}, true));
+        }
+
+        public function start(seed:Number = 1):void {
+            // Set map seed - the whole map uses this seed for any random decision making
             rand = new Rand(seed);
 
-            generateHeightMap();
-            resolveDepressions();
-            determineOceanLandsAndLakes();
-            calculateTemperature();
-            calculateMoisture();
-            calculateRivers();
-            determinePrimaryBiomes();
+            var tasks:Array = [{f: generateHeightMap, m: "Generating height map"},
+                {f: resolveDepressions, m: "Smoothing"},
+                {f: determineOceanLandsAndLakes, m: "Determining coastlines"},
+                {f: calculateTemperature, m: "Calculating temperature"},
+                {f: calculateMoisture, m: "Calculating moisture"},
+                {f: calculateRivers, m: "Calculating rivers"},
+                {f: determineBiomes, m: "Determining biomes"},
+                {f: draw, m: "Drawing"}];
 
-            draw();
+            progress(0, tasks[0].m);
+            setTimeout(performTask, 200, 0);
+
+            function performTask(i:int):void {
+                tasks[i].f();
+
+                i++;
+
+                if (i > tasks.length - 1) {
+                    progress(1, "");
+                    return;
+                } else {
+                    progress(i / tasks.length, tasks[i].m);
+                    setTimeout(performTask, 200, i);
+                }
+            }
 
 //            for each (var feature:Object in featureManager.features) {
 //                if (Geography.type != Geography.RIVER && Geography.type != Geography.OCEAN && Geography.type != Geography.LAND && Geography.type != Geography.LAKE)
 //                    trace(Geography.type, Geography.centers.length);
 //            }
-
-            var timeTaken:Number = ((new Date().time - time) / 1000);
-            trace("Generation and drawing finished in " + timeTaken.toFixed(3) + " s");
         }
 
-        private function determinePrimaryBiomes():void {
-            trace("Determining primary land biomes");
+        private function determineBiomes():void {
             for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
                 var landCenters:Vector.<Center> = land.centers.concat();
                 var queue:Array = [];
@@ -200,7 +215,6 @@ package {
 
 
         private function calculateRivers():void {
-            trace("Calculating rivers");
             // Sort list centers neighbors by their elevation from lowest to highest
             for each (var center:Center in centers) {
                 if (center.neighbors.length > 0) {
@@ -265,7 +279,6 @@ package {
         }
 
         private function resolveDepressions():void {
-            trace("Resolving depressions");
             var depressions:int;
             do {
                 depressions = 0;
@@ -317,7 +330,6 @@ package {
         }
 
         private function determineOceanLandsAndLakes():void {
-            trace("Determining ocean, lands, and lakes");
             var queue:Array = [];
 
             // Start with a site that is at 0 elevation and is in the upper left
@@ -417,7 +429,6 @@ package {
 
         private function generateHeightMap():void {
             // Generate a height map
-            trace("Generating @seed: " + rand.seed);
             reset();
 
             var center:Center;
@@ -596,7 +607,7 @@ package {
             return closestCenter;
         }
 
-        private function draw():void {
+        public function draw():void {
             /**
              * Main Draw Call
              */
@@ -674,17 +685,23 @@ package {
 
             if (showMountains) {
                 // Draw mountains
+                graphics.lineStyle(1, 0xff0000);
                 for each (var mountain:Object in featureManager.getFeaturesByType(Biome.MOUNTAIN)) {
+                    var nonFoot:Array = [];
                     for each (center in mountain.centers) {
-                        for (i = 0; i < center.borders.length; i++) {
-                            edge = center.borders[i];
-                            if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                // Draw a line
-                                graphics.lineStyle(1, 0xff0000);
-                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                        var foot:Boolean = false;
+                        for each (var neighbor:Center in center.neighbors) {
+                            if (!neighbor.hasFeatureType(Biome.MOUNTAIN)) {
+                                foot = true;
+                                break;
                             }
                         }
+                        if (!foot)
+                            nonFoot.push(center);
+                    }
+
+                    for each (center in nonFoot) {
+                        graphics.drawCircle(center.point.x, center.point.y, center.elevation * 5);
                     }
                 }
             }
@@ -1076,49 +1093,6 @@ package {
 
         private function humanReadablePoint(p:Point):String {
             return "(" + p.x.toFixed(1) + ", " + p.y.toFixed(1) + ")";
-        }
-
-        public function onKeyDown(event:KeyboardEvent):void {
-            switch (event.keyCode) {
-                case Keyboard.Q:
-                    // Toggle outlines
-                    showOutlines = !showOutlines;
-                    draw();
-                    break;
-                case Keyboard.W:
-                    showRivers = !showRivers;
-                    draw();
-                    break;
-                case Keyboard.E:
-                    // Toggle Temperature
-                    showTemperature = !showTemperature;
-                    draw();
-                    break;
-                case Keyboard.F:
-                    // Toggle Forests
-                    showForests = !showForests;
-                    draw();
-                    break;
-                case Keyboard.R:
-                    // Generate with a new seed
-                    start(int(Math.random() * 9999));
-                    break;
-                case Keyboard.T:
-                    // Toggle terrain
-                    showTerrain = !showTerrain;
-                    draw();
-                    break;
-                case Keyboard.P:
-                    // Toggle flux
-                    showPrecipitation = !showPrecipitation;
-                    draw();
-                    break;
-                case Keyboard.B:
-                    // Toggle biomes
-                    showBiomes = !showBiomes;
-                    draw();
-                    break;
-            }
         }
 
         private function reset():void {

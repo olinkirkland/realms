@@ -3,17 +3,78 @@
                        xmlns:s="library://ns.adobe.com/flex/spark"
                        xmlns:local="*"
                        width="1136" height="640" showStatusBar="false" frameRate="60"
-                       creationComplete="onCreationComplete(event)">
+                       creationComplete="onCreationComplete(event)"
+                       initialize="onInitialize(event)">
     <fx:Script>
         import mx.events.FlexEvent;
 
         private var drag:Point = null;
+
+
+        private function onInitialize(event:FlexEvent):void {
+            map.addEventListener(Map.MAP_PROGRESS, onMapProgress);
+        }
 
         private function onCreationComplete(event:FlexEvent):void {
             systemManager.stage.addEventListener(Event.ENTER_FRAME, onFrame);
             systemManager.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             systemManager.stage.addEventListener(Event.RESIZE, onResize);
+            systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+        }
+
+        private function onMapProgress(event:PayloadEvent):void {
+            var percent:Number = event.payload.percent;
+            var message:String = event.payload.message;
+
+            trace(JSON.stringify(event.payload));
+
+            progress.visible = percent != 1;
+            hint.visible = !progress.visible;
+            progressMessage.text = message;
+        }
+
+        public function onKeyUp(event:KeyboardEvent):void {
+            switch (event.keyCode) {
+                case Keyboard.Q:
+                    // Toggle outlines
+                    map.showOutlines = !map.showOutlines;
+                    map.draw();
+                    break;
+                case Keyboard.W:
+                    map.showRivers = !map.showRivers;
+                    map.draw();
+                    break;
+                case Keyboard.E:
+                    // Toggle Temperature
+                    map.showTemperature = !map.showTemperature;
+                    map.draw();
+                    break;
+                case Keyboard.F:
+                    // Toggle Forests
+                    map.showForests = !map.showForests;
+                    map.draw();
+                    break;
+                case Keyboard.R:
+                    // Generate with a new seed
+                    map.start(int(Math.random() * 9999));
+                    break;
+                case Keyboard.T:
+                    // Toggle terrain
+                    map.showTerrain = !map.showTerrain;
+                    map.draw();
+                    break;
+                case Keyboard.P:
+                    // Toggle flux
+                    map.showPrecipitation = !map.showPrecipitation;
+                    map.draw();
+                    break;
+                case Keyboard.B:
+                    // Toggle biomes
+                    map.showBiomes = !map.showBiomes;
+                    map.draw();
+                    break;
+            }
         }
 
         private function onResize(event:Event):void {
@@ -55,14 +116,28 @@
     <local:Map id="map" cacheAsBitmap="true"
                width="2272" height="1280" includeInLayout="false"/>
     <!--width="1136" height="640" includeInLayout="false"/>-->
-    <s:Group width="100%">
+    <s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+        <s:Group id="progress" width="100%" height="100%">
+            <s:Rect width="100%" height="100%">
+                <s:fill>
+                    <s:SolidColor color="0x000000" alpha=".6"/>
+                </s:fill>
+            </s:Rect>
+            <s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+                <s:Label id="progressMessage" fontSize="24" color="white"/>
+            </s:VGroup>
+        </s:Group>
+    </s:VGroup>
+    <s:Group width="100%" id="hint">
         <s:Rect width="100%" height="100%">
             <s:fill>
                 <s:SolidColor color="0x000000" alpha=".6"/>
             </s:fill>
         </s:Rect>
-        <s:Label width="100%" color="white" top="20" bottom="20" left="20" right="20"
-                 text="Q: Outlines  W: Rivers  E: Temperature  R: Regenerate random map  T: Terrain  P: Precipitation  B: Biomes  F: Forests"/>
+        <s:HGroup width="100%" top="10" bottom="10" left="10" right="10">
+            <s:Label color="white"
+                     text="Q: Outlines  W: Rivers  E: Temperature  R: Regenerate random map  T: Terrain  P: Precipitation  B: Biomes  F: Forests"/>
+        </s:HGroup>
     </s:Group>
 
 </s:WindowedApplication>
