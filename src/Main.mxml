@@ -20,7 +20,21 @@
             systemManager.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             systemManager.stage.addEventListener(Event.RESIZE, onResize);
-            systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            //systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+
+            buttonGenerate.addEventListener(MouseEvent.CLICK, onButtonGenerateClick);
+        }
+
+        private function onButtonGenerateClick(event:MouseEvent):void {
+            start();
+        }
+
+        private function start():void {
+            var r:int = int(Math.random() * 9999);
+            if (inputSeed.text.length > 0)
+                r = int(inputSeed.text);
+
+            map.start(r);
         }
 
         private function onMapProgress(event:PayloadEvent):void {
@@ -32,6 +46,8 @@
             progress.visible = percent != 1;
             hint.visible = !progress.visible;
             progressMessage.text = message;
+
+            labelSeed.text = "Seed: " + map.seed;
         }
 
         public function onKeyUp(event:KeyboardEvent):void {
@@ -57,7 +73,7 @@
                     break;
                 case Keyboard.R:
                     // Generate with a new seed
-                    map.start(int(Math.random() * 9999));
+                    start();
                     break;
                 case Keyboard.T:
                     // Toggle terrain
@@ -134,9 +150,10 @@
                 <s:SolidColor color="0x000000" alpha=".6"/>
             </s:fill>
         </s:Rect>
-        <s:HGroup width="100%" top="10" bottom="10" left="10" right="10">
-            <s:Label color="white"
-                     text="Q: Outlines  W: Rivers  E: Temperature  R: Regenerate random map  T: Terrain  P: Precipitation  B: Biomes  F: Forests"/>
+        <s:HGroup width="100%" top="10" bottom="10" left="10" right="10" verticalAlign="middle">
+            <s:Button id="buttonGenerate" label="New Map" fontSize="14"/>
+            <s:TextInput id="inputSeed" restrict="[0-9]" width="40" fontSize="14"/>
+            <s:Label id="labelSeed" color="white" fontSize="14"/>
         </s:HGroup>
     </s:Group>
 

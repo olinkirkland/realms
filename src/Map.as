@@ -25,6 +25,7 @@ package {
     public class Map extends UIComponent {
         public static var NUM_POINTS:int = 24000;
         public static var SEA_LEVEL:Number = .2;
+        public var seed:int;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -137,6 +138,7 @@ package {
         public function start(seed:Number = 1):void {
             // Set map seed - the whole map uses this seed for any random decision making
             rand = new Rand(seed);
+            this.seed = seed;
 
             var tasks:Array = [{f: generateHeightMap, m: "Generating height map"},
                 {f: resolveDepressions, m: "Smoothing"},
