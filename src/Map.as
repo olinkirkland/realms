@@ -87,7 +87,7 @@ package {
             pointsFile = File.applicationStorageDirectory.resolvePath("points.json");
             if (pointsFile.exists) {
                 // Load the points file
-                trace("Points file found; Loading points from file")
+                trace("Points file found; Loading points from file");
                 var stream:FileStream = new FileStream();
                 stream.open(pointsFile, FileMode.READ);
                 pointsData = JSON.parse(stream.readUTFBytes(stream.bytesAvailable));
@@ -159,7 +159,6 @@ package {
 
                 if (i > tasks.length - 1) {
                     progress(1, "");
-                    return;
                 } else {
                     progress(i / tasks.length, tasks[i].m);
                     setTimeout(performTask, 200, i);
@@ -617,8 +616,6 @@ package {
             // Clear
             graphics.clear();
             outlines.graphics.clear();
-            while (numChildren > 0)
-                removeChildAt(0);
 
             graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
             graphics.drawRect(0, 0, width, height);
@@ -687,23 +684,35 @@ package {
 
             if (showMountains) {
                 // Draw mountains
-                graphics.lineStyle(1, 0xff0000);
+                graphics.lineStyle(1, 0xff0000, .2);
                 for each (var mountain:Object in featureManager.getFeaturesByType(Biome.MOUNTAIN)) {
-                    var nonFoot:Array = [];
+                    var mountainBase:Array = [];
+                    var mountainBody:Array = [];
                     for each (center in mountain.centers) {
-                        var foot:Boolean = false;
+                        var isBase:Boolean = false;
                         for each (var neighbor:Center in center.neighbors) {
                             if (!neighbor.hasFeatureType(Biome.MOUNTAIN)) {
-                                foot = true;
+                                isBase = true;
                                 break;
                             }
                         }
-                        if (!foot)
-                            nonFoot.push(center);
+                        if (!isBase)
+                            mountainBody.push(center);
+                        else
+                            mountainBase.push(center);
                     }
 
-                    for each (center in nonFoot) {
-                        graphics.drawCircle(center.point.x, center.point.y, center.elevation * 5);
+                    mountainBody = mountainBody.sortOn("elevation", Array.DESCENDING);
+
+                    graphics.lineStyle(1, 0x000000);
+                    for each (center in mountainBody) {
+                        graphics.moveTo(center.point.x, center.point.y);
+                        graphics.lineTo(center.point.x, center.point.y - (10 * (center.elevation - .7)));
+                    }
+                    for each (center in mountainBase) {
+                        graphics.beginFill(0x0000ff);
+                        //graphics.drawCircle(center.point.x, center.point.y, 3);
+                        graphics.endFill();
                     }
                 }
             }
@@ -805,7 +814,8 @@ package {
 
         private function addCenterDetail(center:Center):void {
             var iconDensity:Number = 0;
-            var icon:Shape = new Shape();
+            var c:Point = new Point(center.point.x + rand.between(-4, 4), center.point.y + rand.between(-4, 4));
+            var d:Number;
 
             if (center.hasFeatureType(Biome.TEMPERATE_FOREST)) {
                 iconDensity = .4;
@@ -816,12 +826,9 @@ package {
                 if (bordersForeignType(Biome.TEMPERATE_FOREST))
                     return;
 
-                icon.graphics.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
-                icon.graphics.moveTo(0, 0);
-                icon.graphics.curveTo(rand.between(2, 3), rand.between(-2, -4), rand.between(4, 6), 0);
-
-                icon.x = (center.point.x - icon.width / 2) + rand.between(-4, 4);
-                icon.y = (center.point.y - icon.height / 2) + rand.between(-4, 4);
+                graphics.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
+                graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
+                graphics.curveTo(c.x, c.y - rand.between(1, 5), c.x + d, c.y);
             }
             if (center.hasFeatureType(Biome.BOREAL_FOREST)) {
                 iconDensity = .8;
@@ -829,31 +836,11 @@ package {
                 if (rand.next() > iconDensity)
                     return;
 
-                icon.graphics.lineStyle(rand.between(.5, 1.5), Biome.colors["borealForest_stroke"], rand.between(.6, 1));
-                icon.graphics.moveTo(0, 0);
-                var r:Number = rand.between(2, 4);
-                icon.graphics.lineTo(r / 2, rand.between(-1, -3));
-                icon.graphics.lineTo(r, 0);
-
-                icon.x = (center.point.x - icon.width / 2) + rand.between(-4, 4);
-                icon.y = (center.point.y - icon.height / 2) + rand.between(-4, 4);
+                graphics.lineStyle(rand.between(.5, 1.5), Biome.colors["borealForest_stroke"], rand.between(.6, 1));
+                graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
+                graphics.lineTo(c.x, c.y - rand.between(1, 3));
+                graphics.lineTo(c.x + d, c.y);
             }
-//            if (center.hasFeatureType(Biome.GRASSLAND)) {
-//                iconDensity = .3;
-//
-//                if (rand.next() > iconDensity)
-//                        return;
-//
-//                icon.graphics.lineStyle(rand.between(1, 2), 0x000000, rand.between(.05, .1));
-//                icon.graphics.moveTo(0, 0);
-//                icon.graphics.lineTo(rand.between(3, 5), 0);
-//
-//                icon.x = (center.point.x - icon.width / 2) + rand.between(-2, 2);
-//                icon.y = (center.point.y - icon.height / 2) + rand.between(-2, 2);
-//            }
-
-            if (icon)
-                addChild(icon);
 
             function bordersForeignType(type:String):Boolean {
                 // Check that the center isn't bordering any foreign biome types
@@ -996,7 +983,6 @@ package {
              */
 
             var libEdges:Vector.<com.nodename.Delaunay.Edge> = voronoi.edges();
-            var p:int = -1;
             for each (var libEdge:com.nodename.Delaunay.Edge in libEdges) {
                 var dEdge:LineSegment = libEdge.delaunayLine();
                 var vEdge:LineSegment = libEdge.voronoiEdge();
@@ -1104,10 +1090,6 @@ package {
             // Reset centers
             for each (var center:Center in centers)
                 center.reset();
-
-            // Reset details
-            while (numChildren > 0)
-                removeChildAt(0);
 
             unuseCenters();
         }

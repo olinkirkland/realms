@@ -4,8 +4,8 @@ package {
         private const max:Number = 1 / int.MAX_VALUE;
         private const min:Number = -max;
 
-        public function Rand(seed:Number = 1) {
-            this.seed = seed;
+        public function Rand(value:Number = 1) {
+            seed = value;
             // Deal with zeroes
             if (seed < 1)
                 seed *= 9999;
