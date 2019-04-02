@@ -1,6 +1,6 @@
 # World Map Generator
 
-[I'm a relative reference to a repository file](test.md)
+[I'm a relative reference to a repository file](test)
 
 World Generation in AS3
 Inspired by the works of Azgaar's Fantasy Maps, Amit Patel's Polygonal Map Generation, Scott Turner's Dragons Abound, and Martin O'Leary's Map Generation.  
