@@ -74,7 +74,7 @@ package geography {
              * High Elevation
              */
 
-            if (center.elevation > .9 || (mountainAdjacent && center.elevation > .85))
+            if (center.elevation > Map.MOUNTAIN_ELEVATION || (mountainAdjacent && center.elevation > Map.MOUNTAIN_ELEVATION_ADJACENT))
                 biome = MOUNTAIN;
 
             /**

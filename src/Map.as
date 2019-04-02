@@ -22,6 +22,9 @@ package {
     public class Map extends UIComponent {
         public static var NUM_POINTS:int = 24000;
         public static var SEA_LEVEL:Number = .2;
+        public static var MOUNTAIN_ELEVATION:Number = .9;
+        public static var MOUNTAIN_ELEVATION_ADJACENT:Number = .85;
+
         public var seed:int;
 
         // Map Storage
@@ -601,22 +604,8 @@ package {
             graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
             graphics.drawRect(0, 0, width, height);
 
-            if (showTerrain) {
-                // Draw terrain
-                for each (var center:Center in centers) {
-                    graphics.beginFill(getColorFromElevation(center.elevation));
-
-                    for each (var edge:Edge in center.borders) {
-                        if (edge.v0 && edge.v1) {
-                            graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                            graphics.lineTo(center.point.x, center.point.y);
-                            graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                        } else {
-                        }
-                    }
-                }
-                graphics.endFill();
-            }
+            var center:Center;
+            var edge:Edge;
 
             if (showBiomes) {
                 // Draw Biomes
@@ -687,13 +676,13 @@ package {
 
                     graphics.lineStyle(1, 0x000000);
                     for each (center in mountainBody) {
-                        graphics.moveTo(center.point.x, center.point.y);
-                        graphics.lineTo(center.point.x, center.point.y - (10 * (center.elevation - .7)));
-                    }
-                    for each (center in mountainBase) {
-                        graphics.beginFill(0x0000ff);
-                        //graphics.drawCircle(center.point.x, center.point.y, 3);
-                        graphics.endFill();
+                        var d:Number = (center.elevation - MOUNTAIN_ELEVATION_ADJACENT) / (1 - MOUNTAIN_ELEVATION_ADJACENT) * 20;
+                        for each (neighbor in center.neighbors) {
+                            var f:Number = (neighbor.elevation - MOUNTAIN_ELEVATION_ADJACENT) / (1 - MOUNTAIN_ELEVATION_ADJACENT) * 20;
+                            graphics.moveTo(center.point.x, center.point.y - (d));
+                            if (Math.abs(d - f) > 1)
+                                graphics.lineTo(neighbor.point.x, center.point.y - (f));
+                        }
                     }
                 }
             }
@@ -722,6 +711,24 @@ package {
                         graphics.endFill();
                     }
                 }
+            }
+
+            if (showTerrain) {
+                // Draw terrain
+                graphics.lineStyle();
+                for each (var center:Center in centers) {
+                    graphics.beginFill(getColorFromElevation(center.elevation), 1);
+
+                    for each (var edge:Edge in center.borders) {
+                        if (edge.v0 && edge.v1) {
+                            graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                            graphics.lineTo(center.point.x, center.point.y);
+                            graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                        } else {
+                        }
+                    }
+                }
+                graphics.endFill();
             }
 
             if (showPrecipitation) {
@@ -1083,6 +1090,7 @@ package {
         private function humanReadableCenter(center:Center):String {
             var str:String = "#" + center.index;
             str += "\n  elevation: " + center.realElevation + " m";
+            str += "\n  elevation: " + center.elevation;
             str += "\n  latitude: " + center.realLatitude + " °N";
             str += "\n  temperature: " + center.realTemperature + " °C";
             str += "\n  precipitation: " + center.precipitation + " mm/year";
