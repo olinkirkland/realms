@@ -1,4 +1,6 @@
 package {
+    import flash.system.Capabilities;
+
     public class Util {
         public static function getColorBetweenColors(color1:uint = 0xFFFFFF, color2:uint = 0x000000, percent:Number = 0.5):uint {
             if (percent < 0)
@@ -38,6 +40,10 @@ package {
             for (var s:String in object)
                 count++;
             return count;
+        }
+
+        public static function isAir():Boolean {
+            return Capabilities.playerType == "Desktop";
         }
     }
 }

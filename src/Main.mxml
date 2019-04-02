@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
-                       xmlns:s="library://ns.adobe.com/flex/spark"
-                       xmlns:local="*"
-                       width="1136" height="640" showStatusBar="false" frameRate="60"
-                       creationComplete="onCreationComplete(event)"
-                       initialize="onInitialize(event)">
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:local="*"
+               width="1136" height="640" frameRate="60"
+               creationComplete="onCreationComplete(event)"
+               initialize="onInitialize(event)">
     <fx:Script>
         import mx.events.FlexEvent;
 
@@ -41,11 +41,9 @@
             var percent:Number = event.payload.percent;
             var message:String = event.payload.message;
 
-            trace(JSON.stringify(event.payload));
-
             progress.visible = percent != 1;
             hint.visible = !progress.visible;
-            progressMessage.text = message;
+            progressMessage.text = message + " (" + int(percent * 100) + "%)";
 
             labelSeed.text = "Seed: " + map.seed;
         }
@@ -157,4 +155,4 @@
         </s:HGroup>
     </s:Group>
 
-</s:WindowedApplication>
+</s:Application>

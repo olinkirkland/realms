@@ -4,9 +4,6 @@ package {
 
     import flash.display.Shape;
     import flash.events.MouseEvent;
-    import flash.filesystem.File;
-    import flash.filesystem.FileMode;
-    import flash.filesystem.FileStream;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.Dictionary;
@@ -38,7 +35,6 @@ package {
         private var featureManager:Geography;
 
         // Generation
-        private var pointsFile:File;
         private var outlines:Shape;
         private var rand:Rand;
 
@@ -68,7 +64,7 @@ package {
         private function onCreationComplete(event:FlexEvent):void {
             progress(0, "Preparing points");
 
-            callLater(tryToLoadPoints);
+            setTimeout(tryToLoadPoints, 500);
 
             addEventListener(MouseEvent.CLICK, onClick);
             addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
@@ -83,28 +79,15 @@ package {
 
         private function tryToLoadPoints():void {
             // Determine if points file exists
-            var pointsData:Object;
-            pointsFile = File.applicationStorageDirectory.resolvePath("points.json");
-            if (pointsFile.exists) {
-                // Load the points file
-                trace("Points file found; Loading points from file");
-                var stream:FileStream = new FileStream();
-                stream.open(pointsFile, FileMode.READ);
-                pointsData = JSON.parse(stream.readUTFBytes(stream.bytesAvailable));
-                stream.close();
+            if (Util.isAir()) {
+                points = AirOnlyUtil.loadPointsFromFile();
 
-                points = new Vector.<Point>();
-                for each (var pointData:Object in pointsData) {
-                    points.push(new Point(pointData.x, pointData.y));
-                }
-                if (points.length != NUM_POINTS) {
-                    trace("Points file incompatible or corrupted, deleting points file");
-                    pointsFile.deleteFile();
-                    tryToLoadPoints();
-                }
+                if (!points)
+                    generatePoints();
 
                 build();
             } else {
+                // Running in web
                 generatePoints();
             }
 
@@ -113,7 +96,7 @@ package {
 
         private function generatePoints():void {
             // Generate points and save them
-            trace("Points file not found; Generating new points ...");
+            trace("Generating new points ...");
             pickRandomPoints();
             build();
             trace("Relaxing (1/3)");
@@ -124,11 +107,9 @@ package {
             relaxPoints();
             trace("Points generated!");
 
-            var stream:FileStream = new FileStream();
-            stream.open(pointsFile, FileMode.WRITE);
-            stream.writeUTFBytes(JSON.stringify(points));
-            stream.close();
-            trace("Points saved to " + pointsFile.url);
+            if (Util.isAir()) {
+                AirOnlyUtil.savePointsToFile(points);
+            }
         }
 
         private function progress(percent:Number, message:String):void {
