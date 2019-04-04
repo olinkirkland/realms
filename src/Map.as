@@ -136,7 +136,6 @@ package {
                 {f: calculateMoisture, m: "Calculating moisture"},
                 {f: calculateRivers, m: "Calculating rivers"},
                 {f: determineBiomes, m: "Determining biomes"},
-//                {f: determineDesirability, m: "Determining desirability"},
                 {f: draw, m: "Drawing"}];
 
             progress(0, tasks[0].m);
@@ -206,6 +205,20 @@ package {
             }
 
             unuseCells();
+
+            // Determine glades
+            for each (var grassland:Object in featureManager.getFeaturesByType(Biome.GRASSLAND)) {
+                // isGlade is positive for grasslands as long as they are small and entirely surrounded by forest
+                var isGlade:Boolean = grassland.cells.length < 10;
+                for each (cell in grassland.cells) {
+                    for each (neighbor in cell.neighbors) {
+                        if (!neighbor.hasFeatureType(Biome.GRASSLAND) && !neighbor.hasFeatureType(Biome.TEMPERATE_FOREST)) {
+                            isGlade = false;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -246,7 +259,7 @@ package {
 
                         featureManager.addCellToFeature(t, river);
 
-                        if (riverCount > 1) {
+                        if (!t.hasFeatureType(Geography.OCEAN) && !t.hasFeatureType(Geography.LAKE) && riverCount > 1) {
                             var confluence:String = featureManager.registerFeature(Geography.CONFLUENCE);
                             featureManager.addCellToFeature(t, confluence);
                         }
@@ -795,6 +808,13 @@ package {
                             graphics.drawCircle(cell.point.x, cell.point.y, 3);
                             graphics.endFill();
                         }
+                    }
+                }
+
+                graphics.lineStyle(1, 0xff0000);
+                for each (var glade:Object in featureManager.getFeaturesByType(Geography.GLADE)) {
+                    for each (cell in glade.cells) {
+                        graphics.drawCircle(cell.point.x, cell.point.y, 3);
                     }
                 }
             }

@@ -15,6 +15,7 @@ package geography {
         public static var RIVER:String = "river";
         public static var ESTUARY:String = "estuary";
         public static var CONFLUENCE:String = "confluence";
+        public static var GLADE:String = "glade";
 
         public function Geography() {
             if (_instance)
