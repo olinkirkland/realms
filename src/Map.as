@@ -12,7 +12,7 @@ package {
     import geography.Biome;
     import geography.Geography;
 
-    import graph.Center;
+    import graph.Cell;
     import graph.Corner;
     import graph.Edge;
 
@@ -29,16 +29,17 @@ package {
 
         // Map Storage
         public var points:Vector.<Point>;
-        public var centers:Vector.<Center>;
+        public var cells:Vector.<Cell>;
         public var corners:Vector.<Corner>;
         public var edges:Vector.<Edge>;
-        public var borders:Vector.<Center>;
+        public var borders:Vector.<Cell>;
 
         // Managers
         private var featureManager:Geography;
 
         // Generation
         private var outlines:Shape;
+        private var highlights:Shape;
         private var rand:Rand;
 
         // Draw Toggles
@@ -49,7 +50,8 @@ package {
         public var showPrecipitation:Boolean = false;
         public var showTemperature:Boolean = false;
         public var showForests:Boolean = true;
-        public var showMountains:Boolean = true;
+        public var showMountains:Boolean = false;
+        public var showInfluence:Boolean = true;
 
         // Miscellanious
         public static var MAP_PROGRESS:String = "mapProgress";
@@ -78,6 +80,9 @@ package {
 
             outlines = new Shape();
             addChild(outlines);
+
+            highlights = new Shape();
+            addChild(highlights);
         }
 
         private function tryToLoadPoints():void {
@@ -131,6 +136,7 @@ package {
                 {f: calculateMoisture, m: "Calculating moisture"},
                 {f: calculateRivers, m: "Calculating rivers"},
                 {f: determineBiomes, m: "Determining biomes"},
+//                {f: determineDesirability, m: "Determining desirability"},
                 {f: draw, m: "Drawing"}];
 
             progress(0, tasks[0].m);
@@ -151,35 +157,39 @@ package {
 
 //            for each (var feature:Object in featureManager.features) {
 //                if (Geography.type != Geography.RIVER && Geography.type != Geography.OCEAN && Geography.type != Geography.LAND && Geography.type != Geography.LAKE)
-//                    trace(Geography.type, Geography.centers.length);
+//                    trace(Geography.type, Geography.cells.length);
 //            }
+        }
+
+        private function determineDesirability():void {
+
         }
 
         private function determineBiomes():void {
             for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
-                var landCenters:Vector.<Center> = land.centers.concat();
+                var landCells:Vector.<Cell> = land.cells.concat();
                 var queue:Array = [];
-                while (landCenters.length > 0) {
-                    var start:Center = landCenters[0];
+                while (landCells.length > 0) {
+                    var start:Cell = landCells[0];
                     start.used = true;
 
                     // Pick a starting biome
                     var currentBiome:String = Biome.determineBiome(start);
                     var currentFeature:String = featureManager.registerFeature(currentBiome);
-                    featureManager.addCenterToFeature(start, currentFeature);
+                    featureManager.addCellToFeature(start, currentFeature);
                     start.biome = currentFeature;
                     start.biomeType = currentBiome;
 
-                    // Fill touching centers
+                    // Fill touching cells
                     queue.push(start);
-                    var center:Center;
+                    var cell:Cell;
                     while (queue.length > 0) {
-                        center = queue[0];
+                        cell = queue[0];
                         queue.shift();
-                        for each (var neighbor:Center in center.neighbors) {
+                        for each (var neighbor:Cell in cell.neighbors) {
                             var d:Boolean = Biome.determineBiome(neighbor) == currentBiome;
-                            if (!neighbor.used && land.centers.indexOf(neighbor) >= 0 && d) {
-                                featureManager.addCenterToFeature(neighbor, currentFeature);
+                            if (!neighbor.used && land.cells.indexOf(neighbor) >= 0 && d) {
+                                featureManager.addCellToFeature(neighbor, currentFeature);
                                 neighbor.biome = currentFeature;
                                 neighbor.biomeType = currentBiome;
                                 queue.push(neighbor);
@@ -188,64 +198,90 @@ package {
                         }
                     }
 
-                    landCenters = new Vector.<Center>();
-                    for each (center in land.centers)
-                        if (!center.used)
-                            landCenters.push(center);
+                    landCells = new Vector.<Cell>();
+                    for each (cell in land.cells)
+                        if (!cell.used)
+                            landCells.push(cell);
                 }
             }
 
-            unuseCenters();
+            unuseCells();
         }
 
 
         private function calculateRivers():void {
-            // Sort list centers neighbors by their elevation from lowest to highest
-            for each (var center:Center in centers) {
-                if (center.neighbors.length > 0) {
-                    center.neighbors.sort(sortByLowestElevation);
+            // Sort list cells neighbors by their elevation from lowest to highest
+            for each (var cell:Cell in cells) {
+                if (cell.neighbors.length > 0) {
+                    cell.neighbors.sort(sortByLowestElevation);
                 }
             }
 
             // Create rivers
             for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
-                for each (center in land.centers) {
-                    center.flux = center.moisture;
+                for each (cell in land.cells) {
+                    cell.flux = cell.moisture;
                 }
 
-                land.centers.sort(sortByHighestElevation);
-                for each (center in land.centers) {
-                    pour(center, center.neighbors[0]);
+                land.cells.sort(sortByHighestElevation);
+                for each (cell in land.cells) {
+                    pour(cell, cell.neighbors[0]);
                 }
             }
 
-            function pour(c:Center, t:Center):void {
+            function pour(c:Cell, t:Cell):void {
                 t.flux += c.flux;
                 if (c.flux > 10) {
                     var river:String;
                     if (c.hasFeatureType(Geography.RIVER)) {
                         // Extend river
                         var rivers:Object = c.getFeaturesByType(Geography.RIVER);
+                        var riverCount:int = 0;
                         for (var v:String in rivers) {
+                            riverCount++;
                             // Pick the longest river to continue
-                            if (!river || rivers[v].centers.length > rivers[river].centers.length) {
+                            if (!river || rivers[v].cells.length > rivers[river].cells.length)
                                 river = v;
-                            }
                         }
-                        featureManager.addCenterToFeature(t, river);
+
+                        featureManager.addCellToFeature(t, river);
+
+                        if (riverCount > 1) {
+                            var confluence:String = featureManager.registerFeature(Geography.CONFLUENCE);
+                            featureManager.addCellToFeature(t, confluence);
+                        }
                     } else {
                         // Start new river
                         river = featureManager.registerFeature(Geography.RIVER);
-                        featureManager.addCenterToFeature(c, river);
-                        featureManager.addCenterToFeature(t, river);
+                        featureManager.addCellToFeature(c, river);
+                        featureManager.addCellToFeature(t, river);
+                    }
+
+                    if (t.hasFeatureType(Geography.OCEAN) || t.hasFeatureType(Geography.LAKE)) {
+                        var estuary:String = featureManager.registerFeature(Geography.ESTUARY);
+                        featureManager.addCellToFeature(c, estuary);
+                        var water:Object = {};
+                        // An estuary can empty into an ocean or a lake, but not into both
+                        if (t.hasFeatureType(Geography.OCEAN))
+                            water = t.getFeaturesByType(Geography.OCEAN);
+                        if (t.hasFeatureType(Geography.LAKE))
+                            water = t.getFeaturesByType(Geography.LAKE);
+
+                        // There can only be one lake or ocean feature referenced in the estuary's target
+                        for each (var target:String in water)
+                            break;
+
+                        var feature:Object = featureManager.getFeature(estuary);
+                        feature.target = target;
+                        //feature.power =
                     }
                 }
             }
 
-            unuseCenters();
+            unuseCells();
         }
 
-        private function sortByLowestElevation(n1:Center, n2:Center):Number {
+        private function sortByLowestElevation(n1:Cell, n2:Cell):Number {
             if (n1.elevation > n2.elevation)
                 return 1;
             else if (n1.elevation < n2.elevation)
@@ -254,7 +290,7 @@ package {
                 return 0;
         }
 
-        private function sortByHighestElevation(n1:Center, n2:Center):Number {
+        private function sortByHighestElevation(n1:Cell, n2:Cell):Number {
             if (n1.elevation < n2.elevation)
                 return 1;
             else if (n1.elevation > n2.elevation)
@@ -267,50 +303,50 @@ package {
             var depressions:int;
             do {
                 depressions = 0;
-                for each (var center:Center in centers) {
-                    if (center.neighbors.length > 0) {
-                        var d:Boolean = center.elevation >= SEA_LEVEL;
-                        for each (var neighbor:Center in center.neighbors) {
-                            if (neighbor.elevation < center.elevation)
+                for each (var cell:Cell in cells) {
+                    if (cell.neighbors.length > 0) {
+                        var d:Boolean = cell.elevation >= SEA_LEVEL;
+                        for each (var neighbor:Cell in cell.neighbors) {
+                            if (neighbor.elevation < cell.elevation)
                                 d = false;
                         }
                     }
                     if (d) {
                         depressions++;
-                        center.elevation += .1;
+                        cell.elevation += .1;
                     }
                 }
             } while (depressions > 0);
         }
 
         private function calculateMoisture():void {
-            for each (var center:Center in centers) {
+            for each (var cell:Cell in cells) {
                 var m:Number = 0;
 
-                for each (var neighbor:Center in center.neighbors)
+                for each (var neighbor:Cell in cell.neighbors)
                     m += neighbor.elevation;
-                m /= center.neighbors.length;
+                m /= cell.neighbors.length;
 
-                center.moisture = m;
-                center.precipitation = Util.round(200 + (center.moisture * 1800), 2);
+                cell.moisture = m;
+                cell.precipitation = Util.round(200 + (cell.moisture * 1800), 2);
             }
         }
 
         private function calculateTemperature():void {
-            for each (var center:Center in centers) {
+            for each (var cell:Cell in cells) {
                 // Mapping 0 to 90 realLatitude for this section of the world
-                center.latitude = 1 - (center.point.y / height);
-                center.realLatitude = Util.round(center.latitude * 90, 2);
-                var temperature:Number = 1 - center.latitude;
+                cell.latitude = 1 - (cell.point.y / height);
+                cell.realLatitude = Util.round(cell.latitude * 90, 2);
+                var temperature:Number = 1 - cell.latitude;
 
                 // Consider elevation in the temperature (higher places are colder)
-                center.temperature = temperature - (center.elevation * .3);
-                if (center.temperature < 0)
-                    center.temperature = 0;
-                if (center.temperature > 1)
-                    center.temperature = 1;
+                cell.temperature = temperature - (cell.elevation * .3);
+                if (cell.temperature < 0)
+                    cell.temperature = 0;
+                if (cell.temperature > 1)
+                    cell.temperature = 1;
 
-                center.realTemperature = Util.round(-10 + (center.temperature * 40), 2);
+                cell.realTemperature = Util.round(-10 + (cell.temperature * 40), 2);
             }
         }
 
@@ -319,42 +355,42 @@ package {
 
             // Start with a site that is at 0 elevation and is in the upper left
             // Don't pick a border site because they're fucky
-            for each (var start:Center in centers) {
+            for each (var start:Cell in cells) {
                 if (start.elevation == 0 && start.neighbors.length > 0)
                     break;
             }
 
             var ocean:String = featureManager.registerFeature(Geography.OCEAN);
-            featureManager.addCenterToFeature(start, ocean);
+            featureManager.addCellToFeature(start, ocean);
             start.used = true;
             queue.push(start);
 
             // Define Ocean
             var biome:String = featureManager.registerFeature(Biome.SALT_WATER);
             while (queue.length > 0) {
-                var center:Center = queue.shift();
-                for each (var neighbor:Center in center.neighbors) {
+                var cell:Cell = queue.shift();
+                for each (var neighbor:Cell in cell.neighbors) {
                     if (!neighbor.used && neighbor.elevation < SEA_LEVEL) {
-                        featureManager.addCenterToFeature(neighbor, ocean);
-                        featureManager.addCenterToFeature(neighbor, biome);
+                        featureManager.addCellToFeature(neighbor, ocean);
+                        featureManager.addCellToFeature(neighbor, biome);
                         queue.push(neighbor);
                         neighbor.used = true;
                     }
                 }
             }
 
-            // Override list borders to be part of the Ocean
-            for each (center in borders) {
-                featureManager.addCenterToFeature(center, ocean);
-                featureManager.addCenterToFeature(center, biome);
+            // Override list edges to be part of the Ocean
+            for each (cell in borders) {
+                featureManager.addCellToFeature(cell, ocean);
+                featureManager.addCellToFeature(cell, biome);
             }
 
 
             // Define Land and Lakes
-            var nonOceans:Vector.<Center> = new Vector.<Center>();
-            for each (center in centers)
-                if (Util.getLengthOfObject(center.features) == 0)
-                    nonOceans.push(center);
+            var nonOceans:Vector.<Cell> = new Vector.<Cell>();
+            for each (cell in cells)
+                if (Util.getLengthOfObject(cell.features) == 0)
+                    nonOceans.push(cell);
 
             var currentFeature:String;
             while (nonOceans.length > 0) {
@@ -363,7 +399,7 @@ package {
                 var lower:Number;
                 var upper:Number;
 
-                // If the elevation of the center is higher than sea level, define it as Land otherwise define it as a Lake
+                // If the elevation of the cell is higher than sea level, define it as Land otherwise define it as a Lake
                 if (start.elevation >= SEA_LEVEL) {
                     // Define it as land
                     currentFeature = featureManager.registerFeature(Geography.LAND);
@@ -380,22 +416,22 @@ package {
                     upper = SEA_LEVEL;
                 }
 
-                featureManager.addCenterToFeature(start, currentFeature);
+                featureManager.addCellToFeature(start, currentFeature);
                 if (biome)
-                    featureManager.addCenterToFeature(start, biome);
+                    featureManager.addCellToFeature(start, biome);
 
                 start.used = true;
 
-                // Fill touching Land or Lake centers
+                // Fill touching Land or Lake cells
                 queue.push(start);
                 while (queue.length > 0) {
-                    center = queue[0];
+                    cell = queue[0];
                     queue.shift();
-                    for each (neighbor in center.neighbors) {
+                    for each (neighbor in cell.neighbors) {
                         if (!neighbor.used && neighbor.elevation >= lower && neighbor.elevation < upper) {
-                            featureManager.addCenterToFeature(neighbor, currentFeature);
+                            featureManager.addCellToFeature(neighbor, currentFeature);
                             if (biome)
-                                featureManager.addCenterToFeature(neighbor, biome);
+                                featureManager.addCellToFeature(neighbor, biome);
 
                             queue.push(neighbor);
                             neighbor.used = true;
@@ -403,35 +439,35 @@ package {
                     }
                 }
 
-                nonOceans = new Vector.<Center>();
-                for each (center in centers)
-                    if (Util.getLengthOfObject(center.features) == 0)
-                        nonOceans.push(center);
+                nonOceans = new Vector.<Cell>();
+                for each (cell in cells)
+                    if (Util.getLengthOfObject(cell.features) == 0)
+                        nonOceans.push(cell);
             }
 
-            unuseCenters();
+            unuseCells();
         }
 
         private function generateHeightMap():void {
             // Generate a height map
             reset();
 
-            var center:Center;
+            var cell:Cell;
             var w:Number = width / 2;
             var h:Number = height / 2;
 
             // Add mountain
-            placeMountain(centerFromDistribution(0), .8, .95, .2);
+            placeMountain(cellFromDistribution(0), .8, .95, .2);
 
             // Add hills
             for (var i:int = 0; i < 30; i++)
-                placeHill(centerFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
+                placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
 
             // Add troughs
 
             // Add pits
             for (i = 0; i < 15; i++)
-                placePit(centerFromDistribution(.35), rand.between(.2, .7), rand.between(.8, .95), rand.between(0, .2));
+                placePit(cellFromDistribution(.35), rand.between(.2, .7), rand.between(.8, .95), rand.between(0, .2));
 
             // Subtract .05 from land cells
             addToLandCells(-.05);
@@ -439,31 +475,31 @@ package {
             // Multiply land cells by .9
             multiplyLandCellsBy(.9);
 
-            function centerFromDistribution(distribution:Number):Center {
-                // 0 is map center
+            function cellFromDistribution(distribution:Number):Cell {
+                // 0 is map cell
                 // 1 is map border
                 var dw:Number = distribution * width;
                 var dh:Number = distribution * height;
                 var px:Number = w + ((rand.next() * 2 * dw) - dw);
                 var py:Number = h + ((rand.next() * 2 * dh) - dh);
 
-                return getCenterClosestToPoint(new Point(px, py));
+                return getCellClosestToPoint(new Point(px, py));
             }
 
             function addToLandCells(value:Number):void {
-                for each (center in centers)
-                    if (center.elevation > SEA_LEVEL)
-                        center.elevation += value;
+                for each (cell in cells)
+                    if (cell.elevation > SEA_LEVEL)
+                        cell.elevation += value;
             }
 
             function multiplyLandCellsBy(value:Number):void {
-                for each (center in centers)
-                    if (center.elevation > SEA_LEVEL)
-                        center.elevation *= value;
+                for each (cell in cells)
+                    if (cell.elevation > SEA_LEVEL)
+                        cell.elevation *= value;
             }
         }
 
-        private function placeMountain(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+        private function placeMountain(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
             // Can only be placed once, at the beginning
             var queue:Array = [];
             start.elevation += elevation;
@@ -473,8 +509,8 @@ package {
             queue.push(start);
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
-                elevation = (queue[i] as Center).elevation * radius;
-                for each (var neighbor:Center in (queue[i] as Center).neighbors) {
+                elevation = (queue[i] as Cell).elevation * radius;
+                for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
                     if (!neighbor.used) {
                         var mod:Number = (rand.next() * sharpness) + 1.1 - sharpness;
                         if (sharpness == 0)
@@ -491,10 +527,10 @@ package {
                 }
             }
 
-            unuseCenters();
+            unuseCells();
         }
 
-        private function placeHill(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+        private function placeHill(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
             var queue:Array = [];
             start.elevation += elevation;
             if (start.elevation > 1)
@@ -505,7 +541,7 @@ package {
 
             for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
                 elevation *= radius;
-                for each (var neighbor:Center in (queue[i] as Center).neighbors) {
+                for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
                     if (!neighbor.used) {
                         var mod:Number = sharpness > 0 ? rand.next() * sharpness + 1.1 - sharpness : 1;
                         neighbor.elevation += elevation * mod;
@@ -519,10 +555,10 @@ package {
                 }
             }
 
-            unuseCenters();
+            unuseCells();
         }
 
-        private function placePit(start:Center, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+        private function placePit(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
             var queue:Array = [];
             elevation *= -1;
             start.elevation += elevation;
@@ -534,7 +570,7 @@ package {
 
             for (var i:int = 0; i < queue.length && elevation < SEA_LEVEL - .01; i++) {
                 elevation *= radius;
-                for each (var neighbor:Center in (queue[i] as Center).neighbors) {
+                for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
                     if (!neighbor.used) {
                         var mod:Number = sharpness > 0 ? rand.next() * sharpness + 1.1 - sharpness : 1;
                         neighbor.elevation += elevation * mod;
@@ -548,48 +584,48 @@ package {
                 }
             }
 
-            unuseCenters();
+            unuseCells();
         }
 
-        private function unuseCenters():void {
-            for each (var center:Center in centers) {
-                center.used = false;
+        private function unuseCells():void {
+            for each (var cell:Cell in cells) {
+                cell.used = false;
             }
         }
 
         private function relaxPoints():void {
             points = new Vector.<Point>();
-            for each (var center:Center in centers) {
+            for each (var cell:Cell in cells) {
                 var centroid:Point = new Point();
-                for each (var corner:Corner in center.corners) {
+                for each (var corner:Corner in cell.corners) {
                     centroid.x += corner.point.x;
                     centroid.y += corner.point.y;
                 }
 
-                centroid.x /= center.corners.length;
-                centroid.y /= center.corners.length;
+                centroid.x /= cell.corners.length;
+                centroid.y /= cell.corners.length;
 
-                points.push(Point.interpolate(center.point, centroid, 0.5));
+                points.push(Point.interpolate(cell.point, centroid, 0.5));
             }
 
             // Rebuild graph
             build();
         }
 
-        public function getCenterClosestToPoint(p:Point):Center {
+        public function getCellClosestToPoint(p:Point):Cell {
             var shortestDistance:Number = Number.POSITIVE_INFINITY;
-            var closestCenter:Center;
+            var closestCell:Cell;
             var distance:Number;
 
-            for each (var center:Center in centers) {
-                distance = (center.point.x - p.x) * (center.point.x - p.x) + (center.point.y - p.y) * (center.point.y - p.y);
+            for each (var cell:Cell in cells) {
+                distance = (cell.point.x - p.x) * (cell.point.x - p.x) + (cell.point.y - p.y) * (cell.point.y - p.y);
                 if (distance < shortestDistance) {
-                    closestCenter = center;
+                    closestCell = cell;
                     shortestDistance = distance;
                 }
             }
 
-            return closestCenter;
+            return closestCell;
         }
 
         public function draw():void {
@@ -600,11 +636,12 @@ package {
             // Clear
             graphics.clear();
             outlines.graphics.clear();
+            highlights.graphics.clear();
 
             graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
             graphics.drawRect(0, 0, width, height);
 
-            var center:Center;
+            var cell:Cell;
             var edge:Edge;
 
             if (showBiomes) {
@@ -613,12 +650,12 @@ package {
                 for each (var biomeName:String in Biome.list) {
                     graphics.beginFill(Biome.colors[biomeName]);
                     for each (var biome:Object in featureManager.getFeaturesByType(biomeName)) {
-                        for each (center in biome.centers) {
+                        for each (cell in biome.cells) {
                             // Loop through edges
-                            for each (edge in center.borders) {
+                            for each (edge in cell.edges) {
                                 if (edge.v0 && edge.v1) {
                                     graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                    graphics.lineTo(center.point.x, center.point.y);
+                                    graphics.lineTo(cell.point.x, cell.point.y);
                                     graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                                 } else {
                                 }
@@ -636,12 +673,12 @@ package {
                 var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
                 for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER)) {
                     // Create an array of points
-                    graphics.moveTo(river.centers[0].point.x, river.centers[0].point.y);
+                    graphics.moveTo(river.cells[0].point.x, river.cells[0].point.y);
                     var i:int = 0;
-                    for each (center in river.centers) {
+                    for each (cell in river.cells) {
                         i++;
-                        graphics.lineStyle(1 + ((i / river.centers.length) * river.centers.length) / 5, seaColor);
-                        graphics.lineTo(center.point.x, center.point.y);
+                        graphics.lineStyle(1 + ((i / river.cells.length) * river.cells.length) / 5, seaColor);
+                        graphics.lineTo(cell.point.x, cell.point.y);
                     }
                 }
             }
@@ -654,34 +691,41 @@ package {
 
             if (showMountains) {
                 // Draw mountains
-                graphics.lineStyle(1, 0xff0000, .2);
+                // todo overhaul this
+                graphics.lineStyle(1, 0xff000);
                 for each (var mountain:Object in featureManager.getFeaturesByType(Biome.MOUNTAIN)) {
                     var mountainBase:Array = [];
                     var mountainBody:Array = [];
-                    for each (center in mountain.centers) {
+                    for each (cell in mountain.cells) {
                         var isBase:Boolean = false;
-                        for each (var neighbor:Center in center.neighbors) {
+                        for each (var neighbor:Cell in cell.neighbors) {
                             if (!neighbor.hasFeatureType(Biome.MOUNTAIN)) {
                                 isBase = true;
                                 break;
                             }
                         }
                         if (!isBase)
-                            mountainBody.push(center);
+                            mountainBody.push(cell);
                         else
-                            mountainBase.push(center);
+                            mountainBase.push(cell);
                     }
 
-                    mountainBody = mountainBody.sortOn("elevation", Array.DESCENDING);
+                    // Mark the highest point
+                    mountainBody.sortOn("elevation", Array.DESCENDING);
+                    graphics.lineStyle(2, 0x000000);
+                    graphics.beginFill(0xffffff);
+                    graphics.drawCircle(mountainBody[0].point.x, mountainBody[0].point.y, 5);
+                    graphics.endFill();
 
                     graphics.lineStyle(1, 0x000000);
-                    for each (center in mountainBody) {
-                        var d:Number = (center.elevation - MOUNTAIN_ELEVATION_ADJACENT) / (1 - MOUNTAIN_ELEVATION_ADJACENT) * 20;
-                        for each (neighbor in center.neighbors) {
-                            var f:Number = (neighbor.elevation - MOUNTAIN_ELEVATION_ADJACENT) / (1 - MOUNTAIN_ELEVATION_ADJACENT) * 20;
-                            graphics.moveTo(center.point.x, center.point.y - (d));
-                            if (Math.abs(d - f) > 1)
-                                graphics.lineTo(neighbor.point.x, center.point.y - (f));
+                    // Draw an outline of the mountain
+                    for each (cell in mountainBase) {
+                        for each (edge in cell.edges) {
+                            if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                //if (!edge.d0.hasFeatureType(Biome.MOUNTAIN) || !edge.d1.hasFeatureType(Biome.MOUNTAIN))
+                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            }
                         }
                     }
                 }
@@ -689,21 +733,21 @@ package {
 
             if (showBiomes) {
                 // Draw details on biomes
-                for each (center in centers) {
-                    addCenterDetail(center);
+                for each (cell in cells) {
+                    addCellDetail(cell);
                 }
             }
 
             if (showTemperature) {
                 // Draw temperature
                 graphics.lineStyle();
-                for each (center in centers) {
-                    if (center.elevation > SEA_LEVEL) {
-                        graphics.beginFill(getColorFromTemperature(center.temperature), .6);
-                        for each (edge in center.borders) {
+                for each (cell in cells) {
+                    if (cell.elevation > SEA_LEVEL) {
+                        graphics.beginFill(getColorFromTemperature(cell.temperature), .6);
+                        for each (edge in cell.edges) {
                             if (edge.v0 && edge.v1) {
                                 graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                graphics.lineTo(center.point.x, center.point.y);
+                                graphics.lineTo(cell.point.x, cell.point.y);
                                 graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                             } else {
                             }
@@ -716,13 +760,13 @@ package {
             if (showTerrain) {
                 // Draw terrain
                 graphics.lineStyle();
-                for each (var center:Center in centers) {
-                    graphics.beginFill(getColorFromElevation(center.elevation), 1);
+                for each (cell in cells) {
+                    graphics.beginFill(getColorFromElevation(cell.elevation), 1);
 
-                    for each (var edge:Edge in center.borders) {
+                    for each (edge in cell.edges) {
                         if (edge.v0 && edge.v1) {
                             graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                            graphics.lineTo(center.point.x, center.point.y);
+                            graphics.lineTo(cell.point.x, cell.point.y);
                             graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                         } else {
                         }
@@ -734,8 +778,24 @@ package {
             if (showPrecipitation) {
                 // Draw flux
                 graphics.lineStyle(1, 0x0000ff, 0.3);
-                for each (center in centers) {
-                    graphics.drawCircle(center.point.x, center.point.y, center.moisture * 5);
+                for each (cell in cells) {
+                    graphics.drawCircle(cell.point.x, cell.point.y, cell.moisture * 5);
+                }
+            }
+
+            if (showInfluence) {
+                // Draw points of influence
+                var list:Array = [Geography.ESTUARY, Geography.CONFLUENCE];
+
+                graphics.lineStyle(1, 0x000000);
+                for each (var typeOfInfluence:String in list) {
+                    for each (var influence:Object in featureManager.getFeaturesByType(typeOfInfluence)) {
+                        for each (cell in influence.cells) {
+                            graphics.beginFill(0xffffff);
+                            graphics.drawCircle(cell.point.x, cell.point.y, 3);
+                            graphics.endFill();
+                        }
+                    }
                 }
             }
 
@@ -759,11 +819,11 @@ package {
                 // Fill
                 graphics.lineStyle();
                 graphics.beginFill(fillColor);
-                for each (var center:Center in forest.centers) {
-                    for (var i:int = 0; i < center.borders.length; i++) {
-                        var edge:Edge = center.borders[i];
+                for each (var cell:Cell in forest.cells) {
+                    for (var i:int = 0; i < cell.edges.length; i++) {
+                        var edge:Edge = cell.edges[i];
                         if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                            graphics.moveTo(center.point.x, center.point.y);
+                            graphics.moveTo(cell.point.x, cell.point.y);
                             graphics.lineTo(edge.v0.point.x, edge.v0.point.y);
                             if (!edge.d0.features[forest.id]) {
                                 // Draw a curved line
@@ -780,9 +840,9 @@ package {
                 graphics.endFill();
 
                 // Outline
-                for each (center in forest.centers) {
-                    for (i = 0; i < center.borders.length; i++) {
-                        edge = center.borders[i];
+                for each (cell in forest.cells) {
+                    for (i = 0; i < cell.edges.length; i++) {
+                        edge = cell.edges[i];
                         if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
                             graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                             if (!edge.d0.features[forest.id]) {
@@ -800,12 +860,12 @@ package {
             }
         }
 
-        private function addCenterDetail(center:Center):void {
+        private function addCellDetail(cell:Cell):void {
             var iconDensity:Number = 0;
-            var c:Point = new Point(center.point.x + rand.between(-4, 4), center.point.y + rand.between(-4, 4));
+            var c:Point = new Point(cell.point.x + rand.between(-4, 4), cell.point.y + rand.between(-4, 4));
             var d:Number;
 
-            if (center.hasFeatureType(Biome.TEMPERATE_FOREST)) {
+            if (cell.hasFeatureType(Biome.TEMPERATE_FOREST)) {
                 iconDensity = .4;
 
                 if (rand.next() > iconDensity)
@@ -818,7 +878,7 @@ package {
                 graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
                 graphics.curveTo(c.x, c.y - rand.between(1, 5), c.x + d, c.y);
             }
-            if (center.hasFeatureType(Biome.BOREAL_FOREST)) {
+            if (cell.hasFeatureType(Biome.BOREAL_FOREST)) {
                 iconDensity = .8;
 
                 if (rand.next() > iconDensity)
@@ -831,37 +891,33 @@ package {
             }
 
             function bordersForeignType(type:String):Boolean {
-                // Check that the center isn't bordering any foreign biome types
-                for each (var neighbor:Center in center.neighbors)
+                // Check that the cell isn't bordering any foreign biome types
+                for each (var neighbor:Cell in cell.neighbors)
                     if (!neighbor.hasFeatureType(type))
                         return true;
                 return false;
             }
 
             if (rand.next() < iconDensity)
-                addCenterDetail(center);
+                addCellDetail(cell);
         }
 
         private function drawCoastline():void {
-            drawFeatureOutlines(Geography.LAND);
-            drawFeatureOutlines(Geography.LAKE);
+            drawLandmassBorders(Geography.LAND);
+            drawLandmassBorders(Geography.LAKE);
         }
 
-        private function drawFeatureOutlines(featureType:String):void {
+        private function drawLandmassBorders(featureType:String):void {
             for (var key:String in featureManager.getFeaturesByType(featureType)) {
                 var feature:Object = featureManager.features[key];
                 graphics.lineStyle(1, Biome.colors.saltWater_stroke);
                 if (feature.type != Geography.OCEAN) {
-                    for each (var center:Center in feature.centers) {
-                        for each (var edge:Edge in center.borders) {
+                    for each (var cell:Cell in feature.cells) {
+                        for each (var edge:Edge in cell.edges) {
                             if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
                                 graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                if (!edge.d0.features[key]) {
-                                    // Draw a line
+                                if (!edge.d0.features[key] || !edge.d1.features[key])
                                     graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                                } else if (!edge.d1.features[key]) {
-                                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                                }
                             }
                         }
                     }
@@ -909,25 +965,25 @@ package {
         public function build():void {
             // Setup
             var voronoi:Voronoi = new Voronoi(points, null, new Rectangle(0, 0, width, height));
-            centers = new Vector.<Center>();
+            cells = new Vector.<Cell>();
             corners = new Vector.<Corner>();
             edges = new Vector.<Edge>();
 
             /**
-             * Centers
+             * Cells
              */
 
-            var centerDictionary:Dictionary = new Dictionary();
+            var cellDictionary:Dictionary = new Dictionary();
             for each (var point:Point in points) {
-                var center:Center = new Center();
-                center.index = centers.length;
-                center.point = point;
-                centers.push(center);
-                centerDictionary[point] = center;
+                var cell:Cell = new Cell();
+                cell.index = cells.length;
+                cell.point = point;
+                cells.push(cell);
+                cellDictionary[point] = cell;
             }
 
-            for each (center in centers) {
-                voronoi.region(center.point);
+            for each (cell in cells) {
+                voronoi.region(cell.point);
             }
 
             /**
@@ -982,22 +1038,22 @@ package {
 
                 edge.v0 = makeCorner(vEdge.p0);
                 edge.v1 = makeCorner(vEdge.p1);
-                edge.d0 = centerDictionary[dEdge.p0];
-                edge.d1 = centerDictionary[dEdge.p1];
+                edge.d0 = cellDictionary[dEdge.p0];
+                edge.d1 = cellDictionary[dEdge.p1];
 
                 setupEdge(edge);
             }
 
             /**
-             * Deal with borders
+             * Deal with edges
              */
 
-            borders = new Vector.<Center>();
-            for each (center in centers) {
-                for each (var corner:Corner in center.corners) {
+            borders = new Vector.<Cell>();
+            for each (cell in cells) {
+                for each (var corner:Corner in cell.corners) {
                     if (corner.border) {
-                        borders.push(center);
-                        center.neighbors = new Vector.<Center>();
+                        borders.push(cell);
+                        cell.neighbors = new Vector.<Cell>();
                         break;
                     }
                 }
@@ -1006,10 +1062,10 @@ package {
 
         private function setupEdge(edge:Edge):void {
             if (edge.d0 != null)
-                edge.d0.borders.push(edge);
+                edge.d0.edges.push(edge);
 
             if (edge.d1 != null)
-                edge.d1.borders.push(edge);
+                edge.d1.edges.push(edge);
 
             if (edge.v0 != null)
                 edge.v0.protrudes.push(edge);
@@ -1018,8 +1074,8 @@ package {
                 edge.v1.protrudes.push(edge);
 
             if (edge.d0 != null && edge.d1 != null) {
-                addToCenterList(edge.d0.neighbors, edge.d1);
-                addToCenterList(edge.d1.neighbors, edge.d0);
+                addToCellList(edge.d0.neighbors, edge.d1);
+                addToCellList(edge.d1.neighbors, edge.d0);
             }
 
             if (edge.v0 != null && edge.v1 != null) {
@@ -1038,13 +1094,13 @@ package {
             }
 
             if (edge.v0 != null) {
-                addToCenterList(edge.v0.touches, edge.d0);
-                addToCenterList(edge.v0.touches, edge.d1);
+                addToCellList(edge.v0.touches, edge.d0);
+                addToCellList(edge.v0.touches, edge.d1);
             }
 
             if (edge.v1 != null) {
-                addToCenterList(edge.v1.touches, edge.d0);
-                addToCenterList(edge.v1.touches, edge.d1);
+                addToCellList(edge.v1.touches, edge.d0);
+                addToCellList(edge.v1.touches, edge.d1);
             }
 
             // Calculate Angles
@@ -1060,7 +1116,7 @@ package {
                 }
             }
 
-            function addToCenterList(v:Vector.<Center>, x:Center):void {
+            function addToCellList(v:Vector.<Cell>, x:Cell):void {
                 if (x != null && v.indexOf(x) < 0) {
                     v.push(x);
                 }
@@ -1075,32 +1131,56 @@ package {
             // Reset Geography
             featureManager.reset();
 
-            // Reset centers
-            for each (var center:Center in centers)
-                center.reset();
+            // Reset cells
+            for each (var cell:Cell in cells)
+                cell.reset();
 
-            unuseCenters();
+            unuseCells();
         }
 
         private function onClick(event:MouseEvent):void {
-            var center:Center = getCenterClosestToPoint(mouse);
-            trace(humanReadableCenter(center));
+            var cell:Cell = getCellClosestToPoint(mouse);
+            trace(humanReadableCell(cell));
+
+            // Highlight feature
+            for each (var feature:Object in cell.features) {
+                if (feature.type != Geography.LAND && feature.type != Geography.LAKE)
+                    break;
+            }
+
+            highlightFeature(feature);
         }
 
-        private function humanReadableCenter(center:Center):String {
-            var str:String = "#" + center.index;
-            str += "\n  elevation: " + center.realElevation + " m";
-            str += "\n  elevation: " + center.elevation;
-            str += "\n  latitude: " + center.realLatitude + " °N";
-            str += "\n  temperature: " + center.realTemperature + " °C";
-            str += "\n  precipitation: " + center.precipitation + " mm/year";
-            for each (var feature:Object in center.features)
-                str += "\n > " + feature.type + " (" + feature.centers.length + ")";
+        private function highlightFeature(feature:Object):void {
+            // Highlight a feature
+            highlights.graphics.clear();
+            highlights.graphics.lineStyle(1, 0x000000, .6);
+            for each (var cell:Cell in feature.cells) {
+                for each (var edge:Edge in cell.edges) {
+                    if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                        highlights.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                        if (!edge.d0.features[feature.id] || !edge.d1.features[feature.id])
+                            highlights.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                    }
+                }
+            }
+        }
+
+        private function humanReadableCell(cell:Cell):String {
+            var str:String = "#" + cell.index;
+            str += "\n  elevation: " + cell.realElevation + " m";
+            str += "\n  elevation: " + cell.elevation;
+            str += "\n  latitude: " + cell.realLatitude + " °N";
+            str += "\n  temperature: " + cell.realTemperature + " °C";
+            str += "\n  precipitation: " + cell.precipitation + " mm/year";
+            for each (var feature:Object in cell.features)
+                str += "\n > " + feature.type + " (" + feature.cells.length + ")";
 
             return str;
         }
 
         private function onRightClick(event:MouseEvent):void {
+            highlights.graphics.clear();
         }
 
         public function get mouse():Point {

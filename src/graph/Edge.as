@@ -5,7 +5,7 @@ package graph {
         public var index:int;
 
         // The polygons connected by the Delaunay edge
-        public var d0:Center, d1:Center;
+        public var d0:Cell, d1:Cell;
 
         // The corners connected by the Voronoi edge
         public var v0:Corner, v1:Corner;

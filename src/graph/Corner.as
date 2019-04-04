@@ -8,7 +8,7 @@ package graph {
         public var point:Point;
 
         // A set of polygons touching this corne
-        public var touches:Vector.<Center>;
+        public var touches:Vector.<Cell>;
 
         // A set of edges touching the corner
         public var protrudes:Vector.<Edge>;
@@ -23,7 +23,7 @@ package graph {
         public var elevation:Number;
 
         public function Corner() {
-            touches = new Vector.<Center>();
+            touches = new Vector.<Cell>();
             protrudes = new Vector.<Edge>();
             adjacent = new Vector.<Corner>();
         }

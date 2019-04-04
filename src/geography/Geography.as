@@ -1,5 +1,5 @@
 package geography {
-    import graph.Center;
+    import graph.Cell;
 
     import mx.utils.UIDUtil;
 
@@ -13,6 +13,8 @@ package geography {
         public static var LAND:String = "land";
         public static var LAKE:String = "lake";
         public static var RIVER:String = "river";
+        public static var ESTUARY:String = "estuary";
+        public static var CONFLUENCE:String = "confluence";
 
         public function Geography() {
             if (_instance)
@@ -35,32 +37,32 @@ package geography {
             features = {};
         }
 
-        public function registerFeature(type:String):String {
+        public function registerFeature(featureType:String):String {
             var id:String = UIDUtil.createUID();
 
-            features[id] = {id: id, type: type, centers: new Vector.<Center>(), color: colors[type]};
+            features[id] = {id: id, type: featureType, cells: new Vector.<Cell>()};
 
             return id;
         }
 
-        public function addCenterToFeature(center:Center, feature:String):void {
-            center.features[feature] = features[feature];
-            features[feature].centers.push(center);
+        public function addCellToFeature(cell:Cell, feature:String):void {
+            cell.features[feature] = features[feature];
+            features[feature].cells.push(cell);
         }
 
-        public function removeCenterFromFeature(center:Center, feature:String):void {
-            delete center.features[feature];
-            features[feature].centers.removeAt(features[feature].centers.indexOf(center));
+        public function removeCellFromFeature(cell:Cell, feature:String):void {
+            delete cell.features[feature];
+            features[feature].cells.removeAt(features[feature].cells.indexOf(cell));
         }
 
         public function getFeature(id:String):Object {
             return features[id];
         }
 
-        public function getFeaturesByType(type:String):Object {
+        public function getFeaturesByType(featureType:String):Object {
             var obj:Object = {};
             for each (var feature:Object in features) {
-                if (feature.type == type) {
+                if (feature.type == featureType) {
                     obj[feature.id] = feature;
                 }
             }

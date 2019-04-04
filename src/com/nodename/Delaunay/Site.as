@@ -225,7 +225,7 @@ package com.nodename.Delaunay {
                 // see if they are on the same border of the bounds:
                 if (rightPoint.x != newPoint.x
                         && rightPoint.y != newPoint.y) {
-                    // They are on different borders of the bounds;
+                    // They are on different edges of the bounds;
                     // insert one or two corners of bounds as needed to hook them up:
                     // (NOTE this will not be correct if the region should take up more than
                     // half of the bounds rect, for then we will have gone the wrong way

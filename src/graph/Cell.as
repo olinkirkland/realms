@@ -3,7 +3,7 @@ package graph {
 
     import geography.Geography;
 
-    public class Center {
+    public class Cell {
         public var index:int;
 
         /**
@@ -20,10 +20,10 @@ package graph {
         public var point:Point;
 
         // A set of adjacent polygons
-        public var neighbors:Vector.<Center>;
+        public var neighbors:Vector.<Cell>;
 
         // A set of bordering edges
-        public var borders:Vector.<Edge>;
+        public var edges:Vector.<Edge>;
 
         // A set of polygon corners
         public var corners:Vector.<Corner>;
@@ -80,9 +80,9 @@ package graph {
 
         public var realElevation:Number;
 
-        public function Center() {
-            neighbors = new Vector.<Center>();
-            borders = new Vector.<Edge>();
+        public function Cell() {
+            neighbors = new Vector.<Cell>();
+            edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
 
             reset();

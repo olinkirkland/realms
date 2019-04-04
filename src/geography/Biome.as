@@ -1,5 +1,5 @@
 package geography {
-    import graph.Center;
+    import graph.Cell;
 
     public class Biome {
         public static var list:Array = [FRESH_WATER, SALT_WATER, TUNDRA, BOREAL_FOREST, GRASSLAND, TEMPERATE_FOREST, SAVANNA, RAIN_FOREST, DESERT, MOUNTAIN];
@@ -44,10 +44,10 @@ package geography {
             rainForest: 0xEAD6B5,
             rainForest_stroke: 0xEAD6B5,
             desert: 0xEAD6B5,
-            mountain: 0xEAD6B5
+            mountain: 0x383838
         };
 
-        public static function determineBiome(center:Center):String {
+        public static function determineBiome(cell:Cell):String {
             var biome:String;
 
             // Calculate properties
@@ -56,8 +56,8 @@ package geography {
             var lakeAdjacent:Boolean = false;
             var oceanAdjacent:Boolean = false;
             var mountainAdjacent:Boolean = false;
-            for each (var neighbor:Center in center.neighbors) {
-                if (center.hasFeatureType(Geography.RIVER))
+            for each (var neighbor:Cell in cell.neighbors) {
+                if (cell.hasFeatureType(Geography.RIVER))
                     isRiver = true;
                 if (neighbor.hasFeatureType(Geography.RIVER))
                     riverAdjacent = true;
@@ -74,7 +74,7 @@ package geography {
              * High Elevation
              */
 
-            if (center.elevation > Map.MOUNTAIN_ELEVATION || (mountainAdjacent && center.elevation > Map.MOUNTAIN_ELEVATION_ADJACENT))
+            if (cell.elevation > Map.MOUNTAIN_ELEVATION || (mountainAdjacent && cell.elevation > Map.MOUNTAIN_ELEVATION_ADJACENT))
                 biome = MOUNTAIN;
 
             /**
@@ -82,19 +82,19 @@ package geography {
              */
 
             // Fresh Water
-            else if (center.hasFeatureType(Geography.LAKE))
+            else if (cell.hasFeatureType(Geography.LAKE))
                 biome = FRESH_WATER;
 
             // Salt Water
-            else if (center.hasFeatureType(Geography.OCEAN))
+            else if (cell.hasFeatureType(Geography.OCEAN))
                 biome = SALT_WATER;
 
             /**
              * Cold
              */
 
-            else if (center.temperature < .2) {
-                if (!isRiver && (center.moisture > .5 || (center.moisture > .3 && (riverAdjacent || lakeAdjacent))))
+            else if (cell.temperature < .2) {
+                if (!isRiver && (cell.moisture > .5 || (cell.moisture > .3 && (riverAdjacent || lakeAdjacent))))
                     biome = BOREAL_FOREST;
                 else
                     biome = TUNDRA;
@@ -104,8 +104,8 @@ package geography {
              * Temperate
              */
 
-            else if (center.temperature < .6) {
-                if (!isRiver && (center.moisture > .5 || (center.moisture > .3 && (riverAdjacent || lakeAdjacent))))
+            else if (cell.temperature < .6) {
+                if (!isRiver && (cell.moisture > .5 || (cell.moisture > .3 && (riverAdjacent || lakeAdjacent))))
                     biome = TEMPERATE_FOREST;
                 else
                     biome = GRASSLAND;
@@ -115,10 +115,10 @@ package geography {
              * Tropical
              */
 
-            else if (center.temperature <= 1) {
-                if (center.moisture > .5)
+            else if (cell.temperature <= 1) {
+                if (cell.moisture > .5)
                     biome = RAIN_FOREST;
-                else if (center.moisture > .2)
+                else if (cell.moisture > .2)
                     biome = SAVANNA;
                 else
                     biome = DESERT;

@@ -20,7 +20,7 @@
             systemManager.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             systemManager.stage.addEventListener(Event.RESIZE, onResize);
-            //systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 
             buttonGenerate.addEventListener(MouseEvent.CLICK, onButtonGenerateClick);
         }
@@ -76,6 +76,11 @@
                 case Keyboard.T:
                     // Toggle terrain
                     map.showTerrain = !map.showTerrain;
+                    map.draw();
+                    break;
+                case Keyboard.Y:
+                    // Toggle mountains
+                    map.showMountains = !map.showMountains;
                     map.draw();
                     break;
                 case Keyboard.P:
