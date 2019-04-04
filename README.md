@@ -14,7 +14,7 @@ Greensock https://greensock.com/tweenlite-as
 Andy Woodruff's Continuous Curves http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/  
 Flash.swc  
 
-![Latest Screenshot](https://i.imgur.com/MXSi5HI.png)
+![Latest Screenshot](https://i.imgur.com/m3PB51g.png)
 Latest Screenshot  
 
 ![Procedurally Generated Island Map 1](https://i.imgur.com/jfRGyjT.png)
