@@ -35,7 +35,7 @@ package {
         public var borders:Vector.<Cell>;
 
         // Managers
-        private var featureManager:Geography;
+        private var geography:Geography;
 
         // Generation
         private var outlines:Shape;
@@ -58,7 +58,7 @@ package {
 
         public function Map() {
             // Initialize Singletons
-            featureManager = Geography.getInstance();
+            geography = Geography.getInstance();
 
             // Seeded random generator
             rand = new Rand(1);
@@ -154,7 +154,7 @@ package {
                 }
             }
 
-//            for each (var feature:Object in featureManager.features) {
+//            for each (var feature:Object in geography.features) {
 //                if (Geography.type != Geography.RIVER && Geography.type != Geography.OCEAN && Geography.type != Geography.LAND && Geography.type != Geography.LAKE)
 //                    trace(Geography.type, Geography.cells.length);
 //            }
@@ -165,7 +165,7 @@ package {
         }
 
         private function determineBiomes():void {
-            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+            for each (var land:Object in geography.getFeaturesByType(Geography.LAND)) {
                 var landCells:Vector.<Cell> = land.cells.concat();
                 var queue:Array = [];
                 while (landCells.length > 0) {
@@ -174,8 +174,8 @@ package {
 
                     // Pick a starting biome
                     var currentBiome:String = Biome.determineBiome(start);
-                    var currentFeature:String = featureManager.registerFeature(currentBiome);
-                    featureManager.addCellToFeature(start, currentFeature);
+                    var currentFeature:String = geography.registerFeature(currentBiome);
+                    geography.addCellToFeature(start, currentFeature);
                     start.biome = currentFeature;
                     start.biomeType = currentBiome;
 
@@ -188,7 +188,7 @@ package {
                         for each (var neighbor:Cell in cell.neighbors) {
                             var d:Boolean = Biome.determineBiome(neighbor) == currentBiome;
                             if (!neighbor.used && land.cells.indexOf(neighbor) >= 0 && d) {
-                                featureManager.addCellToFeature(neighbor, currentFeature);
+                                geography.addCellToFeature(neighbor, currentFeature);
                                 neighbor.biome = currentFeature;
                                 neighbor.biomeType = currentBiome;
                                 queue.push(neighbor);
@@ -207,7 +207,7 @@ package {
             unuseCells();
 
             // Determine glades
-            for each (var grassland:Object in featureManager.getFeaturesByType(Biome.GRASSLAND)) {
+            for each (var grassland:Object in geography.getFeaturesByType(Biome.GRASSLAND)) {
                 // isGlade is positive for grasslands as long as they are small and entirely surrounded by forest
                 var isGlade:Boolean = grassland.cells.length < 10;
                 for each (cell in grassland.cells) {
@@ -231,7 +231,7 @@ package {
             }
 
             // Create rivers
-            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+            for each (var land:Object in geography.getFeaturesByType(Geography.LAND)) {
                 for each (cell in land.cells) {
                     cell.flux = cell.moisture;
                 }
@@ -257,22 +257,22 @@ package {
                                 river = v;
                         }
 
-                        featureManager.addCellToFeature(t, river);
+                        geography.addCellToFeature(t, river);
 
                         if (!t.hasFeatureType(Geography.OCEAN) && !t.hasFeatureType(Geography.LAKE) && riverCount > 1) {
-                            var confluence:String = featureManager.registerFeature(Geography.CONFLUENCE);
-                            featureManager.addCellToFeature(t, confluence);
+                            var confluence:String = geography.registerFeature(Geography.CONFLUENCE);
+                            geography.addCellToFeature(t, confluence);
                         }
                     } else {
                         // Start new river
-                        river = featureManager.registerFeature(Geography.RIVER);
-                        featureManager.addCellToFeature(c, river);
-                        featureManager.addCellToFeature(t, river);
+                        river = geography.registerFeature(Geography.RIVER);
+                        geography.addCellToFeature(c, river);
+                        geography.addCellToFeature(t, river);
                     }
 
                     if (t.hasFeatureType(Geography.OCEAN) || t.hasFeatureType(Geography.LAKE)) {
-                        var estuary:String = featureManager.registerFeature(Geography.ESTUARY);
-                        featureManager.addCellToFeature(c, estuary);
+                        var estuary:String = geography.registerFeature(Geography.ESTUARY);
+                        geography.addCellToFeature(c, estuary);
                         var water:Object = {};
                         // An estuary can empty into an ocean or a lake, but not into both
                         if (t.hasFeatureType(Geography.OCEAN))
@@ -284,7 +284,7 @@ package {
                         for each (var target:String in water)
                             break;
 
-                        var feature:Object = featureManager.getFeature(estuary);
+                        var feature:Object = geography.getFeature(estuary);
                         feature.target = target;
                         //feature.power =
                     }
@@ -373,19 +373,19 @@ package {
                     break;
             }
 
-            var ocean:String = featureManager.registerFeature(Geography.OCEAN);
-            featureManager.addCellToFeature(start, ocean);
+            var ocean:String = geography.registerFeature(Geography.OCEAN);
+            geography.addCellToFeature(start, ocean);
             start.used = true;
             queue.push(start);
 
             // Define Ocean
-            var biome:String = featureManager.registerFeature(Biome.SALT_WATER);
+            var biome:String = geography.registerFeature(Biome.SALT_WATER);
             while (queue.length > 0) {
                 var cell:Cell = queue.shift();
                 for each (var neighbor:Cell in cell.neighbors) {
                     if (!neighbor.used && neighbor.elevation < SEA_LEVEL) {
-                        featureManager.addCellToFeature(neighbor, ocean);
-                        featureManager.addCellToFeature(neighbor, biome);
+                        geography.addCellToFeature(neighbor, ocean);
+                        geography.addCellToFeature(neighbor, biome);
                         queue.push(neighbor);
                         neighbor.used = true;
                     }
@@ -394,8 +394,8 @@ package {
 
             // Override list edges to be part of the Ocean
             for each (cell in borders) {
-                featureManager.addCellToFeature(cell, ocean);
-                featureManager.addCellToFeature(cell, biome);
+                geography.addCellToFeature(cell, ocean);
+                geography.addCellToFeature(cell, biome);
             }
 
 
@@ -415,23 +415,23 @@ package {
                 // If the elevation of the cell is higher than sea level, define it as Land otherwise define it as a Lake
                 if (start.elevation >= SEA_LEVEL) {
                     // Define it as land
-                    currentFeature = featureManager.registerFeature(Geography.LAND);
+                    currentFeature = geography.registerFeature(Geography.LAND);
                     biome = null;
 
                     lower = SEA_LEVEL;
                     upper = 100;
                 } else {
                     // Define it as a lake
-                    currentFeature = featureManager.registerFeature(Geography.LAKE);
-                    biome = featureManager.registerFeature(Biome.FRESH_WATER);
+                    currentFeature = geography.registerFeature(Geography.LAKE);
+                    biome = geography.registerFeature(Biome.FRESH_WATER);
 
                     lower = -100;
                     upper = SEA_LEVEL;
                 }
 
-                featureManager.addCellToFeature(start, currentFeature);
+                geography.addCellToFeature(start, currentFeature);
                 if (biome)
-                    featureManager.addCellToFeature(start, biome);
+                    geography.addCellToFeature(start, biome);
 
                 start.used = true;
 
@@ -442,9 +442,9 @@ package {
                     queue.shift();
                     for each (neighbor in cell.neighbors) {
                         if (!neighbor.used && neighbor.elevation >= lower && neighbor.elevation < upper) {
-                            featureManager.addCellToFeature(neighbor, currentFeature);
+                            geography.addCellToFeature(neighbor, currentFeature);
                             if (biome)
-                                featureManager.addCellToFeature(neighbor, biome);
+                                geography.addCellToFeature(neighbor, biome);
 
                             queue.push(neighbor);
                             neighbor.used = true;
@@ -662,7 +662,7 @@ package {
                 graphics.lineStyle();
                 for each (var biomeName:String in Biome.list) {
                     graphics.beginFill(Biome.colors[biomeName]);
-                    for each (var biome:Object in featureManager.getFeaturesByType(biomeName)) {
+                    for each (var biome:Object in geography.getFeaturesByType(biomeName)) {
                         for each (cell in biome.cells) {
                             // Loop through edges
                             for each (edge in cell.edges) {
@@ -684,7 +684,7 @@ package {
             if (showRivers) {
                 // Draw rivers
                 var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
-                for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER)) {
+                for each (var river:Object in geography.getFeaturesByType(Geography.RIVER)) {
                     // Create an array of points
                     graphics.moveTo(river.cells[0].point.x, river.cells[0].point.y);
                     var i:int = 0;
@@ -706,7 +706,7 @@ package {
                 // Draw mountains
                 // todo overhaul this
                 graphics.lineStyle(1, 0xff000);
-                for each (var mountain:Object in featureManager.getFeaturesByType(Biome.MOUNTAIN)) {
+                for each (var mountain:Object in geography.getFeaturesByType(Biome.MOUNTAIN)) {
                     var mountainBase:Array = [];
                     var mountainBody:Array = [];
                     for each (cell in mountain.cells) {
@@ -802,7 +802,7 @@ package {
 
                 graphics.lineStyle(1, 0x000000);
                 for each (var typeOfInfluence:String in list) {
-                    for each (var influence:Object in featureManager.getFeaturesByType(typeOfInfluence)) {
+                    for each (var influence:Object in geography.getFeaturesByType(typeOfInfluence)) {
                         for each (cell in influence.cells) {
                             graphics.beginFill(0xffffff);
                             graphics.drawCircle(cell.point.x, cell.point.y, 3);
@@ -812,7 +812,7 @@ package {
                 }
 
                 graphics.lineStyle(1, 0xff0000);
-                for each (var glade:Object in featureManager.getFeaturesByType(Geography.GLADE)) {
+                for each (var glade:Object in geography.getFeaturesByType(Geography.GLADE)) {
                     for each (cell in glade.cells) {
                         graphics.drawCircle(cell.point.x, cell.point.y, 3);
                     }
@@ -835,7 +835,7 @@ package {
 
         private function drawForests(type:String, fillColor:uint, outlineColor:uint, bottomOutlineColor:uint):void {
             // Draw forests
-            for each (var forest:Object in featureManager.getFeaturesByType(type)) {
+            for each (var forest:Object in geography.getFeaturesByType(type)) {
                 // Fill
                 graphics.lineStyle();
                 graphics.beginFill(fillColor);
@@ -928,8 +928,8 @@ package {
         }
 
         private function drawLandmassBorders(featureType:String):void {
-            for (var key:String in featureManager.getFeaturesByType(featureType)) {
-                var feature:Object = featureManager.features[key];
+            for (var key:String in geography.getFeaturesByType(featureType)) {
+                var feature:Object = geography.features[key];
                 graphics.lineStyle(1, Biome.colors.saltWater_stroke);
                 if (feature.type != Geography.OCEAN) {
                     for each (var cell:Cell in feature.cells) {
@@ -1149,7 +1149,7 @@ package {
 
         private function reset():void {
             // Reset Geography
-            featureManager.reset();
+            geography.reset();
 
             // Reset cells
             for each (var cell:Cell in cells)
