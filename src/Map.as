@@ -175,11 +175,24 @@ package {
                     if (cell.hasFeatureType(Biome.TUNDRA))
                         cell.desirability += 1;
                     if (cell.hasFeatureType(Geography.ESTUARY))
-                        cell.desirability += cell.flux;
+                        cell.desirability += cell.flux / 10;
                     if (cell.hasFeatureType(Geography.CONFLUENCE))
-                        cell.desirability += cell.flux;
+                        cell.desirability += cell.flux / 10;
                     if (cell.hasFeatureType(Geography.HAVEN))
                         cell.desirability += 2;
+                }
+
+                for each (cell in land.cells) {
+                    var d:Number = 0;
+                    var landNeighborCount:int = 0;
+                    for each (var neighbor:Cell in cell.neighbors) {
+                        if (neighbor.hasFeatureType(Geography.LAND)) {
+                            landNeighborCount++;
+                            d += neighbor.desirability;
+                        }
+
+                        //cell.desirability += d / landNeighborCount;
+                    }
                 }
             }
         }
@@ -844,21 +857,23 @@ package {
             }
 
             if (showDesirability) {
-                // Draw points of influence
+                // Draw desirability
                 graphics.lineStyle();
-                for each (cell in cells) {
-                    graphics.beginFill(Util.getColorBetweenColors(0x000000, 0xffffff, cell.desirability / 10));
+                for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+                    for each (cell in land.cells) {
+                        graphics.beginFill(Util.getColorBetweenColors(0x0000ff, 0xffff00, cell.desirability / 10));
 
-                    for each (edge in cell.edges) {
-                        if (edge.v0 && edge.v1) {
-                            graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                            graphics.lineTo(cell.point.x, cell.point.y);
-                            graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                        } else {
+                        for each (edge in cell.edges) {
+                            if (edge.v0 && edge.v1) {
+                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                graphics.lineTo(cell.point.x, cell.point.y);
+                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            } else {
+                            }
                         }
                     }
+                    graphics.endFill();
                 }
-                graphics.endFill();
             }
 
             if (showOutlines) {

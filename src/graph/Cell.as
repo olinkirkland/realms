@@ -30,7 +30,7 @@ package graph {
         public var features:Object;
 
         // Settlement placement desirability
-        public var desirability:int;
+        public var desirability:Number;
 
         public function hasFeatureType(type:String):Boolean {
             for each (var feature:Object in features) {
