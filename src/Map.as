@@ -206,7 +206,6 @@ package {
 
             unuseCells();
 
-            // todo fix this
             // Determine glades
             for each (var grassland:Object in featureManager.getFeaturesByType(Biome.GRASSLAND)) {
                 // isGlade is positive for grasslands as long as they are small and entirely surrounded by forest
