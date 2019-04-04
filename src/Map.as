@@ -206,21 +206,20 @@ package {
 
             unuseCells();
 
+            // todo fix this
             // Determine glades
             for each (var grassland:Object in featureManager.getFeaturesByType(Biome.GRASSLAND)) {
                 // isGlade is positive for grasslands as long as they are small and entirely surrounded by forest
                 var isGlade:Boolean = grassland.cells.length < 10;
                 for each (cell in grassland.cells) {
-                    for each (neighbor in cell.neighbors) {
-                        if (!neighbor.hasFeatureType(Biome.GRASSLAND) && !neighbor.hasFeatureType(Biome.TEMPERATE_FOREST)) {
+                    for each (neighbor in cell.neighbors)
+                        if (!neighbor.hasFeatureType(Biome.GRASSLAND) && !neighbor.hasFeatureType(Biome.TEMPERATE_FOREST))
                             isGlade = false;
-                            break;
-                        }
-                    }
-                    if (isGlade) {
-                        var glade:String = featureManager.registerFeature(Geography.GLADE);
+                }
+                if (isGlade) {
+                    var glade:String = featureManager.registerFeature(Geography.GLADE);
+                    for each (cell in grassland.cells)
                         featureManager.addCellToFeature(cell, glade);
-                    }
                 }
             }
 
