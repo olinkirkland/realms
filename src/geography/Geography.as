@@ -5,6 +5,8 @@ package geography {
 
     public class Geography {
         private static var _instance:Geography;
+
+        // Generation
         public var features:Object = {};
         public var colors:Object = {};
 

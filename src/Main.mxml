@@ -93,6 +93,11 @@
                     map.showBiomes = !map.showBiomes;
                     map.draw();
                     break;
+                case Keyboard.D:
+                    // Toggle desirability
+                    map.showDesirability = !map.showDesirability;
+                    map.draw();
+                    break;
             }
         }
 

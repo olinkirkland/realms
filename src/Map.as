@@ -51,7 +51,7 @@ package {
         public var showTemperature:Boolean = false;
         public var showForests:Boolean = true;
         public var showMountains:Boolean = false;
-        public var showInfluence:Boolean = true;
+        public var showDesirability:Boolean = false;
 
         // Miscellanious
         public static var MAP_PROGRESS:String = "mapProgress";
@@ -136,6 +136,7 @@ package {
                 {f: calculateMoisture, m: "Calculating moisture"},
                 {f: calculateRivers, m: "Calculating rivers"},
                 {f: determineGeographicFeatures, m: "Determining biomes"},
+                {f: placeSettlements, m: "Placing settlements"},
                 {f: draw, m: "Drawing"}];
 
             progress(0, tasks[0].m);
@@ -153,15 +154,34 @@ package {
                     setTimeout(performTask, 200, i);
                 }
             }
+        }
 
-//            for each (var feature:Object in featureManager.features) {
-//                if (Geography.type != Geography.RIVER && Geography.type != Geography.OCEAN && Geography.type != Geography.LAND && Geography.type != Geography.LAKE)
-//                    trace(Geography.type, Geography.cells.length);
-//            }
+        private function placeSettlements():void {
+            determineDesirability();
         }
 
         private function determineDesirability():void {
+            // todo
+            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+                for each (var cell:Cell in land.cells) {
+                    cell.desirability = 0;
 
+                    if (cell.hasFeatureType(Biome.TEMPERATE_FOREST))
+                        cell.desirability += 4;
+                    if (cell.hasFeatureType(Biome.GRASSLAND))
+                        cell.desirability += 3;
+                    if (cell.hasFeatureType(Biome.BOREAL_FOREST))
+                        cell.desirability += 2;
+                    if (cell.hasFeatureType(Biome.TUNDRA))
+                        cell.desirability += 1;
+                    if (cell.hasFeatureType(Geography.ESTUARY))
+                        cell.desirability += cell.flux;
+                    if (cell.hasFeatureType(Geography.CONFLUENCE))
+                        cell.desirability += cell.flux;
+                    if (cell.hasFeatureType(Geography.HAVEN))
+                        cell.desirability += 2;
+                }
+            }
         }
 
         private function determineGeographicFeatures():void {
@@ -823,35 +843,22 @@ package {
                 }
             }
 
-            if (showInfluence) {
+            if (showDesirability) {
                 // Draw points of influence
-                var list:Array = [Geography.ESTUARY, Geography.CONFLUENCE];
+                graphics.lineStyle();
+                for each (cell in cells) {
+                    graphics.beginFill(Util.getColorBetweenColors(0x000000, 0xffffff, cell.desirability / 10));
 
-                graphics.lineStyle(1, 0x000000);
-                for each (var item:String in list) {
-                    for each (var influence:Object in featureManager.getFeaturesByType(item)) {
-                        for each (cell in influence.cells) {
-                            graphics.beginFill(0xffffff);
-                            graphics.drawCircle(cell.point.x, cell.point.y, 3);
-                            graphics.endFill();
+                    for each (edge in cell.edges) {
+                        if (edge.v0 && edge.v1) {
+                            graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                            graphics.lineTo(cell.point.x, cell.point.y);
+                            graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                        } else {
                         }
                     }
                 }
-
-                // Draw glades
-                graphics.lineStyle(1, 0xff0000);
-                for each (var glade:Object in featureManager.getFeaturesByType(Geography.GLADE)) {
-                    for each (cell in glade.cells) {
-                        graphics.drawCircle(cell.point.x, cell.point.y, 3);
-                    }
-                }
-
-                graphics.lineStyle(1, 0x0000ff);
-                for each (var haven:Object in featureManager.getFeaturesByType(Geography.HAVEN)) {
-                    for each (cell in haven.cells) {
-                        graphics.drawCircle(cell.point.x, cell.point.y, 3);
-                    }
-                }
+                graphics.endFill();
             }
 
             if (showOutlines) {
