@@ -135,7 +135,7 @@ package {
                 {f: calculateTemperature, m: "Calculating temperature"},
                 {f: calculateMoisture, m: "Calculating moisture"},
                 {f: calculateRivers, m: "Calculating rivers"},
-                {f: determineBiomes, m: "Determining biomes"},
+                {f: determineGeographicFeatures, m: "Determining biomes"},
                 {f: draw, m: "Drawing"}];
 
             progress(0, tasks[0].m);
@@ -164,7 +164,7 @@ package {
 
         }
 
-        private function determineBiomes():void {
+        private function determineGeographicFeatures():void {
             for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
                 var landCells:Vector.<Cell> = land.cells.concat();
                 var queue:Array = [];
@@ -215,6 +215,35 @@ package {
                         if (!neighbor.hasFeatureType(Biome.GRASSLAND) && !neighbor.hasFeatureType(Biome.TEMPERATE_FOREST)) {
                             isGlade = false;
                             break;
+                        }
+                    }
+                    if (isGlade) {
+                        var glade:String = featureManager.registerFeature(Geography.GLADE);
+                        featureManager.addCellToFeature(cell, glade);
+                    }
+                }
+            }
+
+            // Determine sheltered havens
+            for each(land in featureManager.getFeaturesByType(Geography.LAND)) {
+                // Get coastal cells
+                for each (var cell:Cell in land.cells) {
+                    for each (var edge:Edge in cell.edges) {
+                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                            if (!edge.d0.hasFeatureType(Geography.LAND) || !edge.d1.hasFeatureType(Geography.LAND)) {
+                                // It's coastal
+                                var coastal:Cell = !edge.d0.hasFeatureType(Geography.LAND) ? edge.d1 : edge.d0;
+                                var oceanNeighborCount:int = 0;
+                                for each (neighbor in coastal.neighbors) {
+                                    if (neighbor.hasFeatureType(Geography.OCEAN))
+                                        oceanNeighborCount++;
+                                }
+
+                                if (oceanNeighborCount == 1) {
+                                    var haven:String = featureManager.registerFeature(Geography.HAVEN);
+                                    featureManager.addCellToFeature(coastal, haven);
+                                }
+                            }
                         }
                     }
                 }
@@ -801,8 +830,8 @@ package {
                 var list:Array = [Geography.ESTUARY, Geography.CONFLUENCE];
 
                 graphics.lineStyle(1, 0x000000);
-                for each (var typeOfInfluence:String in list) {
-                    for each (var influence:Object in featureManager.getFeaturesByType(typeOfInfluence)) {
+                for each (var item:String in list) {
+                    for each (var influence:Object in featureManager.getFeaturesByType(item)) {
                         for each (cell in influence.cells) {
                             graphics.beginFill(0xffffff);
                             graphics.drawCircle(cell.point.x, cell.point.y, 3);
@@ -811,9 +840,17 @@ package {
                     }
                 }
 
+                // Draw glades
                 graphics.lineStyle(1, 0xff0000);
                 for each (var glade:Object in featureManager.getFeaturesByType(Geography.GLADE)) {
                     for each (cell in glade.cells) {
+                        graphics.drawCircle(cell.point.x, cell.point.y, 3);
+                    }
+                }
+
+                graphics.lineStyle(1, 0x0000ff);
+                for each (var haven:Object in featureManager.getFeaturesByType(Geography.HAVEN)) {
+                    for each (cell in haven.cells) {
                         graphics.drawCircle(cell.point.x, cell.point.y, 3);
                     }
                 }
