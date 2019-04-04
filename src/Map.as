@@ -175,9 +175,9 @@ package {
                     if (cell.hasFeatureType(Biome.TUNDRA))
                         cell.desirability += 1;
                     if (cell.hasFeatureType(Geography.ESTUARY))
-                        cell.desirability += cell.flux / 10;
+                        cell.desirability += 4;
                     if (cell.hasFeatureType(Geography.CONFLUENCE))
-                        cell.desirability += cell.flux / 10;
+                        cell.desirability += 2;
                     if (cell.hasFeatureType(Geography.HAVEN))
                         cell.desirability += 2;
                 }
@@ -1225,7 +1225,7 @@ package {
                     break;
             }
 
-            highlightFeature(feature);
+            //highlightFeature(feature);
         }
 
         private function highlightFeature(feature:Object):void {
@@ -1245,11 +1245,12 @@ package {
 
         private function humanReadableCell(cell:Cell):String {
             var str:String = "#" + cell.index;
-            str += "\n  elevation: " + cell.realElevation + " m";
-            str += "\n  elevation: " + cell.elevation;
-            str += "\n  latitude: " + cell.realLatitude + " °N";
-            str += "\n  temperature: " + cell.realTemperature + " °C";
-            str += "\n  precipitation: " + cell.precipitation + " mm/year";
+            str += "\n desirability: " + cell.desirability;
+//            str += "\n  elevation: " + cell.realElevation + " m";
+//            str += "\n  elevation: " + cell.elevation;
+//            str += "\n  latitude: " + cell.realLatitude + " °N";
+//            str += "\n  temperature: " + cell.realTemperature + " °C";
+//            str += "\n  precipitation: " + cell.precipitation + " mm/year";
             for each (var feature:Object in cell.features)
                 str += "\n > " + feature.type + " (" + feature.cells.length + ")";
 
