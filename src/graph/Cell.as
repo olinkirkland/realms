@@ -1,6 +1,8 @@
 package graph {
     import flash.geom.Point;
 
+    import geography.Settlement;
+
     public class Cell {
         public var index:int;
 
@@ -11,6 +13,8 @@ package graph {
         public var used:Boolean = false;
         public var biome:String;
         public var biomeType:String;
+        public var desirability:Number;
+
         /**
          * Properties
          */
@@ -29,8 +33,8 @@ package graph {
         // A set feature references
         public var features:Object;
 
-        // Settlement placement desirability
-        public var desirability:Number;
+        // Settlement
+        public var settlement:Settlement;
 
         public function hasFeatureType(type:String):Boolean {
             for each (var feature:Object in features) {
@@ -98,9 +102,11 @@ package graph {
             realTemperature = 0;
             moisture = 0;
             flux = 0;
-            elevation = 0;
+            _elevation = 0;
+            realElevation = 0;
             biome = null;
             desirability = 0;
+            settlement = null;
         }
     }
 }

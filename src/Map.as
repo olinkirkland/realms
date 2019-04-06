@@ -11,6 +11,8 @@ package {
 
     import geography.Biome;
     import geography.Geography;
+    import geography.Settlement;
+    import geography.Settlements;
 
     import graph.Cell;
     import graph.Corner;
@@ -36,6 +38,7 @@ package {
 
         // Managers
         private var featureManager:Geography;
+        private var settlements:Settlements;
 
         // Generation
         private var outlines:Shape;
@@ -52,6 +55,7 @@ package {
         public var showForests:Boolean = true;
         public var showMountains:Boolean = false;
         public var showDesirability:Boolean = false;
+        public var showSettlements:Boolean = true;
 
         // Miscellanious
         public static var MAP_PROGRESS:String = "mapProgress";
@@ -59,6 +63,7 @@ package {
         public function Map() {
             // Initialize Singletons
             featureManager = Geography.getInstance();
+            settlements = Settlements.getInstance();
 
             // Seeded random generator
             rand = new Rand(1);
@@ -157,15 +162,24 @@ package {
         }
 
         private function placeSettlements():void {
-            determineDesirability();
+            determineStaticDesirability();
+
+            var i:int = 0;
+            do {
+                determineDesirability();
+
+                trace(i, cells[0].desirability);
+                settlements.registerSettlement(cells[0]);
+                i++;
+            } while (i < 100);
         }
 
-        private function determineDesirability():void {
-            // todo
+        private function determineStaticDesirability():void {
             for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
                 for each (var cell:Cell in land.cells) {
                     cell.desirability = 0;
 
+                    // Biome desirability
                     if (cell.hasFeatureType(Biome.TEMPERATE_FOREST))
                         cell.desirability += 4;
                     if (cell.hasFeatureType(Biome.GRASSLAND))
@@ -174,27 +188,56 @@ package {
                         cell.desirability += 2;
                     if (cell.hasFeatureType(Biome.TUNDRA))
                         cell.desirability += 1;
-                    if (cell.hasFeatureType(Geography.ESTUARY))
-                        cell.desirability += 4;
-                    if (cell.hasFeatureType(Geography.CONFLUENCE))
-                        cell.desirability += 2;
+
+                    // River desirability
+                    if (cell.hasFeatureType(Geography.ESTUARY) || cell.hasFeatureType(Geography.CONFLUENCE)) {
+                        var d:int = Math.sqrt(cell.flux);
+                        cell.desirability += 4 + int(d);
+                    } else if (cell.hasFeatureType(Geography.RIVER)) {
+                        d = Math.sqrt(cell.flux);
+                        cell.desirability += int(d);
+                    }
+
+                    // Coast desirability
                     if (cell.hasFeatureType(Geography.HAVEN))
                         cell.desirability += 2;
                 }
+            }
 
-                for each (cell in land.cells) {
-                    var d:Number = 0;
-                    var landNeighborCount:int = 0;
-                    for each (var neighbor:Cell in cell.neighbors) {
-                        if (neighbor.hasFeatureType(Geography.LAND)) {
-                            landNeighborCount++;
-                            d += neighbor.desirability;
+            determineDesirability();
+        }
+
+        private function determineDesirability():void {
+            for each (var settlement:Settlement in settlements.settlements) {
+                if (!settlement.used) {
+                    var queue:Array = [];
+                    var undesirability:Number = 20;
+                    var radius:Number = .9;
+
+                    settlement.cell.used = true;
+                    settlement.cell.desirability = 0;
+                    queue.push(settlement.cell);
+
+                    for (var i:int = 0; i < queue.length && undesirability > 0.01; i++) {
+                        undesirability *= radius;
+                        for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
+                            if (!neighbor.used) {
+                                neighbor.desirability -= undesirability;
+                                if (neighbor.desirability < 0)
+                                    neighbor.desirability = 0;
+
+                                neighbor.used = true;
+                                queue.push(neighbor);
+                            }
                         }
-
-                        //cell.desirability += d / landNeighborCount;
                     }
+
+                    unuseCells();
+                    settlement.used = true;
                 }
             }
+
+            cells.sort(Sort.sortByDesirability);
         }
 
         private function determineGeographicFeatures():void {
@@ -258,7 +301,7 @@ package {
             // Determine sheltered havens
             for each(land in featureManager.getFeaturesByType(Geography.LAND)) {
                 // Get coastal cells
-                for each (var cell:Cell in land.cells) {
+                for each (cell in land.cells) {
                     for each (var edge:Edge in cell.edges) {
                         if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
                             if (!edge.d0.hasFeatureType(Geography.LAND) || !edge.d1.hasFeatureType(Geography.LAND)) {
@@ -286,7 +329,7 @@ package {
             // Sort list cells neighbors by their elevation from lowest to highest
             for each (var cell:Cell in cells) {
                 if (cell.neighbors.length > 0) {
-                    cell.neighbors.sort(sortByLowestElevation);
+                    cell.neighbors.sort(Sort.sortByLowestElevation);
                 }
             }
 
@@ -296,7 +339,7 @@ package {
                     cell.flux = cell.moisture;
                 }
 
-                land.cells.sort(sortByHighestElevation);
+                land.cells.sort(Sort.sortByHighestElevation);
                 for each (cell in land.cells) {
                     pour(cell, cell.neighbors[0]);
                 }
@@ -352,24 +395,6 @@ package {
             }
 
             unuseCells();
-        }
-
-        private function sortByLowestElevation(n1:Cell, n2:Cell):Number {
-            if (n1.elevation > n2.elevation)
-                return 1;
-            else if (n1.elevation < n2.elevation)
-                return -1;
-            else
-                return 0;
-        }
-
-        private function sortByHighestElevation(n1:Cell, n2:Cell):Number {
-            if (n1.elevation < n2.elevation)
-                return 1;
-            else if (n1.elevation > n2.elevation)
-                return -1;
-            else
-                return 0;
         }
 
         private function resolveDepressions():void {
@@ -479,13 +504,13 @@ package {
                     biome = null;
 
                     lower = SEA_LEVEL;
-                    upper = 100;
+                    upper = Number.POSITIVE_INFINITY;
                 } else {
                     // Define it as a lake
                     currentFeature = featureManager.registerFeature(Geography.LAKE);
                     biome = featureManager.registerFeature(Biome.FRESH_WATER);
 
-                    lower = -100;
+                    lower = Number.NEGATIVE_INFINITY;
                     upper = SEA_LEVEL;
                 }
 
@@ -876,6 +901,27 @@ package {
                 }
             }
 
+            if (showSettlements) {
+                // Draw settlements
+                graphics.lineStyle(1, 0x000000);
+                for each (var settlement:Settlement in settlements.settlements) {
+                    if (settlement.influence > 10) {
+                        // City
+                        graphics.beginFill(0x00ff00);
+                        graphics.drawCircle(settlement.cell.point.x, settlement.cell.point.y, 7);
+                    } else if (settlement.influence > 4) {
+                        // Town
+                        graphics.beginFill(0xff0000);
+                        graphics.drawCircle(settlement.cell.point.x, settlement.cell.point.y, 5);
+                    } else {
+                        // Village
+                        graphics.beginFill(0xffff00);
+                        graphics.drawCircle(settlement.cell.point.x, settlement.cell.point.y, 3);
+                    }
+                    graphics.endFill();
+                }
+            }
+
             if (showOutlines) {
                 // Draw outlines
                 for each (edge in edges) {
@@ -1207,6 +1253,7 @@ package {
         private function reset():void {
             // Reset Geography
             featureManager.reset();
+            settlements.reset();
 
             // Reset cells
             for each (var cell:Cell in cells)
@@ -1245,14 +1292,16 @@ package {
 
         private function humanReadableCell(cell:Cell):String {
             var str:String = "#" + cell.index;
-            str += "\n desirability: " + cell.desirability;
 //            str += "\n  elevation: " + cell.realElevation + " m";
 //            str += "\n  elevation: " + cell.elevation;
 //            str += "\n  latitude: " + cell.realLatitude + " °N";
 //            str += "\n  temperature: " + cell.realTemperature + " °C";
 //            str += "\n  precipitation: " + cell.precipitation + " mm/year";
-            for each (var feature:Object in cell.features)
-                str += "\n > " + feature.type + " (" + feature.cells.length + ")";
+            if (cell.settlement)
+                str += "\n (" + cell.settlement.influence + ") " + cell.settlement.id;
+
+//            for each (var feature:Object in cell.features)
+//                str += "\n > " + feature.type + " (" + feature.cells.length + ")";
 
             return str;
         }
