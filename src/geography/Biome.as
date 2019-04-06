@@ -9,7 +9,7 @@ package geography {
         public static var SALT_WATER:String = "saltWater";
 
         // Cold
-        public static var TUNDRA:String = "tundra";
+        public static var TUNDRA:String = "tundra.json";
         public static var BOREAL_FOREST:String = "borealForest";
 
         // Temperate

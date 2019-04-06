@@ -50,12 +50,11 @@ package {
         public var showTerrain:Boolean = false;
         public var showRivers:Boolean = true;
         public var showBiomes:Boolean = true;
-        public var showPrecipitation:Boolean = false;
         public var showTemperature:Boolean = false;
         public var showForests:Boolean = true;
         public var showMountains:Boolean = false;
         public var showDesirability:Boolean = false;
-        public var showSettlements:Boolean = true;
+        public var showSettlements:Boolean = false;
 
         // Miscellanious
         public static var MAP_PROGRESS:String = "mapProgress";
@@ -141,6 +140,7 @@ package {
                 {f: calculateMoisture, m: "Calculating moisture"},
                 {f: calculateRivers, m: "Calculating rivers"},
                 {f: determineGeographicFeatures, m: "Determining biomes"},
+                {f: determineFloraAndFauna, m: "Determining flora and fauna"},
                 {f: placeSettlements, m: "Placing settlements"},
                 {f: draw, m: "Drawing"}];
 
@@ -161,6 +161,54 @@ package {
             }
         }
 
+        private function determineFloraAndFauna():void {
+            // Link biomes that are nearby and similar type
+            for each (var biomeType:String in Biome.list) {
+                for each (var biome:Object in featureManager.getFeaturesByType(biomeType)) {
+                    // First, determine the center point of the biome
+                    var avgX:Number = 0;
+                    var avgY:Number = 0;
+
+                    for each (var cell:Cell in biome.cells) {
+                        avgX += cell.point.x;
+                        avgY += cell.point.y;
+                    }
+
+                    avgX /= biome.cells.length;
+                    avgY /= biome.cells.length;
+
+                    biome.centroid = new Point(avgX, avgY);
+                    biome.influence = Math.min(biome.cells.length, 300);
+                    biome.linked = [];
+                }
+                for each (biome in featureManager.getFeaturesByType(biomeType)) {
+                    for each (var targetBiome:Object in featureManager.getFeaturesByType(biomeType)) {
+                        // Non-tiny biomes (> 10 cells) can link to other biomes of the same type to share flora/fauna
+                        // Linked biomes must be near each other - the permitted distance is calculated using the biomes' relative sizes
+                        if (biome != targetBiome && Util.getDistanceBetweenTwoPoints(biome.centroid, targetBiome.centroid) < biome.influence && biome.cells.length > 10 && biome.linked.indexOf(targetBiome) < 0) {
+                            biome.linked.push(targetBiome);
+                        }
+                    }
+                }
+            }
+
+            // Tundra
+
+            // Boreal forest
+
+            // Grassland
+
+            // Temperate forest
+
+            // Savanna
+
+            // Jungle
+
+            // Mountain
+
+            // Desert
+        }
+
         private function placeSettlements():void {
             determineStaticDesirability();
 
@@ -168,7 +216,7 @@ package {
             do {
                 determineDesirability();
 
-                trace(i, cells[0].desirability);
+                //trace(i, cells[0].desirability);
                 settlements.registerSettlement(cells[0]);
                 i++;
             } while (i < 100);
@@ -177,16 +225,18 @@ package {
         private function determineStaticDesirability():void {
             for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
                 for each (var cell:Cell in land.cells) {
-                    cell.desirability = 0;
+                    cell.desirability = 1;
 
                     // Biome desirability
-                    if (cell.hasFeatureType(Biome.TEMPERATE_FOREST))
-                        cell.desirability += 4;
                     if (cell.hasFeatureType(Biome.GRASSLAND))
+                        cell.desirability += 4;
+                    if (cell.hasFeatureType(Biome.TEMPERATE_FOREST))
                         cell.desirability += 3;
                     if (cell.hasFeatureType(Biome.BOREAL_FOREST))
                         cell.desirability += 2;
                     if (cell.hasFeatureType(Biome.TUNDRA))
+                        cell.desirability += 1;
+                    if (cell.hasFeatureType(Biome.MOUNTAIN))
                         cell.desirability += 1;
 
                     // River desirability
@@ -212,7 +262,7 @@ package {
                 if (!settlement.used) {
                     var queue:Array = [];
                     var undesirability:Number = 20;
-                    var radius:Number = .9;
+                    var radius:Number = .8;
 
                     settlement.cell.used = true;
                     settlement.cell.desirability = 0;
@@ -745,9 +795,9 @@ package {
             if (showBiomes) {
                 // Draw Biomes
                 graphics.lineStyle();
-                for each (var biomeName:String in Biome.list) {
-                    graphics.beginFill(Biome.colors[biomeName]);
-                    for each (var biome:Object in featureManager.getFeaturesByType(biomeName)) {
+                for each (var biomeType:String in Biome.list) {
+                    graphics.beginFill(Biome.colors[biomeType]);
+                    for each (var biome:Object in featureManager.getFeaturesByType(biomeType)) {
                         for each (cell in biome.cells) {
                             // Loop through edges
                             for each (edge in cell.edges) {
@@ -873,14 +923,6 @@ package {
                 graphics.endFill();
             }
 
-            if (showPrecipitation) {
-                // Draw flux
-                graphics.lineStyle(1, 0x0000ff, 0.3);
-                for each (cell in cells) {
-                    graphics.drawCircle(cell.point.x, cell.point.y, cell.moisture * 5);
-                }
-            }
-
             if (showDesirability) {
                 // Draw desirability
                 graphics.lineStyle();
@@ -905,20 +947,30 @@ package {
                 // Draw settlements
                 graphics.lineStyle(1, 0x000000);
                 for each (var settlement:Settlement in settlements.settlements) {
-                    if (settlement.influence > 10) {
-                        // City
-                        graphics.beginFill(0x00ff00);
-                        graphics.drawCircle(settlement.cell.point.x, settlement.cell.point.y, 7);
-                    } else if (settlement.influence > 4) {
-                        // Town
-                        graphics.beginFill(0xff0000);
-                        graphics.drawCircle(settlement.cell.point.x, settlement.cell.point.y, 5);
-                    } else {
-                        // Village
-                        graphics.beginFill(0xffff00);
-                        graphics.drawCircle(settlement.cell.point.x, settlement.cell.point.y, 3);
-                    }
+                    graphics.beginFill(0x00ff00);
+                    graphics.drawCircle(settlement.cell.point.x, settlement.cell.point.y, 7);
                     graphics.endFill();
+                }
+            }
+
+            if (true) {
+                // Draw biome influence
+                var c:Rand = new Rand(1);
+                for each (biomeType in Biome.list) {
+                    var color:uint = c.next() * 0xffffff;
+                    for each (biome in featureManager.getFeaturesByType(biomeType)) {
+                        graphics.lineStyle(1, color);
+                        graphics.beginFill(0xffffff);
+                        graphics.drawCircle(biome.centroid.x, biome.centroid.y, 5);
+                        graphics.endFill();
+
+                        graphics.drawCircle(biome.centroid.x, biome.centroid.y, biome.influence);
+
+                        for each (var linkedBiome:Object in biome.linked) {
+                            graphics.moveTo(biome.centroid.x, biome.centroid.y);
+                            graphics.lineTo(linkedBiome.centroid.x, linkedBiome.centroid.y);
+                        }
+                    }
                 }
             }
 
@@ -1298,10 +1350,10 @@ package {
 //            str += "\n  temperature: " + cell.realTemperature + " °C";
 //            str += "\n  precipitation: " + cell.precipitation + " mm/year";
             if (cell.settlement)
-                str += "\n (" + cell.settlement.influence + ") " + cell.settlement.id;
+                str += "\n settlement: (" + cell.settlement.influence + ") " + cell.settlement.id;
 
-//            for each (var feature:Object in cell.features)
-//                str += "\n > " + feature.type + " (" + feature.cells.length + ")";
+            for each (var feature:Object in cell.features)
+                str += "\n > " + feature.type + " (" + feature.cells.length + ")";
 
             return str;
         }

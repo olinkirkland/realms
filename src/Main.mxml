@@ -83,19 +83,14 @@
                     map.showMountains = !map.showMountains;
                     map.draw();
                     break;
-                case Keyboard.P:
-                    // Toggle flux
-                    map.showPrecipitation = !map.showPrecipitation;
-                    map.draw();
-                    break;
-                case Keyboard.B:
-                    // Toggle biomes
-                    map.showBiomes = !map.showBiomes;
-                    map.draw();
-                    break;
                 case Keyboard.D:
                     // Toggle desirability
                     map.showDesirability = !map.showDesirability;
+                    map.draw();
+                    break;
+                case Keyboard.S:
+                    // Toggle settlements
+                    map.showSettlements = !map.showSettlements;
                     map.draw();
                     break;
             }

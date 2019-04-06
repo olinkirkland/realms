@@ -1,4 +1,5 @@
 package {
+    import flash.geom.Point;
     import flash.system.Capabilities;
 
     public class Util {
@@ -40,6 +41,10 @@ package {
             for (var s:String in object)
                 count++;
             return count;
+        }
+
+        public static function getDistanceBetweenTwoPoints(point1:Point, point2:Point):Number {
+            return Math.sqrt((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
         }
 
         public static function isAir():Boolean {
