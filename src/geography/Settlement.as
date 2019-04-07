@@ -17,8 +17,10 @@ package geography {
             this.cell = cell;
             this.id = id;
 
-            // todo precise settlement placement
             this.point = cell.point;
+            var r:Rand = new Rand(int(point.x + point.y));
+            point.x += r.between(-4, 4);
+            point.y += r.between(-4, 4);
 
             influence = cell.desirability;
 
