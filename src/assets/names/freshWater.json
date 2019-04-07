@@ -1,0 +1,24 @@
+{
+  "treeDiversity": 0,
+  "plantDiversity": 0,
+  "smallAnimalDiversity": 4,
+  "bigAnimalDiversity": 0,
+  "trees": [
+  ],
+  "plants": [
+  ],
+  "smallAnimals": [
+    "Bluegill",
+    "Pike",
+    "Minnow",
+    "Perch",
+    "Goldfish",
+    "Snakehead",
+    "Gar",
+    "Pollock",
+    "Koi",
+    "Sturgeon"
+  ],
+  "bigAnimals": [
+  ]
+}

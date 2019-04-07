@@ -1,0 +1,50 @@
+{
+  "treeDiversity": 3,
+  "plantDiversity": 3,
+  "smallAnimalDiversity": 6,
+  "bigAnimalDiversity": 3,
+  "trees": [
+    "larch",
+    "spruce",
+    "fir",
+    "pine",
+    "willow"
+  ],
+  "flora": [
+    "lichen",
+    "moss",
+    "fern",
+    "strawberry",
+    "cranberry",
+    "lingonberry",
+    "cloudberry",
+    "bilberry",
+    "brown mushroom",
+    "sunset mushroom"
+  ],
+  "fauna": [
+    "lynx",
+    "weasel",
+    "stoat",
+    "otter",
+    "mink",
+    "wolverine",
+    "wolf",
+    "bear",
+    "fox",
+    "vole",
+    "mouse",
+    "hare",
+    "adder",
+    "frog",
+    "toad",
+    "thrush",
+    "sparrow",
+    "warbler",
+    "eagle",
+    "raven",
+    "grouse",
+    "falcon",
+    "hawk"
+  ]
+}
