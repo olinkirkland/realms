@@ -6,10 +6,13 @@ package {
     import flash.events.MouseEvent;
     import flash.geom.Point;
     import flash.geom.Rectangle;
+    import flash.text.TextField;
+    import flash.text.TextFieldAutoSize;
     import flash.utils.Dictionary;
     import flash.utils.setTimeout;
 
     import geography.Biome;
+    import geography.Ecosystem;
     import geography.Geography;
     import geography.Settlement;
     import geography.Settlements;
@@ -44,6 +47,7 @@ package {
         private var outlines:Shape;
         private var highlights:Shape;
         private var rand:Rand;
+        private var labels:Array;
 
         // Draw Toggles
         public var showOutlines:Boolean = false;
@@ -54,7 +58,8 @@ package {
         public var showForests:Boolean = true;
         public var showMountains:Boolean = false;
         public var showDesirability:Boolean = false;
-        public var showSettlements:Boolean = false;
+        public var showSettlements:Boolean = true;
+        public var showBiomeLinkage:Boolean = false;
 
         // Miscellanious
         public static var MAP_PROGRESS:String = "mapProgress";
@@ -66,6 +71,9 @@ package {
 
             // Seeded random generator
             rand = new Rand(1);
+
+            // Setup
+            labels = [];
 
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
@@ -142,6 +150,7 @@ package {
                 {f: determineGeographicFeatures, m: "Determining biomes"},
                 {f: determineFloraAndFauna, m: "Determining flora and fauna"},
                 {f: placeSettlements, m: "Placing settlements"},
+                {f: determineNames, m: "Choosing names"},
                 {f: draw, m: "Drawing"}];
 
             progress(0, tasks[0].m);
@@ -159,6 +168,9 @@ package {
                     setTimeout(performTask, 200, i);
                 }
             }
+        }
+
+        private function determineNames():void {
         }
 
         private function determineFloraAndFauna():void {
@@ -181,32 +193,28 @@ package {
                     biome.influence = Math.min(biome.cells.length, 300);
                     biome.linked = [];
                 }
-                for each (biome in featureManager.getFeaturesByType(biomeType)) {
+
+                var biomes:Array = [];
+                for each (biome in featureManager.getFeaturesByType(biomeType))
+                    biomes.push(biome);
+                biomes.sort(Sort.sortByCellCount);
+
+                for each (biome in biomes) {
                     for each (var targetBiome:Object in featureManager.getFeaturesByType(biomeType)) {
                         // Non-tiny biomes (> 10 cells) can link to other biomes of the same type to share flora/fauna
                         // Linked biomes must be near each other - the permitted distance is calculated using the biomes' relative sizes
-                        if (biome != targetBiome && Util.getDistanceBetweenTwoPoints(biome.centroid, targetBiome.centroid) < biome.influence && biome.cells.length > 10 && biome.linked.indexOf(targetBiome) < 0) {
+                        if (biome != targetBiome && Util.getDistanceBetweenTwoPoints(biome.centroid, targetBiome.centroid) < biome.influence && biome.cells.length > 10 && biome.linked.indexOf(targetBiome) < 0 && biome.cells.length > targetBiome.cells.length) {
                             biome.linked.push(targetBiome);
                         }
                     }
                 }
+
+                for each (biome in biomes)
+                    biome.ecosystem = new Ecosystem(biome);
+
+                for each (biome in biomes)
+                    biome.ecosystem.spread();
             }
-
-            // Tundra
-
-            // Boreal forest
-
-            // Grassland
-
-            // Temperate forest
-
-            // Savanna
-
-            // Jungle
-
-            // Mountain
-
-            // Desert
         }
 
         private function placeSettlements():void {
@@ -947,13 +955,13 @@ package {
                 // Draw settlements
                 graphics.lineStyle(1, 0x000000);
                 for each (var settlement:Settlement in settlements.settlements) {
-                    graphics.beginFill(0x00ff00);
-                    graphics.drawCircle(settlement.cell.point.x, settlement.cell.point.y, 7);
+                    graphics.beginFill(0xffffff);
+                    graphics.drawCircle(settlement.point.x, settlement.point.y, 3);
                     graphics.endFill();
                 }
             }
 
-            if (true) {
+            if (showBiomeLinkage) {
                 // Draw biome influence
                 var c:Rand = new Rand(1);
                 for each (biomeType in Biome.list) {
@@ -961,16 +969,57 @@ package {
                     for each (biome in featureManager.getFeaturesByType(biomeType)) {
                         graphics.lineStyle(1, color);
                         graphics.beginFill(0xffffff);
-                        graphics.drawCircle(biome.centroid.x, biome.centroid.y, 5);
+                        graphics.drawCircle(biome.centroid.x, biome.centroid.y, 3);
                         graphics.endFill();
 
-                        graphics.drawCircle(biome.centroid.x, biome.centroid.y, biome.influence);
+                        if (biome.influence > 6)
+                            graphics.drawCircle(biome.centroid.x, biome.centroid.y, biome.influence);
 
                         for each (var linkedBiome:Object in biome.linked) {
                             graphics.moveTo(biome.centroid.x, biome.centroid.y);
                             graphics.lineTo(linkedBiome.centroid.x, linkedBiome.centroid.y);
                         }
                     }
+                }
+            }
+
+            if (false) {
+                // Draw feature labels
+                var c:Rand = new Rand(1);
+                var includeBiomes:Array = [Biome.MOUNTAIN, Biome.TEMPERATE_FOREST, Biome.BOREAL_FOREST, Biome.FRESH_WATER];
+                for each (biomeType in Biome.list) {
+                    if (includeBiomes.indexOf(biomeType) >= 0) {
+                        var color:uint = c.next() * 0xffffff;
+                        for each (biome in featureManager.getFeaturesByType(biomeType)) {
+                            if (biome.influence > 10) {
+                                var txt:TextField = new TextField();
+                                txt.selectable = false;
+                                txt.text = biome.type;
+                                txt.textColor = color;
+                                txt.autoSize = TextFieldAutoSize.CENTER;
+                                txt.width = txt.textWidth + 10;
+                                txt.x = biome.centroid.x - txt.width / 2;
+                                txt.y = biome.centroid.y - txt.height / 2;
+                                labels.push(txt);
+                                addChild(txt);
+                            }
+                        }
+                    }
+                }
+            }
+            if (true) {
+                // Draw settlement labels
+                for each (settlement in settlements.settlements) {
+                    var txt:TextField = new TextField();
+                    txt.text = settlement.name;
+                    txt.autoSize = TextFieldAutoSize.CENTER;
+                    txt.width = txt.textWidth + 10;
+                    txt.x = settlement.point.x - txt.width / 2;
+                    txt.y = settlement.point.y + 6;
+                    txt.border = true;
+                    txt.selectable = false;
+                    labels.push(txt);
+                    addChild(txt);
                 }
             }
 
@@ -1311,6 +1360,10 @@ package {
             for each (var cell:Cell in cells)
                 cell.reset();
 
+            // Reset children
+            while (labels.length > 0)
+                removeChild(labels.pop());
+
             unuseCells();
         }
 
@@ -1330,7 +1383,7 @@ package {
         private function highlightFeature(feature:Object):void {
             // Highlight a feature
             highlights.graphics.clear();
-            highlights.graphics.lineStyle(1, 0x000000, .6);
+            highlights.graphics.lineStyle(2, 0x000000, .4);
             for each (var cell:Cell in feature.cells) {
                 for each (var edge:Edge in cell.edges) {
                     if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
@@ -1344,16 +1397,19 @@ package {
 
         private function humanReadableCell(cell:Cell):String {
             var str:String = "#" + cell.index;
-//            str += "\n  elevation: " + cell.realElevation + " m";
-//            str += "\n  elevation: " + cell.elevation;
-//            str += "\n  latitude: " + cell.realLatitude + " °N";
-//            str += "\n  temperature: " + cell.realTemperature + " °C";
-//            str += "\n  precipitation: " + cell.precipitation + " mm/year";
             if (cell.settlement)
                 str += "\n settlement: (" + cell.settlement.influence + ") " + cell.settlement.id;
 
-            for each (var feature:Object in cell.features)
+            for each (var feature:Object in cell.features) {
                 str += "\n > " + feature.type + " (" + feature.cells.length + ")";
+                if (feature.ecosystem) {
+                    str += "size: " + feature.ecosystem.size;
+                    str += "\n   > " + feature.ecosystem.trees;
+                    str += "\n   > " + feature.ecosystem.plants;
+                    str += "\n   > " + feature.ecosystem.smallAnimals;
+                    str += "\n   > " + feature.ecosystem.bigAnimals;
+                }
+            }
 
             return str;
         }

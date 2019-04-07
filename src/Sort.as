@@ -28,5 +28,14 @@ package {
             else
                 return 0;
         }
+
+        public static function sortByCellCount(n1:Object, n2:Object):Number {
+            if (n1.cells.length < n2.cells.length)
+                return 1;
+            else if (n1.cells.length > n2.cells.length)
+                return -1;
+            else
+                return 0;
+        }
     }
 }

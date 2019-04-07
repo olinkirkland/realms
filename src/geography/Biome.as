@@ -9,7 +9,7 @@ package geography {
         public static var SALT_WATER:String = "saltWater";
 
         // Cold
-        public static var TUNDRA:String = "tundra.json";
+        public static var TUNDRA:String = "tundra";
         public static var BOREAL_FOREST:String = "borealForest";
 
         // Temperate
@@ -32,7 +32,7 @@ package geography {
             freshWater_stroke: 0x6c7784,
             saltWater: 0x99A29D,
             saltWater_stroke: 0x6c7784,
-            tundra: 0xEAD6B5,
+            tundra: 0xd6d0c9,
             borealForest: 0x8ba975,
             borealForest_stroke: 0x517743,
             borealForest_bottomStroke: 0x102900,
@@ -40,11 +40,11 @@ package geography {
             temperateForest: 0xAAAA76,
             temperateForest_stroke: 0x787643,
             temperateForest_bottomStroke: 0x292500,
-            savanna: 0xEAD6B5,
+            savanna: 0xffc889,
             rainForest: 0xEAD6B5,
             rainForest_stroke: 0xEAD6B5,
-            desert: 0xEAD6B5,
-            mountain: 0x383838
+            desert: 0xffb560,
+            mountain: 0xbcae9a
         };
 
         public static function determineBiome(cell:Cell):String {

@@ -1,0 +1,60 @@
+{
+  "treeDiversity": 2,
+  "plantDiversity":4,
+  "smallAnimalDiversity":4,
+  "bigAnimalDiversity":2
+  ,"trees": [
+    "oak",
+    "maple",
+    "beech",
+    "elm",
+    "cedar",
+    "fir",
+    "pine",
+    "yew",
+    "chestnut",
+    "willow"
+  ],
+  "plants": [
+    "moss",
+    "ferns",
+    "rose",
+    "holly",
+    "ivy",
+    "azalea",
+    "bluebell",
+    "death cap",
+    "chanterelle",
+    "brown mushroom",
+    "truffle"
+  ],
+  "smallAnimals": [
+    "fox",
+    "eagle",
+    "rabbit",
+    "squirrel",
+    "ferret",
+    "mouse",
+    "rat",
+    "chipmunk",
+    "turtle",
+    "adder",
+    "falcon",
+    "hawk",
+    "badger",
+    "marten",
+    "wild cat",
+    "wild boar",
+    "beaver",
+    "river otter",
+    "bat",
+    "grouse"
+  ],
+  "bigAnimals": [
+    "deer",
+    "wolf",
+    "bear",
+    "elk",
+    "lynx"
+  ]
+}

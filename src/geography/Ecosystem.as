@@ -1,64 +1,91 @@
 package geography {
     public class Ecosystem {
-        public var _instance:Ecosystem;
+        public var biome:Object;
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const tundra_json:Class;
+        public var trees:Array = [];
+        public var plants:Array = [];
+        public var smallAnimals:Array = [];
+        public var bigAnimals:Array = [];
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const borealForest_json:Class;
+        public var size:String;
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const grassland_json:Class;
+        private var names:Names;
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const temperateForest_json:Class;
+        public function Ecosystem(biome:Object) {
+            this.biome = biome;
+            names = Names.getInstance();
+            var content:Object = names[biome.type] ? names[biome.type] : null;
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const savanna_json:Class;
+            if (content) {
+                // Size of ecosystem determines diversity
+                var treeDiversity:int = content.treeDiversity;
+                var plantDiversity:int = content.plantDiversity;
+                var smallAnimalDiversity:int = content.smallAnimalDiversity;
+                var bigAnimalDiversity:int = content.bigAnimalDiversity;
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const jungle_json:Class;
+                if (biome.cells.length < 10) {
+                    // Small
+                    size = "small";
+                    treeDiversity *= .5;
+                    plantDiversity *= .5;
+                    smallAnimalDiversity *= .5;
+                    bigAnimalDiversity *= .5;
+                } else if (biome.cells.length < 50) {
+                    // Medium
+                    size = "medium";
+                } else {
+                    // Large
+                    size = "large";
+                    treeDiversity *= 1.5;
+                    plantDiversity *= 1.5;
+                    smallAnimalDiversity *= 1.5;
+                    bigAnimalDiversity *= 1.5;
+                }
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const mountain_json:Class;
+                // Random generator seeded from location
+                var r:Rand = new Rand(int(biome.centroid.x + biome.centroid.y));
+                for (var i:int = 0; i < treeDiversity; i++)
+                    trees.push(content.trees[int(r.between(0, content.trees.length))]);
+                for (i = 0; i < plantDiversity; i++)
+                    plants.push(content.plants[int(r.between(0, content.plants.length))]);
+                for (i = 0; i < smallAnimalDiversity; i++)
+                    smallAnimals.push(content.smallAnimals[int(r.between(0, content.smallAnimals.length))]);
+                for (i = 0; i < bigAnimalDiversity; i++)
+                    bigAnimals.push(content.bigAnimals[int(r.between(0, content.bigAnimals.length))]);
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const desert_json:Class;
+                removeDuplicates();
+            }
+        }
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const saltWater_json:Class;
+        public function removeDuplicates():void {
+            // Remove duplicates
+            trees = Util.removeDuplicatesFromArray(trees);
+            plants = Util.removeDuplicatesFromArray(plants);
+            smallAnimals = Util.removeDuplicatesFromArray(smallAnimals);
+            bigAnimals = Util.removeDuplicatesFromArray(bigAnimals);
+        }
 
-        [Embed(source="../assets/naming/tundra.json", mimeType="application/octet-stream")]
-        private static const freshWater_json:Class;
+        public function spread():void {
+            // Spread properties to linked biomes
+            biome.linked.sort(Sort.sortByCellCount);
+            for each (var linkedBiome:Object in biome.linked) {
+                var difference:int = biome.cells.length - linkedBiome.cells.length;
+                if (difference > 100) {
+                    // Overwrite
+                    linkedBiome.ecosystem.trees = trees.concat();
+                    linkedBiome.ecosystem.plants = plants.concat();
+                    linkedBiome.ecosystem.smallAnimals = smallAnimals.concat();
+                    linkedBiome.ecosystem.bigAnimals = bigAnimals.concat();
+                } else if (difference > 10) {
+                    // Add
+                    linkedBiome.ecosystem.trees.push(trees[0]);
+                    linkedBiome.ecosystem.plants.push(plants[0]);
+                    linkedBiome.ecosystem.smallAnimals.push(smallAnimals[0]);
+                    linkedBiome.ecosystem.bigAnimals.push(bigAnimals[0]);
+                }
 
-        public var tundra:Object;
-        public var borealForest:Object;
-        public var grassland:Object;
-        public var temperateForest:Object;
-        public var savanna:Object;
-        public var jungle:Object;
-        public var mountain:Object;
-        public var desert:Object;
-        public var freshWater:Object;
-        public var saltWater:Object;
-
-        public function Ecosystem() {
-            if (_instance)
-                throw new Error("Singleton; Use getInstance() instead");
-            _instance = this;
-
-            // Setup
-            tundra = JSON.parse(new tundra_json());
-            borealForest = JSON.parse(new borealForest_json());
-            grassland = JSON.parse(new grassland_json());
-            temperateForest = JSON.parse(new temperateForest_json());
-            savanna = JSON.parse(new savanna_json());
-            jungle = JSON.parse(new jungle_json());
-            mountain = JSON.parse(new mountain_json());
-            desert = JSON.parse(new desert_json());
-            freshWater = JSON.parse(new freshWater_json());
-            saltWater = JSON.parse(new saltWater_json());
+                linkedBiome.ecosystem.removeDuplicates();
+            }
         }
     }
 }

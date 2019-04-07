@@ -50,5 +50,15 @@ package {
         public static function isAir():Boolean {
             return Capabilities.playerType == "Desktop";
         }
+
+        public static function removeDuplicatesFromArray(arr:Array):Array {
+            var uniqueArr:Array = [];
+            for each (var value in arr) {
+                if (uniqueArr.indexOf(value) < 0)
+                    uniqueArr.push(value);
+            }
+
+            return uniqueArr;
+        }
     }
 }
