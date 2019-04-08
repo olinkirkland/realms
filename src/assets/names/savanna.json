@@ -1,0 +1,44 @@
+{
+  "treeDiversity": 1,
+  "plantDiversity": 4,
+  "smallAnimalDiversity": 6,
+  "bigAnimalDiversity": 2,
+  "trees": [
+    "acacia",
+    "baobab",
+    "jackalberry",
+    "candelabra"
+  ],
+  "plants": [
+    "rhodes grass",
+    "red oat grass",
+    "star grass",
+    "lemon grass",
+    "sickle bush",
+    "white raisin bush",
+    "buffalo thorn"
+  ],
+  "smallAnimals": [
+    "mouse",
+    "mole",
+    "hyena",
+    "ibis",
+    "owl",
+    "stork",
+    "heron",
+    "bat",
+    "monkey",
+    "fox"
+  ],
+  "bigAnimals": [
+    "elephant",
+    "zebra",
+    "lion",
+    "gazelle",
+    "giraffe",
+    "buffalo",
+    "leopard",
+    "antelope",
+    "rhinoceros"
+  ]
+}

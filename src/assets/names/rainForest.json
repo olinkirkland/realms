@@ -1,0 +1,52 @@
+{
+  "treeDiversity": 3,
+  "plantDiversity": 3,
+  "smallAnimalDiversity": 6,
+  "bigAnimalDiversity": 3,
+  "trees": [
+    "ceiba",
+    "rubber",
+    "cecropia",
+    "kapok",
+    "banana",
+    "strangler",
+    "cedar",
+    "wimba",
+    "ficus",
+    "cacao",
+    "avocado"
+  ],
+  "plants": [
+    "orchid",
+    "heliconia",
+    "pitcher",
+    "liana",
+    "fly trap",
+    "cactus",
+    "monkey brush",
+    "palm vine",
+    "basket vine"
+  ],
+  "smallAnimals": [
+    "toucan",
+    "frog",
+    "monkey",
+    "snake",
+    "capybara",
+    "otter",
+    "bat",
+    "parrot",
+    "sloth",
+    "iguana",
+    "turtle",
+    "tarantula",
+    "beetle",
+    "anteater"
+  ],
+  "bigAnimals": [
+    "gorilla",
+    "jaguar",
+    "orangutan",
+    "anaconda"
+  ]
+}

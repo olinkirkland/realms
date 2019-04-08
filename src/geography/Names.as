@@ -16,17 +16,17 @@ package geography {
         [Embed(source="../assets/names/borealForest.json", mimeType="application/octet-stream")]
         private static const borealForest_json:Class;
 
-        [Embed(source="../assets/names/temperateForest.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/grassland.json", mimeType="application/octet-stream")]
         private static const grassland_json:Class;
 
         [Embed(source="../assets/names/temperateForest.json", mimeType="application/octet-stream")]
         private static const temperateForest_json:Class;
 
-        [Embed(source="../assets/names/temperateForest.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/savanna.json", mimeType="application/octet-stream")]
         private static const savanna_json:Class;
 
-        [Embed(source="../assets/names/temperateForest.json", mimeType="application/octet-stream")]
-        private static const jungle_json:Class;
+        [Embed(source="../assets/names/rainForest.json", mimeType="application/octet-stream")]
+        private static const rainForest_json:Class;
 
         [Embed(source="../assets/names/temperateForest.json", mimeType="application/octet-stream")]
         private static const mountain_json:Class;
@@ -79,7 +79,7 @@ package geography {
             grassland = JSON.parse(new grassland_json());
             temperateForest = JSON.parse(new temperateForest_json());
             savanna = JSON.parse(new savanna_json());
-            rainForest = JSON.parse(new jungle_json());
+            rainForest = JSON.parse(new rainForest_json());
             mountain = JSON.parse(new mountain_json());
             desert = JSON.parse(new desert_json());
             freshWater = JSON.parse(new freshWater_json());
@@ -124,8 +124,11 @@ package geography {
 
                 if (r.next() < .2)
                     prefix = rivers.longPrefix[int(r.between(0, rivers.longPrefix.length))];
-                if (r.next() < .8)
+                if (r.next() < .6) {
                     suffix = rivers.longSuffix[int(r.between(0, rivers.longSuffix.length))];
+                } else {
+                    prefix = "The";
+                }
 
                 // Name river after trees or big animals
                 subjectInspirations = trees.concat(bigAnimals);
@@ -138,7 +141,7 @@ package geography {
 
                 if (r.next() < .2)
                     prefix = rivers.shortPrefix[int(r.between(0, rivers.shortPrefix.length))];
-                if (r.next() < .8)
+                if (r.next() < 1)
                     suffix = rivers.shortSuffix[int(r.between(0, rivers.shortSuffix.length))];
 
                 // Name river after trees, plants, or small animals

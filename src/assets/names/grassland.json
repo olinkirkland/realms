@@ -1,0 +1,41 @@
+{
+  "treeDiversity": 3,
+  "plantDiversity": 3,
+  "smallAnimalDiversity": 6,
+  "bigAnimalDiversity": 3,
+  "trees": [
+    "cottonwood",
+    "oak",
+    "willow"
+  ],
+  "plants": [
+    "aster",
+    "buffalo grass",
+    "goldenrod",
+    "sagebrush",
+    "clover",
+    "wild oat"
+  ],
+  "smallAnimals": [
+    "mouse",
+    "fox",
+    "skunk",
+    "badger",
+    "quail",
+    "sparrow",
+    "hawk",
+    "owl",
+    "snake"
+  ],
+  "bigAnimals": [
+    "buffalo",
+    "gazelle",
+    "deer",
+    "rhinoceros",
+    "zebra",
+    "lion",
+    "wolf",
+    "wild horse",
+    "lynx"
+  ]
+}
