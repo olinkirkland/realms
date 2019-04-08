@@ -1,12 +1,10 @@
 # Realms
 
-[Trello](https://trello.com/b/SoUEo0DZ/realms)
-
 Inspired by the works of Azgaar's Fantasy Maps, Amit Patel's Polygonal Map Generation, Scott Turner's Dragons Abound, and Martin O'Leary's Map Generation.  
-[Azgaar's Fantasy Map Generator](https://azgaar.wordpress.com/)
-[Amit Patel's Polygonal Map Generation](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)
-[Scott Turner's Dragons Abound](https://heredragonsabound.blogspot.com/)
-[Martin O'Leary's Map Generation](http://mewo2.com/notes/terrain/)
+- [Azgaar's Fantasy Map Generator](https://azgaar.wordpress.com/)  
+- [Amit Patel's Polygonal Map Generation](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)  
+- [Scott Turner's Dragons Abound](https://heredragonsabound.blogspot.com/)  
+- [Martin O'Leary's Map Generation](http://mewo2.com/notes/terrain/)  
 
 Requires (Included)
 - [AS3 Delaunay](http://nodename.github.io/as3delaunay/)
@@ -17,13 +15,11 @@ Requires (Included)
 ![Latest Screenshot](https://i.imgur.com/MXSi5HI.png)
 Latest Screenshot  
 
-![Procedurally Generated Island Map 1](https://i.imgur.com/jfRGyjT.png)
-Procedurally Generated Island Map 1  
-
-
-![Procedurally Generated Island Map 2](https://i.imgur.com/VyMiffr.png)
-Procedurally Generated Island Map 2  
+![Procedurally Generated Terrain](https://i.imgur.com/jfRGyjT.png)
+Procedurally Generated Terrain
 
 
 ![River Mapping](https://i.imgur.com/oKNWJWE.png)
 River Mapping  
+
+Visit the [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms) where I organize my tasks.
