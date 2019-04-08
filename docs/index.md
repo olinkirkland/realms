@@ -1,4 +1,4 @@
-# Realms
+### Realms
 
 Inspired by the works of Azgaar's Fantasy Maps, Amit Patel's Polygonal Map Generation, Scott Turner's Dragons Abound, and Martin O'Leary's Map Generation.  
 - [Azgaar's Fantasy Map Generator](https://azgaar.wordpress.com/)  
