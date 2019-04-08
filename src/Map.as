@@ -1021,8 +1021,8 @@ package {
                     txt.background = true;
                     txt.backgroundColor = 0xffffff;
                     txt.selectable = false;
-                    labels.push(txt);
-                    addChild(txt);
+//                    labels.push(txt);
+//                    addChild(txt);
                 }
             }
 

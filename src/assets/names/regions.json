@@ -1,0 +1,277 @@
+{
+  "subjectPrefix": {
+    "grassland": [
+      {
+        "use": [
+          "none",
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "forest"
+        ],
+        "names": [
+          "Green"
+        ]
+      }
+    ],
+    "forest": [
+      {
+        "use": [
+          "none",
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island"
+        ],
+        "names": [
+          "Wood"
+        ]
+      },
+      {
+        "use": [
+          "none",
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island",
+          "forest"
+        ],
+        "names": [
+          "[tree]"
+        ]
+      },
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "[name]"
+        ]
+      },
+      {
+        "names": [
+          "Green"
+        ],
+        "use": [
+          "none",
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island",
+          "forest"
+        ]
+      }
+    ],
+    "warm": [
+      {
+        "use": [
+          "none",
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island"
+        ],
+        "names": [
+          "Somer",
+          "Summer"
+        ]
+      }
+    ],
+    "cold": [
+      {
+        "use": [
+          "none",
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island"
+        ],
+        "names": [
+          "Winter"
+        ]
+      }
+    ],
+    "river": [
+      {
+        "use": [
+          "none",
+          "grassland",
+          "valley",
+          "lake",
+          "island"
+        ],
+        "names": [
+          "Valen",
+          "Val",
+          "Dal"
+        ]
+      },
+      {
+        "use": [
+          "none",
+          "geography",
+          "grassland",
+          "river",
+          "valley",
+          "lake",
+          "island"
+        ],
+        "names": [
+          "Aver",
+          "Aber"
+        ]
+      }
+    ],
+    "north": [
+      {
+        "use": [
+          "none",
+          "geography"
+        ],
+        "names": [
+          "North"
+        ]
+      }
+    ],
+    "south": [
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Souther"
+        ]
+      },
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Suther"
+        ]
+      },
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Sur"
+        ]
+      }
+    ],
+    "west": [
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Wester"
+        ]
+      }
+    ],
+    "east": [
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Easter"
+        ]
+      },
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Ast"
+        ]
+      }
+    ],
+    "highElevation": [
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "High"
+        ]
+      },
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Bryn"
+        ]
+      }
+    ],
+    "lowElevation": [
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Nether"
+        ]
+      },
+      {
+        "use": [
+          "none"
+        ],
+        "names": [
+          "Low"
+        ]
+      }
+    ],
+    "lake": [
+      {
+        "use": [
+          "none",
+          "river"
+        ],
+        "names": [
+          "Tober"
+        ]
+      }
+    ]
+  },
+  "subjectSuffix": {
+    "geography": [
+      "lands",
+      "land"
+    ],
+    "grassland": [
+      "field",
+      "feld"
+    ],
+    "valley": [
+      "vale",
+      "dale"
+    ],
+    "lake": [
+      "mere",
+      "water"
+    ],
+    "island": [
+      "holme"
+    ],
+    "forest": [
+      "went",
+      "wood"
+    ],
+    "place": [
+      "set",
+      "sey"
+    ],
+    "river": [
+      "more",
+      "mory"
+    ]
+  }
+}

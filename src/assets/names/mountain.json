@@ -1,0 +1,38 @@
+{
+  "treeDiversity": 3,
+  "plantDiversity": 3,
+  "smallAnimalDiversity": 6,
+  "bigAnimalDiversity": 3,
+  "trees": [],
+  "plants": [
+    "black yarrow",
+    "wolfsbane",
+    "sticklewort",
+    "catsfoot",
+    "bellflower",
+    "starflower",
+    "orchid",
+    "lily",
+    "butterwort",
+    "globeflower"
+  ],
+  "smallAnimals": [
+    "marmot",
+    "hare",
+    "grouse",
+    "goat",
+    "chamois",
+    "vulture",
+    "eagle",
+    "mouse",
+    "salamander",
+    "sheep"
+  ],
+  "bigAnimals": [
+    "ibex",
+    "lynx",
+    "bear",
+    "wolf",
+    "deer"
+  ]
+}

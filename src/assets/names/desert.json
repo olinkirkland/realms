@@ -1,0 +1,47 @@
+{
+  "treeDiversity": 3,
+  "plantDiversity": 3,
+  "smallAnimalDiversity": 6,
+  "bigAnimalDiversity": 3,
+  "trees": [
+    "doum palm",
+    "date palm",
+    "olive tree",
+    "cypress",
+    "mastic",
+    "acacia"
+  ],
+  "plants": [
+    "lovegrass",
+    "gourd",
+    "cactus",
+    "tamarisk",
+    "oleander",
+    "thyme",
+    "thaman",
+    "mangrove grass",
+    "bermuda grass"
+  ],
+  "smallAnimals": [
+    "ant",
+    "scorpion",
+    "viper",
+    "lizard",
+    "hare",
+    "hedgehog",
+    "fox",
+    "hyrax",
+    "silverbill",
+    "finch"
+  ],
+  "bigAnimals": [
+    "crocodile",
+    "oryx",
+    "gazelle",
+    "ostrich",
+    "camel",
+    "antelope",
+    "cheetah",
+    "lion"
+  ]
+}
