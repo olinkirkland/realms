@@ -53,12 +53,16 @@ package {
 
         public static function removeDuplicatesFromArray(arr:Array):Array {
             var uniqueArr:Array = [];
-            for each (var value in arr) {
+            for each (var value:* in arr) {
                 if (uniqueArr.indexOf(value) < 0)
                     uniqueArr.push(value);
             }
 
             return uniqueArr;
+        }
+
+        public static function capitalizeFirstLetter(str:String):String {
+            return str.substr(0, 1).toUpperCase() + str.substr(1);
         }
     }
 }

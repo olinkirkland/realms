@@ -10,7 +10,7 @@
     "pine",
     "willow"
   ],
-  "flora": [
+  "plants": [
     "lichen",
     "moss",
     "fern",
@@ -22,15 +22,11 @@
     "brown mushroom",
     "sunset mushroom"
   ],
-  "fauna": [
-    "lynx",
+  "smallAnimals": [
     "weasel",
     "stoat",
     "otter",
     "mink",
-    "wolverine",
-    "wolf",
-    "bear",
     "fox",
     "vole",
     "mouse",
@@ -46,5 +42,11 @@
     "grouse",
     "falcon",
     "hawk"
+  ],
+  "bigAnimals": [
+    "lynx",
+    "wolverine",
+    "wolf",
+    "bear"
   ]
 }

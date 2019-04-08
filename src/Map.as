@@ -14,6 +14,7 @@ package {
     import geography.Biome;
     import geography.Ecosystem;
     import geography.Geography;
+    import geography.Names;
     import geography.Settlement;
     import geography.Settlements;
 
@@ -42,6 +43,7 @@ package {
         // Managers
         private var featureManager:Geography;
         private var settlements:Settlements;
+        private var names:Names;
 
         // Generation
         private var outlines:Shape;
@@ -68,6 +70,7 @@ package {
             // Initialize Singletons
             featureManager = Geography.getInstance();
             settlements = Settlements.getInstance();
+            names = Names.getInstance();
 
             // Seeded random generator
             rand = new Rand(1);
@@ -171,6 +174,14 @@ package {
         }
 
         private function determineNames():void {
+            // Rivers
+            // Sort rivers by length
+            var rivers:Array = [];
+            for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER))
+                rivers.push(river);
+            rivers.sortOn(Sort.sortByCellCount);
+            for each (river in rivers)
+                river.name = names.getNewRiverName(river);
         }
 
         private function determineFloraAndFauna():void {
@@ -186,10 +197,7 @@ package {
                         avgY += cell.point.y;
                     }
 
-                    avgX /= biome.cells.length;
-                    avgY /= biome.cells.length;
-
-                    biome.centroid = new Point(avgX, avgY);
+                    biome.centroid = new Point(avgX /= biome.cells.length, avgY /= biome.cells.length);
                     biome.influence = Math.min(biome.cells.length, 300);
                     biome.linked = [];
                 }
@@ -403,6 +411,10 @@ package {
                 }
             }
 
+            for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER)) {
+                river.centroid = river.cells[int(river.cells.length / 2)].point;
+            }
+
             function pour(c:Cell, t:Cell):void {
                 t.flux += c.flux;
                 if (c.flux > 10) {
@@ -447,7 +459,6 @@ package {
 
                         var feature:Object = featureManager.getFeature(estuary);
                         feature.target = target;
-                        //feature.power =
                     }
                 }
             }
@@ -983,30 +994,6 @@ package {
                 }
             }
 
-            if (false) {
-                // Draw feature labels
-                var c:Rand = new Rand(1);
-                var includeBiomes:Array = [Biome.MOUNTAIN, Biome.TEMPERATE_FOREST, Biome.BOREAL_FOREST, Biome.FRESH_WATER];
-                for each (biomeType in Biome.list) {
-                    if (includeBiomes.indexOf(biomeType) >= 0) {
-                        var color:uint = c.next() * 0xffffff;
-                        for each (biome in featureManager.getFeaturesByType(biomeType)) {
-                            if (biome.influence > 10) {
-                                var txt:TextField = new TextField();
-                                txt.selectable = false;
-                                txt.text = biome.type;
-                                txt.textColor = color;
-                                txt.autoSize = TextFieldAutoSize.CENTER;
-                                txt.width = txt.textWidth + 10;
-                                txt.x = biome.centroid.x - txt.width / 2;
-                                txt.y = biome.centroid.y - txt.height / 2;
-                                labels.push(txt);
-                                addChild(txt);
-                            }
-                        }
-                    }
-                }
-            }
             if (true) {
                 // Draw settlement labels
                 for each (settlement in settlements.settlements) {
@@ -1017,6 +1004,22 @@ package {
                     txt.x = settlement.point.x - txt.width / 2;
                     txt.y = settlement.point.y + 6;
                     txt.border = true;
+                    txt.selectable = false;
+//                    labels.push(txt);
+//                    addChild(txt);
+                }
+
+                // Draw river labels
+                for each (river in featureManager.getFeaturesByType(Geography.RIVER)) {
+                    txt = new TextField();
+                    txt.text = river.name;
+                    txt.autoSize = TextFieldAutoSize.CENTER;
+                    txt.width = txt.textWidth + 10;
+                    txt.x = river.centroid.x - txt.width / 2;
+                    txt.y = river.centroid.y + 6;
+                    txt.border = true;
+                    txt.background = true;
+                    txt.backgroundColor = 0xffffff;
                     txt.selectable = false;
                     labels.push(txt);
                     addChild(txt);
@@ -1403,7 +1406,7 @@ package {
             for each (var feature:Object in cell.features) {
                 str += "\n > " + feature.type + " (" + feature.cells.length + ")";
                 if (feature.ecosystem) {
-                    str += "size: " + feature.ecosystem.size;
+                    str += " - " + feature.ecosystem.size;
                     str += "\n   > " + feature.ecosystem.trees;
                     str += "\n   > " + feature.ecosystem.plants;
                     str += "\n   > " + feature.ecosystem.smallAnimals;
