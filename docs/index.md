@@ -12,15 +12,18 @@ Requires (Included)
 - [Andy Woodruff's Continuous Curves](http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/)
 - Flash.swc
 
-![Latest Screenshot](https://i.imgur.com/MXSi5HI.png)
-Latest Screenshot  
+![River Names](https://i.imgur.com/4BS9Tzw.png)
+River naming  
+
+![Mountain drawing](https://i.imgur.com/MXSi5HI.png)
+Experimenting with mountain drawing  
 
 ![Procedurally Generated Terrain](https://i.imgur.com/jfRGyjT.png)
-Procedurally Generated Terrain
+Procedurally generated terrain
 
 
 ![River Mapping](https://i.imgur.com/oKNWJWE.png)
-River Mapping  
+River mapping  
 
 View the [Game Design Document](game-design)  
 Visit the [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms) where I organize my tasks
