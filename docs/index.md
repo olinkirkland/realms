@@ -1,18 +1,18 @@
-# World Map Generator
+# Realms
 
-World Generation in AS3
+[Trello](https://trello.com/b/SoUEo0DZ/realms)
+
 Inspired by the works of Azgaar's Fantasy Maps, Amit Patel's Polygonal Map Generation, Scott Turner's Dragons Abound, and Martin O'Leary's Map Generation.  
-https://azgaar.wordpress.com/  
-http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/  
-https://heredragonsabound.blogspot.com/  
-http://mewo2.com/notes/terrain/  
+[Azgaar's Fantasy Map Generator](https://azgaar.wordpress.com/)
+[Amit Patel's Polygonal Map Generation](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)
+[Scott Turner's Dragons Abound](https://heredragonsabound.blogspot.com/)
+[Martin O'Leary's Map Generation](http://mewo2.com/notes/terrain/)
 
-
-Requires
-AS3 Delaunay http://nodename.github.io/as3delaunay/  
-Greensock https://greensock.com/tweenlite-as  
-Andy Woodruff's Continuous Curves http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/  
-Flash.swc  
+Requires (Included)
+- [AS3 Delaunay](http://nodename.github.io/as3delaunay/)
+- [Greensock](https://greensock.com/tweenlite-as)
+- [Andy Woodruff's Continuous Curves](http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/)
+- Flash.swc
 
 ![Latest Screenshot](https://i.imgur.com/MXSi5HI.png)
 Latest Screenshot  
