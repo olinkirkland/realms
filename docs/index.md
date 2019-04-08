@@ -22,5 +22,5 @@ Procedurally Generated Terrain
 ![River Mapping](https://i.imgur.com/oKNWJWE.png)
 River Mapping  
 
-View the [Game Design Document](game-design)
+View the [Game Design Document](game-design)  
 Visit the [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms) where I organize my tasks
