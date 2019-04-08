@@ -1,6 +1,4 @@
-### Realms
-
-[Game Design Document](game-design)
+# Realms
 
 Inspired by the works of Azgaar's Fantasy Maps, Amit Patel's Polygonal Map Generation, Scott Turner's Dragons Abound, and Martin O'Leary's Map Generation.  
 - [Azgaar's Fantasy Map Generator](https://azgaar.wordpress.com/)  
@@ -24,4 +22,5 @@ Procedurally Generated Terrain
 ![River Mapping](https://i.imgur.com/oKNWJWE.png)
 River Mapping  
 
-Visit the [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms) where I organize my tasks.
+View the [Game Design Document](game-design)
+Visit the [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms) where I organize my tasks
