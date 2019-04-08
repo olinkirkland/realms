@@ -1,4 +1,4 @@
-# Realms Game Design Document
+# Realms Game Design
 
 Realms is a single and multi-player turn-based grand-strategy game taking place in a procedurally generated world with player or AI controlled factions.
 
