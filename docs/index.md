@@ -27,3 +27,5 @@ Procedurally generated terrain
 
 ![River Mapping](https://i.imgur.com/oKNWJWE.png)
 River mapping  
+
+[Zoom Function](zoom.mp4)  
