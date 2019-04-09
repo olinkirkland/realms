@@ -2,8 +2,11 @@ package {
     import com.nodename.Delaunay.Voronoi;
     import com.nodename.geom.LineSegment;
 
+    import flash.display.Bitmap;
+    import flash.display.BitmapData;
     import flash.display.Shape;
     import flash.events.MouseEvent;
+    import flash.filters.ColorMatrixFilter;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.text.TextField;
@@ -46,6 +49,7 @@ package {
         private var names:Names;
 
         // Generation
+        private var canvas:Shape;
         private var outlines:Shape;
         private var highlights:Shape;
         private var rand:Rand;
@@ -63,7 +67,8 @@ package {
         public var showSettlements:Boolean = true;
         public var showBiomeLinkage:Boolean = false;
 
-        // Miscellanious
+        // Miscellaneous
+        private var staticMode:Bitmap;
         public static var MAP_PROGRESS:String = "mapProgress";
 
         public function Map() {
@@ -93,11 +98,17 @@ package {
         override protected function createChildren():void {
             super.createChildren();
 
-            outlines = new Shape();
-            addChild(outlines);
+            canvas = new Shape();
+            addChild(canvas);
 
             highlights = new Shape();
             addChild(highlights);
+
+            outlines = new Shape();
+            addChild(outlines);
+
+            staticMode = new Bitmap();
+            addChild(staticMode);
         }
 
         private function tryToLoadPoints():void {
@@ -801,35 +812,35 @@ package {
              */
 
             // Clear
-            graphics.clear();
+            canvas.graphics.clear();
             outlines.graphics.clear();
             highlights.graphics.clear();
 
-            graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
-            graphics.drawRect(0, 0, width, height);
+            canvas.graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
+            canvas.graphics.drawRect(0, 0, width, height);
 
             var cell:Cell;
             var edge:Edge;
 
             if (showBiomes) {
                 // Draw Biomes
-                graphics.lineStyle();
+                canvas.graphics.lineStyle();
                 for each (var biomeType:String in Biome.list) {
-                    graphics.beginFill(Biome.colors[biomeType]);
+                    canvas.graphics.beginFill(Biome.colors[biomeType]);
                     for each (var biome:Object in featureManager.getFeaturesByType(biomeType)) {
                         for each (cell in biome.cells) {
                             // Loop through edges
                             for each (edge in cell.edges) {
                                 if (edge.v0 && edge.v1) {
-                                    graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                    graphics.lineTo(cell.point.x, cell.point.y);
-                                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                    canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                    canvas.graphics.lineTo(cell.point.x, cell.point.y);
+                                    canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                                 } else {
                                 }
                             }
                         }
                     }
-                    graphics.endFill();
+                    canvas.graphics.endFill();
                 }
             }
 
@@ -840,12 +851,12 @@ package {
                 var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
                 for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER)) {
                     // Create an array of points
-                    graphics.moveTo(river.cells[0].point.x, river.cells[0].point.y);
+                    canvas.graphics.moveTo(river.cells[0].point.x, river.cells[0].point.y);
                     var i:int = 0;
                     for each (cell in river.cells) {
                         i++;
-                        graphics.lineStyle(1 + ((i / river.cells.length) * river.cells.length) / 5, seaColor);
-                        graphics.lineTo(cell.point.x, cell.point.y);
+                        canvas.graphics.lineStyle(1 + ((i / river.cells.length) * river.cells.length) / 5, seaColor);
+                        canvas.graphics.lineTo(cell.point.x, cell.point.y);
                     }
                 }
             }
@@ -859,7 +870,7 @@ package {
             if (showMountains) {
                 // Draw mountains
                 // todo overhaul this
-                graphics.lineStyle(1, 0xff000);
+                canvas.graphics.lineStyle(1, 0xff000);
                 for each (var mountain:Object in featureManager.getFeaturesByType(Biome.MOUNTAIN)) {
                     var mountainBase:Array = [];
                     var mountainBody:Array = [];
@@ -879,19 +890,19 @@ package {
 
                     // Mark the highest point
                     mountainBody.sortOn("elevation", Array.DESCENDING);
-                    graphics.lineStyle(2, 0x000000);
-                    graphics.beginFill(0xffffff);
-                    graphics.drawCircle(mountainBody[0].point.x, mountainBody[0].point.y, 5);
-                    graphics.endFill();
+                    canvas.graphics.lineStyle(2, 0x000000);
+                    canvas.graphics.beginFill(0xffffff);
+                    canvas.graphics.drawCircle(mountainBody[0].point.x, mountainBody[0].point.y, 5);
+                    canvas.graphics.endFill();
 
-                    graphics.lineStyle(1, 0x000000);
+                    canvas.graphics.lineStyle(1, 0x000000);
                     // Draw an outline of the mountain
                     for each (cell in mountainBase) {
                         for each (edge in cell.edges) {
                             if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                                 //if (!edge.d0.hasFeatureType(Biome.MOUNTAIN) || !edge.d1.hasFeatureType(Biome.MOUNTAIN))
-                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                             }
                         }
                     }
@@ -907,68 +918,68 @@ package {
 
             if (showTemperature) {
                 // Draw temperature
-                graphics.lineStyle();
+                canvas.graphics.lineStyle();
                 for each (cell in cells) {
                     if (cell.elevation > SEA_LEVEL) {
-                        graphics.beginFill(getColorFromTemperature(cell.temperature), .6);
+                        canvas.graphics.beginFill(getColorFromTemperature(cell.temperature), .6);
                         for each (edge in cell.edges) {
                             if (edge.v0 && edge.v1) {
-                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                graphics.lineTo(cell.point.x, cell.point.y);
-                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                canvas.graphics.lineTo(cell.point.x, cell.point.y);
+                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                             } else {
                             }
                         }
-                        graphics.endFill();
+                        canvas.graphics.endFill();
                     }
                 }
             }
 
             if (showTerrain) {
                 // Draw terrain
-                graphics.lineStyle();
+                canvas.graphics.lineStyle();
                 for each (cell in cells) {
-                    graphics.beginFill(getColorFromElevation(cell.elevation), 1);
+                    canvas.graphics.beginFill(getColorFromElevation(cell.elevation), 1);
 
                     for each (edge in cell.edges) {
                         if (edge.v0 && edge.v1) {
-                            graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                            graphics.lineTo(cell.point.x, cell.point.y);
-                            graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                            canvas.graphics.lineTo(cell.point.x, cell.point.y);
+                            canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                         } else {
                         }
                     }
                 }
-                graphics.endFill();
+                canvas.graphics.endFill();
             }
 
             if (showDesirability) {
                 // Draw desirability
-                graphics.lineStyle();
+                canvas.graphics.lineStyle();
                 for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
                     for each (cell in land.cells) {
-                        graphics.beginFill(Util.getColorBetweenColors(0x0000ff, 0xffff00, cell.desirability / 10));
+                        canvas.graphics.beginFill(Util.getColorBetweenColors(0x0000ff, 0xffff00, cell.desirability / 10));
 
                         for each (edge in cell.edges) {
                             if (edge.v0 && edge.v1) {
-                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                graphics.lineTo(cell.point.x, cell.point.y);
-                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                canvas.graphics.lineTo(cell.point.x, cell.point.y);
+                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                             } else {
                             }
                         }
                     }
-                    graphics.endFill();
+                    canvas.graphics.endFill();
                 }
             }
 
             if (showSettlements) {
                 // Draw settlements
-                graphics.lineStyle(1, 0x000000);
+                canvas.graphics.lineStyle(1, 0x000000);
                 for each (var settlement:Settlement in settlements.settlements) {
-                    graphics.beginFill(0xffffff);
-                    graphics.drawCircle(settlement.point.x, settlement.point.y, 3);
-                    graphics.endFill();
+                    canvas.graphics.beginFill(0xffffff);
+                    canvas.graphics.drawCircle(settlement.point.x, settlement.point.y, 3);
+                    canvas.graphics.endFill();
                 }
             }
 
@@ -978,17 +989,17 @@ package {
                 for each (biomeType in Biome.list) {
                     var color:uint = c.next() * 0xffffff;
                     for each (biome in featureManager.getFeaturesByType(biomeType)) {
-                        graphics.lineStyle(1, color);
-                        graphics.beginFill(0xffffff);
-                        graphics.drawCircle(biome.centroid.x, biome.centroid.y, 3);
-                        graphics.endFill();
+                        canvas.graphics.lineStyle(1, color);
+                        canvas.graphics.beginFill(0xffffff);
+                        canvas.graphics.drawCircle(biome.centroid.x, biome.centroid.y, 3);
+                        canvas.graphics.endFill();
 
                         if (biome.influence > 6)
-                            graphics.drawCircle(biome.centroid.x, biome.centroid.y, biome.influence);
+                            canvas.graphics.drawCircle(biome.centroid.x, biome.centroid.y, biome.influence);
 
                         for each (var linkedBiome:Object in biome.linked) {
-                            graphics.moveTo(biome.centroid.x, biome.centroid.y);
-                            graphics.lineTo(linkedBiome.centroid.x, linkedBiome.centroid.y);
+                            canvas.graphics.moveTo(biome.centroid.x, biome.centroid.y);
+                            canvas.graphics.lineTo(linkedBiome.centroid.x, linkedBiome.centroid.y);
                         }
                     }
                 }
@@ -1038,48 +1049,50 @@ package {
                     }
                 }
             }
+
+            staticModeOff();
         }
 
         private function drawForests(type:String, fillColor:uint, outlineColor:uint, bottomOutlineColor:uint):void {
             // Draw forests
             for each (var forest:Object in featureManager.getFeaturesByType(type)) {
                 // Fill
-                graphics.lineStyle();
-                graphics.beginFill(fillColor);
+                canvas.graphics.lineStyle();
+                canvas.graphics.beginFill(fillColor);
                 for each (var cell:Cell in forest.cells) {
                     for (var i:int = 0; i < cell.edges.length; i++) {
                         var edge:Edge = cell.edges[i];
                         if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                            graphics.moveTo(cell.point.x, cell.point.y);
-                            graphics.lineTo(edge.v0.point.x, edge.v0.point.y);
+                            canvas.graphics.moveTo(cell.point.x, cell.point.y);
+                            canvas.graphics.lineTo(edge.v0.point.x, edge.v0.point.y);
                             if (!edge.d0.features[forest.id]) {
                                 // Draw a curved line
-                                graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
+                                canvas.graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
                             } else if (!edge.d1.features[forest.id]) {
                                 // Draw a curved line (opposite direction)
-                                graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
+                                canvas.graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
                             } else {
-                                graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                             }
                         }
                     }
                 }
-                graphics.endFill();
+                canvas.graphics.endFill();
 
                 // Outline
                 for each (cell in forest.cells) {
                     for (i = 0; i < cell.edges.length; i++) {
                         edge = cell.edges[i];
                         if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                            graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                            canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                             if (!edge.d0.features[forest.id]) {
                                 // Draw a curved line
-                                graphics.lineStyle(1, outlineColor);
-                                graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
+                                canvas.graphics.lineStyle(1, outlineColor);
+                                canvas.graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
                             } else if (!edge.d1.features[forest.id]) {
-                                graphics.lineStyle(1, bottomOutlineColor);
+                                canvas.graphics.lineStyle(1, bottomOutlineColor);
                                 // Draw a curved line (opposite direction)
-                                graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
+                                canvas.graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
                             }
                         }
                     }
@@ -1101,9 +1114,9 @@ package {
                 if (bordersForeignType(Biome.TEMPERATE_FOREST))
                     return;
 
-                graphics.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
-                graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
-                graphics.curveTo(c.x, c.y - rand.between(1, 5), c.x + d, c.y);
+                canvas.graphics.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
+                canvas.graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
+                canvas.graphics.curveTo(c.x, c.y - rand.between(1, 5), c.x + d, c.y);
             }
             if (cell.hasFeatureType(Biome.BOREAL_FOREST)) {
                 iconDensity = .8;
@@ -1111,10 +1124,10 @@ package {
                 if (rand.next() > iconDensity)
                     return;
 
-                graphics.lineStyle(rand.between(.5, 1.5), Biome.colors["borealForest_stroke"], rand.between(.6, 1));
-                graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
-                graphics.lineTo(c.x, c.y - rand.between(1, 3));
-                graphics.lineTo(c.x + d, c.y);
+                canvas.graphics.lineStyle(rand.between(.5, 1.5), Biome.colors["borealForest_stroke"], rand.between(.6, 1));
+                canvas.graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
+                canvas.graphics.lineTo(c.x, c.y - rand.between(1, 3));
+                canvas.graphics.lineTo(c.x + d, c.y);
             }
 
             function bordersForeignType(type:String):Boolean {
@@ -1137,14 +1150,14 @@ package {
         private function drawLandmassBorders(featureType:String):void {
             for (var key:String in featureManager.getFeaturesByType(featureType)) {
                 var feature:Object = featureManager.features[key];
-                graphics.lineStyle(1, Biome.colors.saltWater_stroke);
+                canvas.graphics.lineStyle(1, Biome.colors.saltWater_stroke);
                 if (feature.type != Geography.OCEAN) {
                     for each (var cell:Cell in feature.cells) {
                         for each (var edge:Edge in cell.edges) {
                             if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                                graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                                 if (!edge.d0.features[key] || !edge.d1.features[key])
-                                    graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                    canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
                             }
                         }
                     }
@@ -1424,6 +1437,25 @@ package {
         public function get mouse():Point {
             // Return a point referring to the current mouse position
             return new Point(mouseX, mouseY);
+        }
+
+        public function staticModeOn():void {
+            // Take screenshot
+            staticMode.visible = true;
+            canvas.visible = false;
+        }
+
+        public function staticModeOff():void {
+            staticMode.visible = false;
+            canvas.visible = true;
+
+            // Static Mode
+            var source:BitmapData = new BitmapData(this.width, this.height);
+            source.draw(this);
+//            const rc:Number = 1 / 3, gc:Number = 1 / 3, bc:Number = 1 / 3;
+//            source.applyFilter(source, source.rect, new Point(), new ColorMatrixFilter([rc, gc, bc, 0, 0, rc, gc, bc, 0, 0, rc, gc, bc, 0, 0, 0, 0, 0, 1, 0]));
+            staticMode.bitmapData = source;
+            staticMode.smoothing = true;
         }
     }
 }
