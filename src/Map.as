@@ -180,6 +180,35 @@ package {
         }
 
         private function determineRegions():void {
+            // Check all reasonably sized land masses for settlements
+            // If there are no settlements on the land mass, add one to a haven or a random place
+            var cell:Cell;
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
+                if (land.cells.length > 5) {
+                    var hasSettlement:Boolean = false;
+                    for each (var cell:Cell in land.cells) {
+                        if (cell.settlement) {
+                            hasSettlement = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasSettlement) {
+                        // Add a settlement to the landmass
+                        for each (cell in land.cells) {
+                            var haven:Cell = land.cells[0];
+                            if (cell.hasFeatureType(Geography.HAVEN)) {
+                                haven = cell;
+                                break;
+                            }
+                        }
+
+                        civ.registerSettlement(haven);
+                    }
+                }
+            }
+
+
             // Determine regions
             var settlements:Array = [];
             for each (var s:Settlement in civ.settlements)
@@ -199,7 +228,7 @@ package {
                 var queue:Array = [start];
 
                 while (queue.length > 0) {
-                    var cell:Cell = queue.shift();
+                    cell = queue.shift();
 
                     if (cell.regionInfluence > 0) {
                         for each (var neighbor:Cell in cell.neighbors) {
@@ -291,7 +320,6 @@ package {
             do {
                 determineDesirability();
 
-                //trace(i, cells[0].desirability);
                 civ.registerSettlement(cells[0]);
                 i++;
             } while (i < 100);
