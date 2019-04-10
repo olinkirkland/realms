@@ -13,6 +13,7 @@
         private var drag:Point = null;
 
         public static const MAX_ZOOM:Number = 3;
+        private var zoomToCursor:Boolean = false;
 
 
         private function onInitialize(event:FlexEvent):void {
@@ -41,9 +42,9 @@
             }
 
             // Get center
-            var p:Point = map.globalToLocal(new Point(stage.stageWidth / 2,
-                    stage.stageHeight / 2));
-
+            var p:Point = map.globalToLocal(new Point(stage.stageWidth / 2, stage.stageHeight / 2));
+            if (zoomToCursor)
+                p = map.globalToLocal(new Point(stage.mouseX, stage.mouseY));
 
             var m:Matrix = new Matrix();
             m.translate(-p.x,
@@ -94,6 +95,11 @@
 
         public function onKeyUp(event:KeyboardEvent):void {
             switch (event.keyCode) {
+                case Keyboard.Z:
+                    // Zoom to cursor
+                    zoomToCursor = !zoomToCursor;
+                    trace("zoomToCursor", zoomToCursor);
+                    break;
                 case Keyboard.Q:
                     // Toggle outlines
                     map.showOutlines = !map.showOutlines;

@@ -62,7 +62,7 @@ package {
         public var showDesirability:Boolean = false;
         public var showSettlements:Boolean = true;
         public var showBiomeLinkage:Boolean = false;
-        public var showRegions:Boolean = true;
+        public var showRegions:Boolean = false;
 
         // Miscellaneous
         private var staticMode:Bitmap;
@@ -193,7 +193,7 @@ package {
                 var region:String = civ.registerRegion();
 
                 var r:Rand = new Rand(1);
-                civ.addCellToRegion(start, region, 100 + r.next() * 20);
+                civ.addCellToRegion(start, region, 200 + r.next() * 100);
                 start.used = true;
 
                 var queue:Array = [start];
@@ -201,19 +201,26 @@ package {
                 while (queue.length > 0) {
                     var cell:Cell = queue.shift();
 
-                    var cost:int = 1;
-                    if (cell.hasFeatureType(Geography.OCEAN) || cell.hasFeatureType(Biome.MOUNTAIN))
-                        cost = 10;
-
-                    var influence:Number = cell.regionInfluence - cost;
-
-                    if (influence > 0) {
+                    if (cell.regionInfluence > 0) {
                         for each (var neighbor:Cell in cell.neighbors) {
+                            // What's the cost of adding this cell to the region?
+                            var cost:int = 1;
+                            if (neighbor.hasFeatureType(Geography.OCEAN) || neighbor.hasFeatureType(Biome.MOUNTAIN))
+                                cost = 30;
+                            if ((cell.hasFeatureType(Biome.TUNDRA) || cell.hasFeatureType(Biome.GRASSLAND) || cell.hasFeatureType(Biome.SAVANNA)) && (neighbor.hasFeatureType(Biome.BOREAL_FOREST) || neighbor.hasFeatureType(Biome.TEMPERATE_FOREST) || neighbor.hasFeatureType(Biome.RAIN_FOREST)))
+                                cost = 10;
+                            if (neighbor.hasFeatureType(Geography.RIVER))
+                                cost = 25;
+
+                            var influence:int = cell.regionInfluence - cost;
+
                             if (!neighbor.used && neighbor.regionInfluence < influence) {
+                                // Use ocean tiles, but don't add them to the region
                                 if (!neighbor.hasFeatureType(Geography.OCEAN))
                                     civ.addCellToRegion(neighbor, region, influence);
                                 else
                                     neighbor.regionInfluence = influence;
+
                                 queue.push(neighbor);
                                 neighbor.used = true;
                             }
@@ -1022,7 +1029,7 @@ package {
                 canvas.graphics.lineStyle();
                 for each (var region:Object in civ.regions) {
                     color = 0xffffff * rand.next();
-                    canvas.graphics.beginFill(color, .6);
+                    canvas.graphics.beginFill(color);
                     for each (cell in region.cells) {
                         for each (edge in cell.edges) {
                             if (edge.v0 && edge.v1) {
