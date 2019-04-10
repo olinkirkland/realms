@@ -193,7 +193,7 @@ package {
                 var region:String = civ.registerRegion();
 
                 var r:Rand = new Rand(1);
-                civ.addCellToRegion(start, region, 200 + r.next() * 100);
+                civ.addCellToRegion(start, region, 200 + int(r.next() * 5) * 4);
                 start.used = true;
 
                 var queue:Array = [start];
@@ -206,11 +206,11 @@ package {
                             // What's the cost of adding this cell to the region?
                             var cost:int = 1;
                             if (neighbor.hasFeatureType(Geography.OCEAN) || neighbor.hasFeatureType(Biome.MOUNTAIN))
-                                cost = 30;
+                                cost = 20;
                             if ((cell.hasFeatureType(Biome.TUNDRA) || cell.hasFeatureType(Biome.GRASSLAND) || cell.hasFeatureType(Biome.SAVANNA)) && (neighbor.hasFeatureType(Biome.BOREAL_FOREST) || neighbor.hasFeatureType(Biome.TEMPERATE_FOREST) || neighbor.hasFeatureType(Biome.RAIN_FOREST)))
                                 cost = 10;
-                            if (neighbor.hasFeatureType(Geography.RIVER))
-                                cost = 25;
+                            if (neighbor.hasFeatureType(Geography.RIVER) || neighbor.hasFeatureType(Geography.LAKE))
+                                cost = 20;
 
                             var influence:int = cell.regionInfluence - cost;
 
