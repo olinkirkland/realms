@@ -1,4 +1,4 @@
-package geography {
+package generation {
     import graph.Cell;
 
     import mx.utils.UIDUtil;
@@ -57,10 +57,6 @@ package geography {
         public function removeCellFromFeature(cell:Cell, feature:String):void {
             delete cell.features[feature];
             features[feature].cells.removeAt(features[feature].cells.indexOf(cell));
-        }
-
-        public function getFeature(id:String):Object {
-            return features[id];
         }
 
         public function getFeaturesByType(featureType:String):Object {

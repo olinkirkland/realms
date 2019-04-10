@@ -64,9 +64,8 @@
                         y: p.y,
                         scaleX: scale,
                         scaleY: scale,
-                        onComplete: function ():void {
-                            map.staticModeOff();
-                        }
+                        onUpdate: constrain,
+                        onComplete: map.staticModeOff
                     });
         }
 
@@ -136,6 +135,11 @@
                 case Keyboard.S:
                     // Toggle settlements
                     map.showSettlements = !map.showSettlements;
+                    map.draw();
+                    break;
+                case Keyboard.G:
+                    // Toggle regions
+                    map.showRegions = !map.showRegions;
                     map.draw();
                     break;
             }

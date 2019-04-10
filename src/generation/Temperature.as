@@ -1,4 +1,4 @@
-package geography {
+package generation {
     public class Temperature {
         // Temperature Values
         public static var ARCTIC:Number = 1 / 10;

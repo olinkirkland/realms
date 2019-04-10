@@ -6,20 +6,17 @@ package {
     import flash.display.BitmapData;
     import flash.display.Shape;
     import flash.events.MouseEvent;
-    import flash.filters.ColorMatrixFilter;
     import flash.geom.Point;
     import flash.geom.Rectangle;
-    import flash.text.TextField;
-    import flash.text.TextFieldAutoSize;
     import flash.utils.Dictionary;
     import flash.utils.setTimeout;
 
-    import geography.Biome;
-    import geography.Ecosystem;
-    import geography.Geography;
-    import geography.Names;
-    import geography.Settlement;
-    import geography.Settlements;
+    import generation.Biome;
+    import generation.Ecosystem;
+    import generation.Geography;
+    import generation.Names;
+    import generation.Settlement;
+    import generation.Civilization;
 
     import graph.Cell;
     import graph.Corner;
@@ -44,8 +41,8 @@ package {
         public var borders:Vector.<Cell>;
 
         // Managers
-        private var featureManager:Geography;
-        private var settlements:Settlements;
+        private var geo:Geography;
+        private var civ:Civilization;
         private var names:Names;
 
         // Generation
@@ -53,7 +50,6 @@ package {
         private var outlines:Shape;
         private var highlights:Shape;
         private var rand:Rand;
-        private var labels:Array;
 
         // Draw Toggles
         public var showOutlines:Boolean = false;
@@ -66,6 +62,7 @@ package {
         public var showDesirability:Boolean = false;
         public var showSettlements:Boolean = true;
         public var showBiomeLinkage:Boolean = false;
+        public var showRegions:Boolean = true;
 
         // Miscellaneous
         private var staticMode:Bitmap;
@@ -73,15 +70,12 @@ package {
 
         public function Map() {
             // Initialize Singletons
-            featureManager = Geography.getInstance();
-            settlements = Settlements.getInstance();
+            geo = Geography.getInstance();
+            civ = Civilization.getInstance();
             names = Names.getInstance();
 
             // Seeded random generator
             rand = new Rand(1);
-
-            // Setup
-            labels = [];
 
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
@@ -162,8 +156,9 @@ package {
                 {f: calculateMoisture, m: "Calculating moisture"},
                 {f: calculateRivers, m: "Calculating rivers"},
                 {f: determineGeographicFeatures, m: "Determining biomes"},
-                {f: determineFloraAndFauna, m: "Determining flora and fauna"},
+                {f: determineFloraAndFauna, m: "Populating biomes"},
                 {f: placeSettlements, m: "Placing settlements"},
+                {f: determineRegions, m: "Determining region boundaries"},
                 {f: determineNames, m: "Choosing names"},
                 {f: draw, m: "Drawing"}];
 
@@ -184,11 +179,57 @@ package {
             }
         }
 
+        private function determineRegions():void {
+            // Determine regions
+            var settlements:Array = [];
+            for each (var s:Settlement in civ.settlements)
+                settlements.push(s);
+            // Sort by a unique value - point should do
+            settlements.sort(Sort.sortByPointY);
+
+            for each (var settlement:Settlement in settlements) {
+                var start:Cell = settlement.cell;
+                // Define region
+                var region:String = civ.registerRegion();
+
+                var r:Rand = new Rand(1);
+                civ.addCellToRegion(start, region, 100 + r.next() * 20);
+                start.used = true;
+
+                var queue:Array = [start];
+
+                while (queue.length > 0) {
+                    var cell:Cell = queue.shift();
+
+                    var cost:int = 1;
+                    if (cell.hasFeatureType(Geography.OCEAN) || cell.hasFeatureType(Biome.MOUNTAIN))
+                        cost = 10;
+
+                    var influence:Number = cell.regionInfluence - cost;
+
+                    if (influence > 0) {
+                        for each (var neighbor:Cell in cell.neighbors) {
+                            if (!neighbor.used && neighbor.regionInfluence < influence) {
+                                if (!neighbor.hasFeatureType(Geography.OCEAN))
+                                    civ.addCellToRegion(neighbor, region, influence);
+                                else
+                                    neighbor.regionInfluence = influence;
+                                queue.push(neighbor);
+                                neighbor.used = true;
+                            }
+                        }
+                    }
+                }
+
+                unuseCells();
+            }
+        }
+
         private function determineNames():void {
             // Rivers
             // Sort rivers by length
             var rivers:Array = [];
-            for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER))
+            for each (var river:Object in geo.getFeaturesByType(Geography.RIVER))
                 rivers.push(river);
             rivers.sortOn(Sort.sortByCellCount);
             for each (river in rivers)
@@ -198,7 +239,7 @@ package {
         private function determineFloraAndFauna():void {
             // Link biomes that are nearby and similar type
             for each (var biomeType:String in Biome.list) {
-                for each (var biome:Object in featureManager.getFeaturesByType(biomeType)) {
+                for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
                     // First, determine the center point of the biome
                     var avgX:Number = 0;
                     var avgY:Number = 0;
@@ -214,12 +255,12 @@ package {
                 }
 
                 var biomes:Array = [];
-                for each (biome in featureManager.getFeaturesByType(biomeType))
+                for each (biome in geo.getFeaturesByType(biomeType))
                     biomes.push(biome);
                 biomes.sort(Sort.sortByCellCount);
 
                 for each (biome in biomes) {
-                    for each (var targetBiome:Object in featureManager.getFeaturesByType(biomeType)) {
+                    for each (var targetBiome:Object in geo.getFeaturesByType(biomeType)) {
                         // Non-tiny biomes (> 10 cells) can link to other biomes of the same type to share flora/fauna
                         // Linked biomes must be near each other - the permitted distance is calculated using the biomes' relative sizes
                         if (biome != targetBiome && Util.getDistanceBetweenTwoPoints(biome.centroid, targetBiome.centroid) < biome.influence && biome.cells.length > 10 && biome.linked.indexOf(targetBiome) < 0 && biome.cells.length > targetBiome.cells.length) {
@@ -244,13 +285,13 @@ package {
                 determineDesirability();
 
                 //trace(i, cells[0].desirability);
-                settlements.registerSettlement(cells[0]);
+                civ.registerSettlement(cells[0]);
                 i++;
             } while (i < 100);
         }
 
         private function determineStaticDesirability():void {
-            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
                 for each (var cell:Cell in land.cells) {
                     cell.desirability = 1;
 
@@ -285,7 +326,7 @@ package {
         }
 
         private function determineDesirability():void {
-            for each (var settlement:Settlement in settlements.settlements) {
+            for each (var settlement:Settlement in civ.settlements) {
                 if (!settlement.used) {
                     var queue:Array = [];
                     var undesirability:Number = 20;
@@ -318,7 +359,7 @@ package {
         }
 
         private function determineGeographicFeatures():void {
-            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
                 var landCells:Vector.<Cell> = land.cells.concat();
                 var queue:Array = [];
                 while (landCells.length > 0) {
@@ -327,8 +368,8 @@ package {
 
                     // Pick a starting biome
                     var currentBiome:String = Biome.determineBiome(start);
-                    var currentFeature:String = featureManager.registerFeature(currentBiome);
-                    featureManager.addCellToFeature(start, currentFeature);
+                    var currentFeature:String = geo.registerFeature(currentBiome);
+                    geo.addCellToFeature(start, currentFeature);
                     start.biome = currentFeature;
                     start.biomeType = currentBiome;
 
@@ -341,7 +382,7 @@ package {
                         for each (var neighbor:Cell in cell.neighbors) {
                             var d:Boolean = Biome.determineBiome(neighbor) == currentBiome;
                             if (!neighbor.used && land.cells.indexOf(neighbor) >= 0 && d) {
-                                featureManager.addCellToFeature(neighbor, currentFeature);
+                                geo.addCellToFeature(neighbor, currentFeature);
                                 neighbor.biome = currentFeature;
                                 neighbor.biomeType = currentBiome;
                                 queue.push(neighbor);
@@ -360,7 +401,7 @@ package {
             unuseCells();
 
             // Determine glades
-            for each (var grassland:Object in featureManager.getFeaturesByType(Biome.GRASSLAND)) {
+            for each (var grassland:Object in geo.getFeaturesByType(Biome.GRASSLAND)) {
                 // isGlade is positive for grasslands as long as they are small and entirely surrounded by forest
                 var isGlade:Boolean = grassland.cells.length < 10;
                 for each (cell in grassland.cells) {
@@ -369,14 +410,14 @@ package {
                             isGlade = false;
                 }
                 if (isGlade) {
-                    var glade:String = featureManager.registerFeature(Geography.GLADE);
+                    var glade:String = geo.registerFeature(Geography.GLADE);
                     for each (cell in grassland.cells)
-                        featureManager.addCellToFeature(cell, glade);
+                        geo.addCellToFeature(cell, glade);
                 }
             }
 
             // Determine sheltered havens
-            for each(land in featureManager.getFeaturesByType(Geography.LAND)) {
+            for each(land in geo.getFeaturesByType(Geography.LAND)) {
                 // Get coastal cells
                 for each (cell in land.cells) {
                     for each (var edge:Edge in cell.edges) {
@@ -391,8 +432,8 @@ package {
                                 }
 
                                 if (oceanNeighborCount == 1) {
-                                    var haven:String = featureManager.registerFeature(Geography.HAVEN);
-                                    featureManager.addCellToFeature(coastal, haven);
+                                    var haven:String = geo.registerFeature(Geography.HAVEN);
+                                    geo.addCellToFeature(coastal, haven);
                                 }
                             }
                         }
@@ -411,7 +452,7 @@ package {
             }
 
             // Create rivers
-            for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
                 for each (cell in land.cells) {
                     cell.flux = cell.moisture;
                 }
@@ -420,10 +461,6 @@ package {
                 for each (cell in land.cells) {
                     pour(cell, cell.neighbors[0]);
                 }
-            }
-
-            for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER)) {
-                river.centroid = river.cells[int(river.cells.length / 2)].point;
             }
 
             function pour(c:Cell, t:Cell):void {
@@ -441,22 +478,22 @@ package {
                                 river = v;
                         }
 
-                        featureManager.addCellToFeature(t, river);
+                        geo.addCellToFeature(t, river);
 
                         if (!t.hasFeatureType(Geography.OCEAN) && !t.hasFeatureType(Geography.LAKE) && riverCount > 1) {
-                            var confluence:String = featureManager.registerFeature(Geography.CONFLUENCE);
-                            featureManager.addCellToFeature(t, confluence);
+                            var confluence:String = geo.registerFeature(Geography.CONFLUENCE);
+                            geo.addCellToFeature(t, confluence);
                         }
                     } else {
                         // Start new river
-                        river = featureManager.registerFeature(Geography.RIVER);
-                        featureManager.addCellToFeature(c, river);
-                        featureManager.addCellToFeature(t, river);
+                        river = geo.registerFeature(Geography.RIVER);
+                        geo.addCellToFeature(c, river);
+                        geo.addCellToFeature(t, river);
                     }
 
                     if (t.hasFeatureType(Geography.OCEAN) || t.hasFeatureType(Geography.LAKE)) {
-                        var estuary:String = featureManager.registerFeature(Geography.ESTUARY);
-                        featureManager.addCellToFeature(c, estuary);
+                        var estuary:String = geo.registerFeature(Geography.ESTUARY);
+                        geo.addCellToFeature(c, estuary);
                         var water:Object = {};
                         // An estuary can empty into an ocean or a lake, but not into both
                         if (t.hasFeatureType(Geography.OCEAN))
@@ -468,10 +505,17 @@ package {
                         for each (var target:String in water)
                             break;
 
-                        var feature:Object = featureManager.getFeature(estuary);
+                        var feature:Object = geo.features[estuary];
                         feature.target = target;
                     }
                 }
+            }
+
+            for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
+                river.centroid = river.cells[int(river.cells.length / 2)].point;
+                var freshWater:String = geo.registerFeature(Biome.FRESH_WATER);
+                for each (cell in river.cells)
+                    geo.addCellToFeature(cell, freshWater);
             }
 
             unuseCells();
@@ -538,19 +582,19 @@ package {
                     break;
             }
 
-            var ocean:String = featureManager.registerFeature(Geography.OCEAN);
-            featureManager.addCellToFeature(start, ocean);
+            var ocean:String = geo.registerFeature(Geography.OCEAN);
+            geo.addCellToFeature(start, ocean);
             start.used = true;
             queue.push(start);
 
             // Define Ocean
-            var biome:String = featureManager.registerFeature(Biome.SALT_WATER);
+            var biome:String = geo.registerFeature(Biome.SALT_WATER);
             while (queue.length > 0) {
                 var cell:Cell = queue.shift();
                 for each (var neighbor:Cell in cell.neighbors) {
                     if (!neighbor.used && neighbor.elevation < SEA_LEVEL) {
-                        featureManager.addCellToFeature(neighbor, ocean);
-                        featureManager.addCellToFeature(neighbor, biome);
+                        geo.addCellToFeature(neighbor, ocean);
+                        geo.addCellToFeature(neighbor, biome);
                         queue.push(neighbor);
                         neighbor.used = true;
                     }
@@ -559,8 +603,8 @@ package {
 
             // Override list edges to be part of the Ocean
             for each (cell in borders) {
-                featureManager.addCellToFeature(cell, ocean);
-                featureManager.addCellToFeature(cell, biome);
+                geo.addCellToFeature(cell, ocean);
+                geo.addCellToFeature(cell, biome);
             }
 
 
@@ -580,23 +624,23 @@ package {
                 // If the elevation of the cell is higher than sea level, define it as Land otherwise define it as a Lake
                 if (start.elevation >= SEA_LEVEL) {
                     // Define it as land
-                    currentFeature = featureManager.registerFeature(Geography.LAND);
+                    currentFeature = geo.registerFeature(Geography.LAND);
                     biome = null;
 
                     lower = SEA_LEVEL;
                     upper = Number.POSITIVE_INFINITY;
                 } else {
                     // Define it as a lake
-                    currentFeature = featureManager.registerFeature(Geography.LAKE);
-                    biome = featureManager.registerFeature(Biome.FRESH_WATER);
+                    currentFeature = geo.registerFeature(Geography.LAKE);
+                    biome = geo.registerFeature(Biome.FRESH_WATER);
 
                     lower = Number.NEGATIVE_INFINITY;
                     upper = SEA_LEVEL;
                 }
 
-                featureManager.addCellToFeature(start, currentFeature);
+                geo.addCellToFeature(start, currentFeature);
                 if (biome)
-                    featureManager.addCellToFeature(start, biome);
+                    geo.addCellToFeature(start, biome);
 
                 start.used = true;
 
@@ -607,9 +651,9 @@ package {
                     queue.shift();
                     for each (neighbor in cell.neighbors) {
                         if (!neighbor.used && neighbor.elevation >= lower && neighbor.elevation < upper) {
-                            featureManager.addCellToFeature(neighbor, currentFeature);
+                            geo.addCellToFeature(neighbor, currentFeature);
                             if (biome)
-                                featureManager.addCellToFeature(neighbor, biome);
+                                geo.addCellToFeature(neighbor, biome);
 
                             queue.push(neighbor);
                             neighbor.used = true;
@@ -827,7 +871,7 @@ package {
                 canvas.graphics.lineStyle();
                 for each (var biomeType:String in Biome.list) {
                     canvas.graphics.beginFill(Biome.colors[biomeType]);
-                    for each (var biome:Object in featureManager.getFeaturesByType(biomeType)) {
+                    for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
                         for each (cell in biome.cells) {
                             // Loop through edges
                             for each (edge in cell.edges) {
@@ -849,7 +893,7 @@ package {
             if (showRivers) {
                 // Draw rivers
                 var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
-                for each (var river:Object in featureManager.getFeaturesByType(Geography.RIVER)) {
+                for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
                     // Create an array of points
                     canvas.graphics.moveTo(river.cells[0].point.x, river.cells[0].point.y);
                     var i:int = 0;
@@ -871,7 +915,7 @@ package {
                 // Draw mountains
                 // todo overhaul this
                 canvas.graphics.lineStyle(1, 0xff000);
-                for each (var mountain:Object in featureManager.getFeaturesByType(Biome.MOUNTAIN)) {
+                for each (var mountain:Object in geo.getFeaturesByType(Biome.MOUNTAIN)) {
                     var mountainBase:Array = [];
                     var mountainBody:Array = [];
                     for each (cell in mountain.cells) {
@@ -956,7 +1000,7 @@ package {
             if (showDesirability) {
                 // Draw desirability
                 canvas.graphics.lineStyle();
-                for each (var land:Object in featureManager.getFeaturesByType(Geography.LAND)) {
+                for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
                     for each (cell in land.cells) {
                         canvas.graphics.beginFill(Util.getColorBetweenColors(0x0000ff, 0xffff00, cell.desirability / 10));
 
@@ -973,10 +1017,30 @@ package {
                 }
             }
 
+            if (showRegions) {
+                // Draw regions
+                canvas.graphics.lineStyle();
+                for each (var region:Object in civ.regions) {
+                    color = 0xffffff * rand.next();
+                    canvas.graphics.beginFill(color, .6);
+                    for each (cell in region.cells) {
+                        for each (edge in cell.edges) {
+                            if (edge.v0 && edge.v1) {
+                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                canvas.graphics.lineTo(cell.point.x, cell.point.y);
+                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                            } else {
+                            }
+                        }
+                    }
+                    canvas.graphics.endFill();
+                }
+            }
+
             if (showSettlements) {
                 // Draw settlements
                 canvas.graphics.lineStyle(1, 0x000000);
-                for each (var settlement:Settlement in settlements.settlements) {
+                for each (var settlement:Settlement in civ.settlements) {
                     canvas.graphics.beginFill(0xffffff);
                     canvas.graphics.drawCircle(settlement.point.x, settlement.point.y, 3);
                     canvas.graphics.endFill();
@@ -988,7 +1052,7 @@ package {
                 var c:Rand = new Rand(1);
                 for each (biomeType in Biome.list) {
                     var color:uint = c.next() * 0xffffff;
-                    for each (biome in featureManager.getFeaturesByType(biomeType)) {
+                    for each (biome in geo.getFeaturesByType(biomeType)) {
                         canvas.graphics.lineStyle(1, color);
                         canvas.graphics.beginFill(0xffffff);
                         canvas.graphics.drawCircle(biome.centroid.x, biome.centroid.y, 3);
@@ -1005,38 +1069,6 @@ package {
                 }
             }
 
-            if (true) {
-                // Draw settlement labels
-                for each (settlement in settlements.settlements) {
-                    var txt:TextField = new TextField();
-                    txt.text = settlement.name;
-                    txt.autoSize = TextFieldAutoSize.CENTER;
-                    txt.width = txt.textWidth + 10;
-                    txt.x = settlement.point.x - txt.width / 2;
-                    txt.y = settlement.point.y + 6;
-                    txt.border = true;
-                    txt.selectable = false;
-//                    labels.push(txt);
-//                    addChild(txt);
-                }
-
-                // Draw river labels
-                for each (river in featureManager.getFeaturesByType(Geography.RIVER)) {
-                    txt = new TextField();
-                    txt.text = river.name;
-                    txt.autoSize = TextFieldAutoSize.CENTER;
-                    txt.width = txt.textWidth + 10;
-                    txt.x = river.centroid.x - txt.width / 2;
-                    txt.y = river.centroid.y + 6;
-                    txt.border = true;
-                    txt.background = true;
-                    txt.backgroundColor = 0xffffff;
-                    txt.selectable = false;
-//                    labels.push(txt);
-//                    addChild(txt);
-                }
-            }
-
             if (showOutlines) {
                 // Draw outlines
                 for each (edge in edges) {
@@ -1050,12 +1082,13 @@ package {
                 }
             }
 
+
             staticModeOff();
         }
 
         private function drawForests(type:String, fillColor:uint, outlineColor:uint, bottomOutlineColor:uint):void {
             // Draw forests
-            for each (var forest:Object in featureManager.getFeaturesByType(type)) {
+            for each (var forest:Object in geo.getFeaturesByType(type)) {
                 // Fill
                 canvas.graphics.lineStyle();
                 canvas.graphics.beginFill(fillColor);
@@ -1148,8 +1181,8 @@ package {
         }
 
         private function drawLandmassBorders(featureType:String):void {
-            for (var key:String in featureManager.getFeaturesByType(featureType)) {
-                var feature:Object = featureManager.features[key];
+            for (var key:String in geo.getFeaturesByType(featureType)) {
+                var feature:Object = geo.features[key];
                 canvas.graphics.lineStyle(1, Biome.colors.saltWater_stroke);
                 if (feature.type != Geography.OCEAN) {
                     for each (var cell:Cell in feature.cells) {
@@ -1369,16 +1402,12 @@ package {
 
         private function reset():void {
             // Reset Geography
-            featureManager.reset();
-            settlements.reset();
+            geo.reset();
+            civ.reset();
 
             // Reset cells
             for each (var cell:Cell in cells)
                 cell.reset();
-
-            // Reset children
-            while (labels.length > 0)
-                removeChild(labels.pop());
 
             unuseCells();
         }
@@ -1420,10 +1449,14 @@ package {
                 str += "\n > " + feature.type + " (" + feature.cells.length + ")";
                 if (feature.ecosystem) {
                     str += " - " + feature.ecosystem.size;
-                    str += "\n   > " + feature.ecosystem.trees;
-                    str += "\n   > " + feature.ecosystem.plants;
-                    str += "\n   > " + feature.ecosystem.smallAnimals;
-                    str += "\n   > " + feature.ecosystem.bigAnimals;
+                    if (feature.ecosystem.trees.length > 0)
+                        str += "\n   > " + feature.ecosystem.trees;
+                    if (feature.ecosystem.plants.length > 0)
+                        str += "\n   > " + feature.ecosystem.plants;
+                    if (feature.ecosystem.smallAnimals.length > 0)
+                        str += "\n   > " + feature.ecosystem.smallAnimals;
+                    if (feature.ecosystem.bigAnimals.length > 0)
+                        str += "\n   > " + feature.ecosystem.bigAnimals;
                 }
             }
 

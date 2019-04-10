@@ -1,4 +1,4 @@
-package geography {
+package generation {
     import graph.Cell;
 
     public class Names {
@@ -98,10 +98,10 @@ package geography {
             var bigAnimals:Array = [];
 
             var cell:Cell = river.cells[int(river.cells.length / 2)];
-            var features:Array = [featureManager.getFeature(cell.biome)];
+            var features:Array = [featureManager.features[cell.biome]];
             for each (var neighbor:Cell in cell.neighbors)
                 if (features.indexOf(neighbor.biome) < 0)
-                    features.push(featureManager.getFeature(neighbor.biome));
+                    features.push(featureManager.features[neighbor.biome]);
 
             for each (var biome:Object in features) {
                 if (biome && biome.ecosystem) {

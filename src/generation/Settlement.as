@@ -1,4 +1,4 @@
-package geography {
+package generation {
     import flash.geom.Point;
 
     import graph.Cell;

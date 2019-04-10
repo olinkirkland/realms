@@ -1,7 +1,7 @@
 package graph {
     import flash.geom.Point;
 
-    import geography.Settlement;
+    import generation.Settlement;
 
     public class Cell {
         public var index:int;
@@ -14,6 +14,8 @@ package graph {
         public var biome:String;
         public var biomeType:String;
         public var desirability:Number;
+        public var region:String;
+        public var regionInfluence:int;
 
         /**
          * Properties
@@ -107,6 +109,8 @@ package graph {
             biome = null;
             desirability = 0;
             settlement = null;
+            region = null;
+            regionInfluence = 0;
         }
     }
 }

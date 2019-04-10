@@ -1,4 +1,4 @@
-package geography {
+package generation {
     public class Moisture {
         // Moisture Values
         public static var DRY:Number = 3/10;

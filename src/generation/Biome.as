@@ -1,4 +1,4 @@
-package geography {
+package generation {
     import graph.Cell;
 
     public class Biome {

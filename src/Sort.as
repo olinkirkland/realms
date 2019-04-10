@@ -37,5 +37,14 @@ package {
             else
                 return 0;
         }
+
+        public static function sortByPointY(n1:Object, n2:Object):Number {
+            if (n1.point.y < n2.point.y)
+                return 1;
+            else if (n1.point.y > n2.point.y)
+                return -1;
+            else
+                return 0;
+        }
     }
 }

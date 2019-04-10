@@ -1,4 +1,4 @@
-package geography {
+package generation {
     public class Ecosystem {
         public var biome:Object;
 
