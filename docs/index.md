@@ -15,7 +15,7 @@ Requires (Included)
 - [Andy Woodruff's Continuous Curves](http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/)
 - Flash.swc
 
-![Regions](https://i.imgur.com/NYuzrFR.png)
+![Regions](https://i.imgur.com/MPTN5ah.png)
 Region boundaries
 
 ![River Names](https://i.imgur.com/4BS9Tzw.png)
