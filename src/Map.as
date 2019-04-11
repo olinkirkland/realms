@@ -4,6 +4,7 @@ package {
 
     import flash.display.Bitmap;
     import flash.display.BitmapData;
+    import flash.display.Graphics;
     import flash.display.Shape;
     import flash.events.MouseEvent;
     import flash.geom.Point;
@@ -45,11 +46,21 @@ package {
         private var civ:Civilization;
         private var names:Names;
 
-        // Generation
-        private var canvas:Shape;
-        private var outlines:Shape;
-        private var highlights:Shape;
-        private var rand:Rand;
+        // Layers
+        private var layers:Array;
+
+        private var oceanLayer:Shape;
+        private var coastlinesLayer:Shape;
+        private var terrainLayer:Shape;
+        private var riversLayer:Shape;
+        private var forestsLayer:Shape;
+        private var mountainsLayer:Shape;
+        private var settlementsLayer:Shape;
+        private var regionsLayer:Shape;
+        private var elevationLayer:Shape;
+        private var temperatureLayer:Shape;
+        private var desirabilityLayer:Shape;
+        private var outlinesLayer:Shape;
 
         // Draw Toggles
         public var showOutlines:Boolean = false;
@@ -74,9 +85,6 @@ package {
             civ = Civilization.getInstance();
             names = Names.getInstance();
 
-            // Seeded random generator
-            rand = new Rand(1);
-
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
 
@@ -92,14 +100,27 @@ package {
         override protected function createChildren():void {
             super.createChildren();
 
-            canvas = new Shape();
-            addChild(canvas);
+            // Add layers
+            layers = [
+                oceanLayer,
+                coastlinesLayer,
+                terrainLayer,
+                riversLayer,
+                forestsLayer,
+                mountainsLayer,
+                settlementsLayer,
+                regionsLayer,
+                elevationLayer,
+                temperatureLayer,
+                desirabilityLayer,
+                outlinesLayer
+            ];
 
-            highlights = new Shape();
-            addChild(highlights);
+            for each (var layer:Shape in layers) {
+                layer = new Shape();
+                addChild(layer);
+            }
 
-            outlines = new Shape();
-            addChild(outlines);
 
             staticMode = new Bitmap();
             addChild(staticMode);
@@ -146,7 +167,6 @@ package {
 
         public function start(seed:Number = 1):void {
             // Set map seed - the whole map uses this seed for any random decision making
-            rand = new Rand(seed);
             this.seed = seed;
 
             var tasks:Array = [{f: generateHeightMap, m: "Generating height map"},
@@ -709,6 +729,9 @@ package {
             // Generate a height map
             reset();
 
+            // Random generator uses a seed
+            var rand:Rand = new Rand(seed);
+
             var cell:Cell;
             var w:Number = width / 2;
             var h:Number = height / 2;
@@ -757,6 +780,9 @@ package {
         }
 
         private function placeMountain(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+            // Random generator uses a seed
+            var rand:Rand = new Rand(seed);
+
             // Can only be placed once, at the beginning
             var queue:Array = [];
             start.elevation += elevation;
@@ -788,6 +814,9 @@ package {
         }
 
         private function placeHill(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+            // Random generator uses a seed
+            var rand:Rand = new Rand(seed);
+
             var queue:Array = [];
             start.elevation += elevation;
             if (start.elevation > 1)
@@ -816,6 +845,9 @@ package {
         }
 
         private function placePit(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+            // Random generator uses a seed
+            var rand:Rand = new Rand(seed);
+
             var queue:Array = [];
             elevation *= -1;
             start.elevation += elevation;
@@ -890,61 +922,22 @@ package {
              * Main Draw Call
              */
 
-            // Clear
-            canvas.graphics.clear();
-            outlines.graphics.clear();
-            highlights.graphics.clear();
+            // Clear all layers
+            for each (var layer:Shape in layers)
+                layer.graphics.clear();
 
-            canvas.graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
-            canvas.graphics.drawRect(0, 0, width, height);
-
-            var cell:Cell;
-            var edge:Edge;
-
-            if (showBiomes) {
-                // Draw Biomes
-                canvas.graphics.lineStyle();
-                for each (var biomeType:String in Biome.list) {
-                    canvas.graphics.beginFill(Biome.colors[biomeType]);
-                    for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
-                        for each (cell in biome.cells) {
-                            // Loop through edges
-                            for each (edge in cell.edges) {
-                                if (edge.v0 && edge.v1) {
-                                    canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                    canvas.graphics.lineTo(cell.point.x, cell.point.y);
-                                    canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                                } else {
-                                }
-                            }
-                        }
-                    }
-                    canvas.graphics.endFill();
-                }
-            }
-
-            drawCoastline();
-
-            if (showRivers) {
-                // Draw rivers
-                var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
-                for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
-                    // Create an array of points
-                    canvas.graphics.moveTo(river.cells[0].point.x, river.cells[0].point.y);
-                    var i:int = 0;
-                    for each (cell in river.cells) {
-                        i++;
-                        canvas.graphics.lineStyle(1 + ((i / river.cells.length) * river.cells.length) / 5, seaColor);
-                        canvas.graphics.lineTo(cell.point.x, cell.point.y);
-                    }
-                }
-            }
-
-            if (showForests) {
-                // Draw forests
-                drawForests(Biome.TEMPERATE_FOREST, Biome.colors["temperateForest"], Biome.colors["temperateForest_stroke"], Biome.colors["temperateForest_bottomStroke"]);
-                drawForests(Biome.BOREAL_FOREST, Biome.colors["borealForest"], Biome.colors["borealForest_stroke"], Biome.colors["borealForest_bottomStroke"]);
-            }
+            drawOceanLayer();
+            drawCoastlinesLayer();
+            drawTerrainLayer();
+            drawRiversLayer();
+            drawForestsLayer();
+            drawMountainsLayer();
+            drawSettlementsLayer();
+            drawOverlayRegionsLayer();
+            drawElevationLayer();
+            drawTemperatureLayer();
+            drawDesirabilityLayer();
+            drawOutlinesLayer();
 
             if (showMountains) {
                 // Draw mountains
@@ -985,13 +978,6 @@ package {
                             }
                         }
                     }
-                }
-            }
-
-            if (showBiomes) {
-                // Draw details on biomes
-                for each (cell in cells) {
-                    addCellDetail(cell);
                 }
             }
 
@@ -1121,54 +1107,22 @@ package {
             staticModeOff();
         }
 
-        private function drawForests(type:String, fillColor:uint, outlineColor:uint, bottomOutlineColor:uint):void {
-            // Draw forests
-            for each (var forest:Object in geo.getFeaturesByType(type)) {
-                // Fill
-                canvas.graphics.lineStyle();
-                canvas.graphics.beginFill(fillColor);
-                for each (var cell:Cell in forest.cells) {
-                    for (var i:int = 0; i < cell.edges.length; i++) {
-                        var edge:Edge = cell.edges[i];
-                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                            canvas.graphics.moveTo(cell.point.x, cell.point.y);
-                            canvas.graphics.lineTo(edge.v0.point.x, edge.v0.point.y);
-                            if (!edge.d0.features[forest.id]) {
-                                // Draw a curved line
-                                canvas.graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
-                            } else if (!edge.d1.features[forest.id]) {
-                                // Draw a curved line (opposite direction)
-                                canvas.graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
-                            } else {
-                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                            }
-                        }
-                    }
-                }
-                canvas.graphics.endFill();
-
-                // Outline
-                for each (cell in forest.cells) {
-                    for (i = 0; i < cell.edges.length; i++) {
-                        edge = cell.edges[i];
-                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                            canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                            if (!edge.d0.features[forest.id]) {
-                                // Draw a curved line
-                                canvas.graphics.lineStyle(1, outlineColor);
-                                canvas.graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
-                            } else if (!edge.d1.features[forest.id]) {
-                                canvas.graphics.lineStyle(1, bottomOutlineColor);
-                                // Draw a curved line (opposite direction)
-                                canvas.graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
-                            }
-                        }
-                    }
+        private function fillCell(canvas:Graphics, cell:Cell, color:uint):void {
+            // Draw a filled cell
+            canvas.beginFill(color);
+            for each (var edge:Edge in cell.edges) {
+                if (edge.v0 && edge.v1) {
+                    canvas.moveTo(edge.v0.point.x, edge.v0.point.y);
+                    canvas.lineTo(cell.point.x, cell.point.y);
+                    canvas.lineTo(edge.v1.point.x, edge.v1.point.y);
                 }
             }
+            canvas.endFill();
         }
 
-        private function addCellDetail(cell:Cell):void {
+        private function addCellDetail(canvas:Graphics, cell:Cell):void {
+            // Add detail to a cell
+            var rand:Rand = new Rand(int(cell.point.x));
             var iconDensity:Number = 0;
             var c:Point = new Point(cell.point.x + rand.between(-4, 4), cell.point.y + rand.between(-4, 4));
             var d:Number;
@@ -1182,9 +1136,9 @@ package {
                 if (bordersForeignType(Biome.TEMPERATE_FOREST))
                     return;
 
-                canvas.graphics.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
-                canvas.graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
-                canvas.graphics.curveTo(c.x, c.y - rand.between(1, 5), c.x + d, c.y);
+                canvas.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
+                canvas.moveTo(c.x - (d = rand.between(1, 2)), c.y);
+                canvas.curveTo(c.x, c.y - rand.between(1, 5), c.x + d, c.y);
             }
             if (cell.hasFeatureType(Biome.BOREAL_FOREST)) {
                 iconDensity = .8;
@@ -1192,10 +1146,10 @@ package {
                 if (rand.next() > iconDensity)
                     return;
 
-                canvas.graphics.lineStyle(rand.between(.5, 1.5), Biome.colors["borealForest_stroke"], rand.between(.6, 1));
-                canvas.graphics.moveTo(c.x - (d = rand.between(1, 2)), c.y);
-                canvas.graphics.lineTo(c.x, c.y - rand.between(1, 3));
-                canvas.graphics.lineTo(c.x + d, c.y);
+                canvas.lineStyle(rand.between(.5, 1.5), Biome.colors["borealForest_stroke"], rand.between(.6, 1));
+                canvas.moveTo(c.x - (d = rand.between(1, 2)), c.y);
+                canvas.lineTo(c.x, c.y - rand.between(1, 3));
+                canvas.lineTo(c.x + d, c.y);
             }
 
             function bordersForeignType(type:String):Boolean {
@@ -1207,25 +1161,134 @@ package {
             }
 
             if (rand.next() < iconDensity)
-                addCellDetail(cell);
+                addCellDetail(canvas, cell);
         }
 
-        private function drawCoastline():void {
-            drawLandmassBorders(Geography.LAND);
-            drawLandmassBorders(Geography.LAKE);
+        private function drawOceanLayer():void {
+            /**
+             * Draw Ocean
+             */
+
+            // Fill in the ocean so the voronoi-bare corners get some ocean
+            // Just make a big honking rectangle of salt water
+            oceanLayer.graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
+            oceanLayer.graphics.drawRect(0, 0, width, height);
         }
 
-        private function drawLandmassBorders(featureType:String):void {
-            for (var key:String in geo.getFeaturesByType(featureType)) {
-                var feature:Object = geo.features[key];
-                canvas.graphics.lineStyle(1, Biome.colors.saltWater_stroke);
-                if (feature.type != Geography.OCEAN) {
-                    for each (var cell:Cell in feature.cells) {
-                        for each (var edge:Edge in cell.edges) {
+        private function drawCoastlinesLayer():void {
+            /**
+             * Draw Coastlines
+             */
+
+            var coastlineFeatureTypes:Array = [Geography.LAND, Geography.LAKE];
+            for (var featureType:String in coastlineFeatureTypes) {
+                for (var key:String in geo.getFeaturesByType(featureType)) {
+                    var feature:Object = geo.features[key];
+                    coastlinesLayer.graphics.lineStyle(1, Biome.colors.saltWater_stroke);
+                    if (feature.type != Geography.OCEAN) {
+                        for each (var cell:Cell in feature.cells) {
+                            for each (var edge:Edge in cell.edges) {
+                                if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                                    coastlinesLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                    if (!edge.d0.features[key] || !edge.d1.features[key])
+                                        coastlinesLayer.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private function drawTerrainLayer():void {
+            /**
+             * Draw Terrain
+             */
+
+            terrainLayer.graphics.lineStyle();
+            for each (var biomeType:String in Biome.list) {
+                for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
+                    for each (var cell:Cell in biome.cells) {
+                        fillCell(terrainLayer.graphics, cell, Biome.colors[biomeType]);
+                    }
+                }
+            }
+
+            // Draw details for all cells
+            for each (cell in cells)
+                addCellDetail(terrainLayer.graphics, cell);
+        }
+
+        private function drawRiversLayer():void {
+            /**
+             * Draw Rivers
+             */
+
+            var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
+            for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
+                // Create an array of river points
+                riversLayer.graphics.moveTo(river.cells[0].point.x, river.cells[0].point.y);
+                var i:int = 0;
+                for each (var cell:Cell in river.cells) {
+                    i++;
+                    riversLayer.graphics.lineStyle(1 + ((i / river.cells.length) * river.cells.length) / 5, seaColor);
+                    riversLayer.graphics.lineTo(cell.point.x, cell.point.y);
+                }
+            }
+        }
+
+        private function drawForestsLayer():void {
+            /**
+             * Draw Forests
+             */
+
+            // Draw Temperate Forests
+            drawForests(Biome.TEMPERATE_FOREST, Biome.colors["temperateForest"], Biome.colors["temperateForest_stroke"], Biome.colors["temperateForest_bottomStroke"]);
+
+            // Draw Boreal Forests (Draw these second because when they overlap, boreal should be on top)
+            drawForests(Biome.BOREAL_FOREST, Biome.colors["borealForest"], Biome.colors["borealForest_stroke"], Biome.colors["borealForest_bottomStroke"]);
+
+            function drawForests(type:String, fillColor:uint, outlineColor:uint, bottomOutlineColor:uint):void {
+                // Draw forests
+                for each (var forest:Object in geo.getFeaturesByType(type)) {
+                    // Fill
+                    forestsLayer.graphics.lineStyle();
+                    forestsLayer.graphics.beginFill(fillColor);
+                    for each (var cell:Cell in forest.cells) {
+                        for (var i:int = 0; i < cell.edges.length; i++) {
+                            var edge:Edge = cell.edges[i];
                             if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                if (!edge.d0.features[key] || !edge.d1.features[key])
-                                    canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                forestsLayer.graphics.moveTo(cell.point.x, cell.point.y);
+                                forestsLayer.graphics.lineTo(edge.v0.point.x, edge.v0.point.y);
+                                if (!edge.d0.features[forest.id]) {
+                                    // Draw a curved line
+                                    forestsLayer.graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
+                                } else if (!edge.d1.features[forest.id]) {
+                                    // Draw a curved line (opposite direction)
+                                    forestsLayer.graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
+                                } else {
+                                    forestsLayer.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                }
+                            }
+                        }
+                    }
+                    forestsLayer.graphics.endFill();
+
+                    // Outline
+                    for each (cell in forest.cells) {
+                        for (i = 0; i < cell.edges.length; i++) {
+                            edge = cell.edges[i];
+                            if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                                forestsLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                if (!edge.d0.features[forest.id]) {
+                                    // Draw a curved line
+                                    forestsLayer.graphics.lineStyle(1, outlineColor);
+                                    forestsLayer.graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
+                                } else if (!edge.d1.features[forest.id]) {
+                                    forestsLayer.graphics.lineStyle(1, bottomOutlineColor);
+                                    // Draw a curved line (opposite direction)
+                                    forestsLayer.graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
+                                }
                             }
                         }
                     }
