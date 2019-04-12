@@ -171,24 +171,27 @@ package {
 
             reset();
 
-            var tasks:Array = [{f: generateHeightMap, m: "Generating height map"},
-                {f: resolveDepressions, m: "Smoothing"},
-                {f: determineOceanLandsAndLakes, m: "Determining coastlines"},
-                {f: calculateTemperature, m: "Calculating temperature"},
-                {f: calculateMoisture, m: "Calculating moisture"},
-                {f: calculateRivers, m: "Calculating rivers"},
-                {f: determineGeographicFeatures, m: "Determining biomes"},
-                {f: determineFloraAndFauna, m: "Populating biomes"},
-                {f: placeSettlements, m: "Placing settlements"},
-                {f: determineRegions, m: "Determining region boundaries"},
-                {f: determineNames, m: "Choosing names"},
+            var tasks:Array = [{f: generateHeightMap, m: "Height map"},
+                {f: smoothHeightMap, m: "Smoothing"},
+                {f: determineOceanLandsAndLakes, m: "Oceans and lakes"},
+                {f: calculateTemperature, m: "Temperature"},
+                {f: calculateMoisture, m: "Moisture"},
+                {f: determineRivers, m: "Rivers"},
+                {f: determineBiomes, m: "Biomes"},
+                {f: determineSettlements, m: "Settlements"},
+                {f: determineRegions, m: "Regions"},
+                {f: determineNames, m: "Names"},
                 {f: draw, m: "Drawing"}];
 
             progress(0, tasks[0].m);
-            setTimeout(performTask, 200, 0);
+            setTimeout(performTask, 100, 0);
 
             function performTask(i:int):void {
+                var timeStarted:Number = new Date().time;
+
                 tasks[i].f();
+
+                trace(tasks[i].m + " (" + ((new Date().time - timeStarted) / 1000).toFixed(2) + "s)");
 
                 i++;
 
@@ -196,9 +199,430 @@ package {
                     progress(1, "");
                 } else {
                     progress(i / tasks.length, tasks[i].m);
-                    setTimeout(performTask, 200, i);
+                    setTimeout(performTask, 100, i);
                 }
             }
+        }
+
+        private function generateHeightMap():void {
+            // Initially sort cells and their neighbors
+            cells.sort(Sort.sortByIndex);
+            for each (var cell:Cell in cells)
+                cell.neighbors.sort(Sort.sortByIndex);
+
+
+            // Generate a height map
+            var rand:Rand = new Rand(masterSeed);
+
+            var w:Number = width / 2;
+            var h:Number = height / 2;
+
+            // Add mountain
+            placeMountain(cellFromDistribution(0), .8, .95, .2);
+
+            // Add hills
+            for (var i:int = 0; i < 30; i++)
+                placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
+
+            // Add troughs
+
+            // Add pits
+            for (i = 0; i < 15; i++)
+                placePit(cellFromDistribution(.35), rand.between(.2, .7), rand.between(.8, .95), rand.between(0, .2));
+
+            // Subtract .05 from land cells
+            addToLandCells(-.05);
+
+            // Multiply land cells by .9
+            multiplyLandCellsBy(.9);
+
+            function cellFromDistribution(distribution:Number):Cell {
+                // 0 is map cell
+                // 1 is map border
+                var dw:Number = distribution * width;
+                var dh:Number = distribution * height;
+                var px:Number = w + ((rand.next() * 2 * dw) - dw);
+                var py:Number = h + ((rand.next() * 2 * dh) - dh);
+
+                return getCellClosestToPoint(new Point(px, py));
+            }
+
+            function addToLandCells(value:Number):void {
+                for each (cell in cells)
+                    if (cell.elevation > SEA_LEVEL)
+                        cell.elevation += value;
+            }
+
+            function multiplyLandCellsBy(value:Number):void {
+                for each (cell in cells)
+                    if (cell.elevation > SEA_LEVEL)
+                        cell.elevation *= value;
+            }
+
+            function placeMountain(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+                var rand:Rand = new Rand(masterSeed);
+
+                // Can only be placed once, at the beginning
+                var queue:Array = [];
+                start.elevation += elevation;
+                if (start.elevation > 1)
+                    start.elevation = 1;
+                start.used = true;
+                queue.push(start);
+
+                for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
+                    elevation = (queue[i] as Cell).elevation * radius;
+                    for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
+                        if (!neighbor.used) {
+                            var mod:Number = (rand.next() * sharpness) + 1.1 - sharpness;
+                            if (sharpness == 0)
+                                mod = 1;
+
+                            neighbor.elevation += elevation * mod;
+
+                            if (neighbor.elevation > 1)
+                                neighbor.elevation = 1;
+
+                            neighbor.used = true;
+                            queue.push(neighbor);
+                        }
+                    }
+                }
+
+                unuseCells();
+            }
+
+            function placeHill(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+                var rand:Rand = new Rand(masterSeed);
+
+                var queue:Array = [];
+                start.elevation += elevation;
+                if (start.elevation > 1)
+                    start.elevation = 1;
+
+                start.used = true;
+                queue.push(start);
+
+                for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
+                    elevation *= radius;
+                    for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
+                        if (!neighbor.used) {
+                            var mod:Number = sharpness > 0 ? rand.next() * sharpness + 1.1 - sharpness : 1;
+                            neighbor.elevation += elevation * mod;
+
+                            if (neighbor.elevation > 1)
+                                neighbor.elevation = 1;
+
+                            neighbor.used = true;
+                            queue.push(neighbor);
+                        }
+                    }
+                }
+
+                unuseCells();
+            }
+
+            function placePit(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+                var rand:Rand = new Rand(masterSeed);
+
+                var queue:Array = [];
+                elevation *= -1;
+                start.elevation += elevation;
+                if (start.elevation < 0)
+                    start.elevation = 0;
+
+                start.used = true;
+                queue.push(start);
+
+                for (var i:int = 0; i < queue.length && elevation < SEA_LEVEL - .01; i++) {
+                    elevation *= radius;
+                    for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
+                        if (!neighbor.used) {
+                            var mod:Number = sharpness > 0 ? rand.next() * sharpness + 1.1 - sharpness : 1;
+                            neighbor.elevation += elevation * mod;
+
+                            if (neighbor.elevation < 0)
+                                neighbor.elevation = 0;
+
+                            neighbor.used = true;
+                            queue.push(neighbor);
+                        }
+                    }
+                }
+
+                unuseCells();
+            }
+        }
+
+        private function smoothHeightMap():void {
+            cells.sort(Sort.sortByIndex);
+
+            var depressions:int;
+            do {
+                depressions = 0;
+                for each (var cell:Cell in cells) {
+
+                    // Is it a depression?
+                    if (cell.neighbors.length > 0) {
+                        var d:Boolean = cell.elevation >= SEA_LEVEL;
+                        for each (var neighbor:Cell in cell.neighbors) {
+                            if (neighbor.elevation < cell.elevation)
+                                d = false;
+                        }
+                    }
+
+                    if (d) {
+                        // If it's a depression, raise its elevation a little and increment the depression count
+                        depressions++;
+                        cell.elevation += .1;
+                    }
+                }
+            } while (depressions > 0);
+        }
+
+
+        private function calculateTemperature():void {
+            for each (var cell:Cell in cells) {
+                // Mapping 0 to 90 realLatitude for this section of the world
+                cell.latitude = 1 - (cell.point.y / height);
+                cell.realLatitude = Util.round(cell.latitude * 90, 2);
+                var temperature:Number = 1 - cell.latitude;
+
+                // Consider elevation in the temperature (higher places are colder)
+                cell.temperature = temperature - (cell.elevation * .3);
+                if (cell.temperature < 0)
+                    cell.temperature = 0;
+                if (cell.temperature > 1)
+                    cell.temperature = 1;
+
+                cell.realTemperature = Util.round(-10 + (cell.temperature * 40), 2);
+            }
+        }
+
+        private function calculateMoisture():void {
+            for each (var cell:Cell in cells) {
+                var m:Number = 0;
+
+                for each (var neighbor:Cell in cell.neighbors)
+                    m += neighbor.elevation;
+                m /= cell.neighbors.length;
+
+                cell.moisture = m;
+                cell.precipitation = Util.round(200 + (cell.moisture * 1800), 2);
+            }
+        }
+
+        private function determineRivers():void {
+            // Create rivers
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
+                // Set the flux on all land cells first
+                for each (var cell:Cell in land.cells)
+                    cell.flux = cell.moisture;
+
+                land.cells.sort(Sort.sortByHighestElevation);
+                for each (cell in land.cells) {
+                    // Pour to the lowest neighbor
+                    cell.neighbors.sort(Sort.sortByLowestElevation);
+                    pour(cell, cell.neighbors[0]);
+                }
+            }
+
+            // Register rivers as freshwater biomes
+            for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
+                river.centroid = river.cells[int(river.cells.length / 2)].point;
+                var freshWater:String = geo.registerFeature(Biome.FRESH_WATER);
+                for each (cell in river.cells)
+                    geo.addCellToFeature(cell, freshWater);
+            }
+
+            unuseCells();
+
+            function pour(c:Cell, t:Cell):void {
+                t.flux += c.flux;
+                if (c.flux > 10) {
+                    var river:String;
+                    if (c.hasFeatureType(Geography.RIVER)) {
+                        // Extend river
+                        var rivers:Object = c.getFeaturesByType(Geography.RIVER);
+                        var riverCount:int = 0;
+                        for (var v:String in rivers) {
+                            riverCount++;
+                            // Pick the longest river to continue
+                            if (!river || rivers[v].cells.length > rivers[river].cells.length)
+                                river = v;
+                        }
+
+                        geo.addCellToFeature(t, river);
+
+                        if (!t.hasFeatureType(Geography.OCEAN) && !t.hasFeatureType(Geography.LAKE) && riverCount > 1) {
+                            var confluence:String = geo.registerFeature(Geography.CONFLUENCE);
+                            geo.addCellToFeature(t, confluence);
+                        }
+                    } else {
+                        // Start new river
+                        river = geo.registerFeature(Geography.RIVER);
+                        geo.addCellToFeature(c, river);
+                        geo.addCellToFeature(t, river);
+                    }
+
+                    if (t.hasFeatureType(Geography.OCEAN) || t.hasFeatureType(Geography.LAKE)) {
+                        var estuary:String = geo.registerFeature(Geography.ESTUARY);
+                        geo.addCellToFeature(c, estuary);
+                        var water:Object = {};
+                        // An estuary can empty into an ocean or a lake, but not into both
+                        if (t.hasFeatureType(Geography.OCEAN))
+                            water = t.getFeaturesByType(Geography.OCEAN);
+                        if (t.hasFeatureType(Geography.LAKE))
+                            water = t.getFeaturesByType(Geography.LAKE);
+
+                        // There can only be one lake or ocean feature referenced in the estuary's target
+                        for each (var target:String in water)
+                            break;
+
+                        var feature:Object = geo.features[estuary];
+                        feature.target = target;
+                    }
+                }
+            }
+        }
+
+        private function determineBiomes():void {
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
+                var landCells:Vector.<Cell> = land.cells.concat();
+                var queue:Array = [];
+                while (landCells.length > 0) {
+                    var start:Cell = landCells[0];
+                    start.used = true;
+
+                    // Pick a starting biome
+                    var currentBiome:String = Biome.determineBiome(start);
+                    var currentFeature:String = geo.registerFeature(currentBiome);
+                    geo.addCellToFeature(start, currentFeature);
+                    start.biome = currentFeature;
+                    start.biomeType = currentBiome;
+
+                    // Fill touching cells
+                    queue.push(start);
+                    var cell:Cell;
+                    while (queue.length > 0) {
+                        cell = queue[0];
+                        queue.shift();
+                        for each (var neighbor:Cell in cell.neighbors) {
+                            var d:Boolean = Biome.determineBiome(neighbor) == currentBiome;
+                            if (!neighbor.used && land.cells.indexOf(neighbor) >= 0 && d) {
+                                geo.addCellToFeature(neighbor, currentFeature);
+                                neighbor.biome = currentFeature;
+                                neighbor.biomeType = currentBiome;
+                                queue.push(neighbor);
+                                neighbor.used = true;
+                            }
+                        }
+                    }
+
+                    landCells = new Vector.<Cell>();
+                    for each (cell in land.cells)
+                        if (!cell.used)
+                            landCells.push(cell);
+                }
+            }
+
+            unuseCells();
+
+            // Determine glades
+            for each (var grassland:Object in geo.getFeaturesByType(Biome.GRASSLAND)) {
+                // isGlade is positive for grasslands as long as they are small and entirely surrounded by forest
+                var isGlade:Boolean = grassland.cells.length < 10;
+                for each (cell in grassland.cells) {
+                    for each (neighbor in cell.neighbors)
+                        if (!neighbor.hasFeatureType(Biome.GRASSLAND) && !neighbor.hasFeatureType(Biome.TEMPERATE_FOREST))
+                            isGlade = false;
+                }
+                if (isGlade) {
+                    var glade:String = geo.registerFeature(Geography.GLADE);
+                    for each (cell in grassland.cells)
+                        geo.addCellToFeature(cell, glade);
+                }
+            }
+
+            // Determine sheltered havens
+            for each(land in geo.getFeaturesByType(Geography.LAND)) {
+                // Get coastal cells
+                for each (cell in land.cells) {
+                    for each (var edge:Edge in cell.edges) {
+                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                            if (!edge.d0.hasFeatureType(Geography.LAND) || !edge.d1.hasFeatureType(Geography.LAND)) {
+                                // It's coastal
+                                var coastal:Cell = !edge.d0.hasFeatureType(Geography.LAND) ? edge.d1 : edge.d0;
+                                var oceanNeighborCount:int = 0;
+                                for each (neighbor in coastal.neighbors) {
+                                    if (neighbor.hasFeatureType(Geography.OCEAN))
+                                        oceanNeighborCount++;
+                                }
+
+                                if (oceanNeighborCount == 1) {
+                                    var haven:String = geo.registerFeature(Geography.HAVEN);
+                                    geo.addCellToFeature(coastal, haven);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            describeBiomes();
+
+            function describeBiomes():void {
+                // Link biomes that are nearby and similar type
+                for each (var biomeType:String in Biome.list) {
+                    for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
+                        // First, determine the center point of the biome
+                        var avgX:Number = 0;
+                        var avgY:Number = 0;
+
+                        for each (var cell:Cell in biome.cells) {
+                            avgX += cell.point.x;
+                            avgY += cell.point.y;
+                        }
+
+                        biome.centroid = new Point(avgX /= biome.cells.length, avgY /= biome.cells.length);
+                        biome.influence = Math.min(biome.cells.length, 300);
+                        biome.linked = [];
+                    }
+
+                    var biomes:Array = [];
+                    for each (biome in geo.getFeaturesByType(biomeType))
+                        biomes.push(biome);
+                    biomes.sort(Sort.sortByCellCount);
+
+                    for each (biome in biomes) {
+                        for each (var targetBiome:Object in geo.getFeaturesByType(biomeType)) {
+                            // Non-tiny biomes (> 10 cells) can link to other biomes of the same type to share flora/fauna
+                            // Linked biomes must be near each other - the permitted distance is calculated using the biomes' relative sizes
+                            if (biome != targetBiome && Util.getDistanceBetweenTwoPoints(biome.centroid, targetBiome.centroid) < biome.influence && biome.cells.length > 10 && biome.linked.indexOf(targetBiome) < 0 && biome.cells.length > targetBiome.cells.length) {
+                                biome.linked.push(targetBiome);
+                            }
+                        }
+                    }
+
+                    for each (biome in biomes)
+                        biome.ecosystem = new Ecosystem(biome);
+
+                    for each (biome in biomes)
+                        biome.ecosystem.spread();
+                }
+            }
+        }
+
+        private function determineSettlements():void {
+            determineStaticDesirability();
+
+            var i:int = 0;
+            do {
+                determineDesirability();
+
+                civ.registerSettlement(cells[0]);
+                i++;
+            } while (i < 40);
         }
 
         private function determineRegions():void {
@@ -293,59 +717,6 @@ package {
                 river.name = names.getNewRiverName(river);
         }
 
-        private function determineFloraAndFauna():void {
-            // Link biomes that are nearby and similar type
-            for each (var biomeType:String in Biome.list) {
-                for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
-                    // First, determine the center point of the biome
-                    var avgX:Number = 0;
-                    var avgY:Number = 0;
-
-                    for each (var cell:Cell in biome.cells) {
-                        avgX += cell.point.x;
-                        avgY += cell.point.y;
-                    }
-
-                    biome.centroid = new Point(avgX /= biome.cells.length, avgY /= biome.cells.length);
-                    biome.influence = Math.min(biome.cells.length, 300);
-                    biome.linked = [];
-                }
-
-                var biomes:Array = [];
-                for each (biome in geo.getFeaturesByType(biomeType))
-                    biomes.push(biome);
-                biomes.sort(Sort.sortByCellCount);
-
-                for each (biome in biomes) {
-                    for each (var targetBiome:Object in geo.getFeaturesByType(biomeType)) {
-                        // Non-tiny biomes (> 10 cells) can link to other biomes of the same type to share flora/fauna
-                        // Linked biomes must be near each other - the permitted distance is calculated using the biomes' relative sizes
-                        if (biome != targetBiome && Util.getDistanceBetweenTwoPoints(biome.centroid, targetBiome.centroid) < biome.influence && biome.cells.length > 10 && biome.linked.indexOf(targetBiome) < 0 && biome.cells.length > targetBiome.cells.length) {
-                            biome.linked.push(targetBiome);
-                        }
-                    }
-                }
-
-                for each (biome in biomes)
-                    biome.ecosystem = new Ecosystem(biome);
-
-                for each (biome in biomes)
-                    biome.ecosystem.spread();
-            }
-        }
-
-        private function placeSettlements():void {
-            determineStaticDesirability();
-
-            var i:int = 0;
-            do {
-                determineDesirability();
-
-                civ.registerSettlement(cells[0]);
-                i++;
-            } while (i < 10);
-        }
-
         private function determineStaticDesirability():void {
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
                 for each (var cell:Cell in land.cells) {
@@ -412,222 +783,6 @@ package {
             }
 
             cells.sort(Sort.sortByDesirability);
-        }
-
-        private function determineGeographicFeatures():void {
-            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                var landCells:Vector.<Cell> = land.cells.concat();
-                var queue:Array = [];
-                while (landCells.length > 0) {
-                    var start:Cell = landCells[0];
-                    start.used = true;
-
-                    // Pick a starting biome
-                    var currentBiome:String = Biome.determineBiome(start);
-                    var currentFeature:String = geo.registerFeature(currentBiome);
-                    geo.addCellToFeature(start, currentFeature);
-                    start.biome = currentFeature;
-                    start.biomeType = currentBiome;
-
-                    // Fill touching cells
-                    queue.push(start);
-                    var cell:Cell;
-                    while (queue.length > 0) {
-                        cell = queue[0];
-                        queue.shift();
-                        for each (var neighbor:Cell in cell.neighbors) {
-                            var d:Boolean = Biome.determineBiome(neighbor) == currentBiome;
-                            if (!neighbor.used && land.cells.indexOf(neighbor) >= 0 && d) {
-                                geo.addCellToFeature(neighbor, currentFeature);
-                                neighbor.biome = currentFeature;
-                                neighbor.biomeType = currentBiome;
-                                queue.push(neighbor);
-                                neighbor.used = true;
-                            }
-                        }
-                    }
-
-                    landCells = new Vector.<Cell>();
-                    for each (cell in land.cells)
-                        if (!cell.used)
-                            landCells.push(cell);
-                }
-            }
-
-            unuseCells();
-
-            // Determine glades
-            for each (var grassland:Object in geo.getFeaturesByType(Biome.GRASSLAND)) {
-                // isGlade is positive for grasslands as long as they are small and entirely surrounded by forest
-                var isGlade:Boolean = grassland.cells.length < 10;
-                for each (cell in grassland.cells) {
-                    for each (neighbor in cell.neighbors)
-                        if (!neighbor.hasFeatureType(Biome.GRASSLAND) && !neighbor.hasFeatureType(Biome.TEMPERATE_FOREST))
-                            isGlade = false;
-                }
-                if (isGlade) {
-                    var glade:String = geo.registerFeature(Geography.GLADE);
-                    for each (cell in grassland.cells)
-                        geo.addCellToFeature(cell, glade);
-                }
-            }
-
-            // Determine sheltered havens
-            for each(land in geo.getFeaturesByType(Geography.LAND)) {
-                // Get coastal cells
-                for each (cell in land.cells) {
-                    for each (var edge:Edge in cell.edges) {
-                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                            if (!edge.d0.hasFeatureType(Geography.LAND) || !edge.d1.hasFeatureType(Geography.LAND)) {
-                                // It's coastal
-                                var coastal:Cell = !edge.d0.hasFeatureType(Geography.LAND) ? edge.d1 : edge.d0;
-                                var oceanNeighborCount:int = 0;
-                                for each (neighbor in coastal.neighbors) {
-                                    if (neighbor.hasFeatureType(Geography.OCEAN))
-                                        oceanNeighborCount++;
-                                }
-
-                                if (oceanNeighborCount == 1) {
-                                    var haven:String = geo.registerFeature(Geography.HAVEN);
-                                    geo.addCellToFeature(coastal, haven);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-
-        private function calculateRivers():void {
-            // Create rivers
-            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                // Set the flux on all land cells first
-                for each (var cell:Cell in land.cells)
-                    cell.flux = cell.moisture;
-
-                land.cells.sort(Sort.sortByHighestElevation);
-                for each (cell in land.cells) {
-                    // Pour to the lowest neighbor
-                    cell.neighbors.sort(Sort.sortByLowestElevation);
-                    pour(cell, cell.neighbors[0]);
-                }
-            }
-
-            // Register rivers as freshwater biomes
-            for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
-                river.centroid = river.cells[int(river.cells.length / 2)].point;
-                var freshWater:String = geo.registerFeature(Biome.FRESH_WATER);
-                for each (cell in river.cells)
-                    geo.addCellToFeature(cell, freshWater);
-            }
-
-            unuseCells();
-
-            function pour(c:Cell, t:Cell):void {
-                t.flux += c.flux;
-                if (c.flux > 10) {
-                    var river:String;
-                    if (c.hasFeatureType(Geography.RIVER)) {
-                        // Extend river
-                        var rivers:Object = c.getFeaturesByType(Geography.RIVER);
-                        var riverCount:int = 0;
-                        for (var v:String in rivers) {
-                            riverCount++;
-                            // Pick the longest river to continue
-                            if (!river || rivers[v].cells.length > rivers[river].cells.length)
-                                river = v;
-                        }
-
-                        geo.addCellToFeature(t, river);
-
-                        if (!t.hasFeatureType(Geography.OCEAN) && !t.hasFeatureType(Geography.LAKE) && riverCount > 1) {
-                            var confluence:String = geo.registerFeature(Geography.CONFLUENCE);
-                            geo.addCellToFeature(t, confluence);
-                        }
-                    } else {
-                        // Start new river
-                        river = geo.registerFeature(Geography.RIVER);
-                        geo.addCellToFeature(c, river);
-                        geo.addCellToFeature(t, river);
-                    }
-
-                    if (t.hasFeatureType(Geography.OCEAN) || t.hasFeatureType(Geography.LAKE)) {
-                        var estuary:String = geo.registerFeature(Geography.ESTUARY);
-                        geo.addCellToFeature(c, estuary);
-                        var water:Object = {};
-                        // An estuary can empty into an ocean or a lake, but not into both
-                        if (t.hasFeatureType(Geography.OCEAN))
-                            water = t.getFeaturesByType(Geography.OCEAN);
-                        if (t.hasFeatureType(Geography.LAKE))
-                            water = t.getFeaturesByType(Geography.LAKE);
-
-                        // There can only be one lake or ocean feature referenced in the estuary's target
-                        for each (var target:String in water)
-                            break;
-
-                        var feature:Object = geo.features[estuary];
-                        feature.target = target;
-                    }
-                }
-            }
-        }
-
-        private function resolveDepressions():void {
-            cells.sort(Sort.sortByIndex);
-
-            var depressions:int;
-            do {
-                depressions = 0;
-                for each (var cell:Cell in cells) {
-
-                    // Is it a depression?
-                    if (cell.neighbors.length > 0) {
-                        var d:Boolean = cell.elevation >= SEA_LEVEL;
-                        for each (var neighbor:Cell in cell.neighbors) {
-                            if (neighbor.elevation < cell.elevation)
-                                d = false;
-                        }
-                    }
-
-                    if (d) {
-                        // If it's a depression, raise its elevation a little and increment the depression count
-                        depressions++;
-                        cell.elevation += .1;
-                    }
-                }
-            } while (depressions > 0);
-        }
-
-        private function calculateMoisture():void {
-            for each (var cell:Cell in cells) {
-                var m:Number = 0;
-
-                for each (var neighbor:Cell in cell.neighbors)
-                    m += neighbor.elevation;
-                m /= cell.neighbors.length;
-
-                cell.moisture = m;
-                cell.precipitation = Util.round(200 + (cell.moisture * 1800), 2);
-            }
-        }
-
-        private function calculateTemperature():void {
-            for each (var cell:Cell in cells) {
-                // Mapping 0 to 90 realLatitude for this section of the world
-                cell.latitude = 1 - (cell.point.y / height);
-                cell.realLatitude = Util.round(cell.latitude * 90, 2);
-                var temperature:Number = 1 - cell.latitude;
-
-                // Consider elevation in the temperature (higher places are colder)
-                cell.temperature = temperature - (cell.elevation * .3);
-                if (cell.temperature < 0)
-                    cell.temperature = 0;
-                if (cell.temperature > 1)
-                    cell.temperature = 1;
-
-                cell.realTemperature = Util.round(-10 + (cell.temperature * 40), 2);
-            }
         }
 
         private function determineOceanLandsAndLakes():void {
@@ -723,156 +878,6 @@ package {
                 for each (cell in cells)
                     if (Util.getLengthOfObject(cell.features) == 0)
                         nonOceans.push(cell);
-            }
-
-            unuseCells();
-        }
-
-        private function generateHeightMap():void {
-            cells.sort(Sort.sortByIndex);
-            for each (var cell:Cell in cells)
-                cell.neighbors.sort(Sort.sortByIndex);
-
-
-            // Generate a height map
-            var rand:Rand = new Rand(masterSeed);
-
-            var cell:Cell;
-            var w:Number = width / 2;
-            var h:Number = height / 2;
-
-            // Add mountain
-            placeMountain(cellFromDistribution(0), .8, .95, .2);
-
-            // Add hills
-            for (var i:int = 0; i < 30; i++)
-                placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
-
-            // Add troughs
-
-            // Add pits
-            for (i = 0; i < 15; i++)
-                placePit(cellFromDistribution(.35), rand.between(.2, .7), rand.between(.8, .95), rand.between(0, .2));
-
-            // Subtract .05 from land cells
-            addToLandCells(-.05);
-
-            // Multiply land cells by .9
-            multiplyLandCellsBy(.9);
-
-            function cellFromDistribution(distribution:Number):Cell {
-                // 0 is map cell
-                // 1 is map border
-                var dw:Number = distribution * width;
-                var dh:Number = distribution * height;
-                var px:Number = w + ((rand.next() * 2 * dw) - dw);
-                var py:Number = h + ((rand.next() * 2 * dh) - dh);
-
-                return getCellClosestToPoint(new Point(px, py));
-            }
-
-            function addToLandCells(value:Number):void {
-                for each (cell in cells)
-                    if (cell.elevation > SEA_LEVEL)
-                        cell.elevation += value;
-            }
-
-            function multiplyLandCellsBy(value:Number):void {
-                for each (cell in cells)
-                    if (cell.elevation > SEA_LEVEL)
-                        cell.elevation *= value;
-            }
-        }
-
-        private function placeMountain(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
-            var rand:Rand = new Rand(1);
-
-            // Can only be placed once, at the beginning
-            var queue:Array = [];
-            start.elevation += elevation;
-            if (start.elevation > 1)
-                start.elevation = 1;
-            start.used = true;
-            queue.push(start);
-
-            for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
-                elevation = (queue[i] as Cell).elevation * radius;
-                for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
-                    if (!neighbor.used) {
-                        var mod:Number = (rand.next() * sharpness) + 1.1 - sharpness;
-                        if (sharpness == 0)
-                            mod = 1;
-
-                        neighbor.elevation += elevation * mod;
-
-                        if (neighbor.elevation > 1)
-                            neighbor.elevation = 1;
-
-                        neighbor.used = true;
-                        queue.push(neighbor);
-                    }
-                }
-            }
-
-            unuseCells();
-        }
-
-        private function placeHill(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
-            var rand:Rand = new Rand(1);
-
-            var queue:Array = [];
-            start.elevation += elevation;
-            if (start.elevation > 1)
-                start.elevation = 1;
-
-            start.used = true;
-            queue.push(start);
-
-            for (var i:int = 0; i < queue.length && elevation > 0.01; i++) {
-                elevation *= radius;
-                for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
-                    if (!neighbor.used) {
-                        var mod:Number = sharpness > 0 ? rand.next() * sharpness + 1.1 - sharpness : 1;
-                        neighbor.elevation += elevation * mod;
-
-                        if (neighbor.elevation > 1)
-                            neighbor.elevation = 1;
-
-                        neighbor.used = true;
-                        queue.push(neighbor);
-                    }
-                }
-            }
-
-            unuseCells();
-        }
-
-        private function placePit(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
-            var rand:Rand = new Rand(1);
-
-            var queue:Array = [];
-            elevation *= -1;
-            start.elevation += elevation;
-            if (start.elevation < 0)
-                start.elevation = 0;
-
-            start.used = true;
-            queue.push(start);
-
-            for (var i:int = 0; i < queue.length && elevation < SEA_LEVEL - .01; i++) {
-                elevation *= radius;
-                for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
-                    if (!neighbor.used) {
-                        var mod:Number = sharpness > 0 ? rand.next() * sharpness + 1.1 - sharpness : 1;
-                        neighbor.elevation += elevation * mod;
-
-                        if (neighbor.elevation < 0)
-                            neighbor.elevation = 0;
-
-                        neighbor.used = true;
-                        queue.push(neighbor);
-                    }
-                }
             }
 
             unuseCells();
