@@ -90,7 +90,7 @@ package generation {
         }
 
         public function getNewRiverName(river:Object):String {
-            var r:Rand = new Rand(int(river.cells[0].point.x + river.cells[0].point.y));
+            var r:Rand = new Rand(river.cells[0].index);
 
             var trees:Array = [];
             var plants:Array = [];

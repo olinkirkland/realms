@@ -43,7 +43,6 @@ package generation {
 
         public function registerFeature(featureType:String):String {
             var id:String = UIDUtil.createUID();
-
             features[id] = {id: id, type: featureType, cells: new Vector.<Cell>()};
 
             return id;
@@ -52,11 +51,6 @@ package generation {
         public function addCellToFeature(cell:Cell, feature:String):void {
             cell.features[feature] = features[feature];
             features[feature].cells.push(cell);
-        }
-
-        public function removeCellFromFeature(cell:Cell, feature:String):void {
-            delete cell.features[feature];
-            features[feature].cells.removeAt(features[feature].cells.indexOf(cell));
         }
 
         public function getFeaturesByType(featureType:String):Object {

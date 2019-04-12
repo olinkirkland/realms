@@ -43,7 +43,7 @@ package generation {
                 }
 
                 // Random generator seeded from location
-                var r:Rand = new Rand(int(biome.centroid.x + biome.centroid.y));
+                var r:Rand = new Rand(biome.cells[0].index);
                 for (var i:int = 0; i < treeDiversity; i++)
                     trees.push(content.trees[int(r.between(0, content.trees.length))]);
                 for (i = 0; i < plantDiversity; i++)

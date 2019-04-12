@@ -17,8 +17,8 @@ package generation {
             this.cell = cell;
             this.id = id;
 
-            this.point = cell.point;
-            var r:Rand = new Rand(int(point.x + point.y));
+            this.point = new Point(cell.point.x, cell.point.y);
+            var r:Rand = new Rand(cell.index);
             point.x += r.between(-4, 4);
             point.y += r.between(-4, 4);
 

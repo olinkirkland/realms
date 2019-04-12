@@ -13,11 +13,11 @@ package {
     import flash.utils.setTimeout;
 
     import generation.Biome;
+    import generation.Civilization;
     import generation.Ecosystem;
     import generation.Geography;
     import generation.Names;
     import generation.Settlement;
-    import generation.Civilization;
 
     import graph.Cell;
     import graph.Corner;
@@ -32,7 +32,7 @@ package {
         public static var MOUNTAIN_ELEVATION:Number = .9;
         public static var MOUNTAIN_ELEVATION_ADJACENT:Number = .85;
 
-        public var seed:int;
+        public var masterSeed:int;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -49,31 +49,34 @@ package {
         // Layers
         private var layers:Array;
 
-        private var oceanLayer:Shape;
-        private var coastlinesLayer:Shape;
-        private var terrainLayer:Shape;
-        private var riversLayer:Shape;
-        private var forestsLayer:Shape;
-        private var mountainsLayer:Shape;
-        private var settlementsLayer:Shape;
-        private var regionsLayer:Shape;
-        private var elevationLayer:Shape;
-        private var temperatureLayer:Shape;
-        private var desirabilityLayer:Shape;
-        private var outlinesLayer:Shape;
+        private var oceanLayer:Shape = new Shape();
+        private var terrainLayer:Shape = new Shape();
+        private var coastlinesLayer:Shape = new Shape();
+        private var riversLayer:Shape = new Shape();
+        private var forestsLayer:Shape = new Shape();
+        private var mountainsLayer:Shape = new Shape();
+        private var reliefLayer:Shape = new Shape();
+        private var settlementsLayer:Shape = new Shape();
+        private var regionsLayer:Shape = new Shape();
+        private var elevationLayer:Shape = new Shape();
+        private var temperatureLayer:Shape = new Shape();
+        private var desirabilityLayer:Shape = new Shape();
+        private var outlinesLayer:Shape = new Shape();
 
-        // Draw Toggles
-        public var showOutlines:Boolean = false;
-        public var showTerrain:Boolean = false;
-        public var showRivers:Boolean = true;
-        public var showBiomes:Boolean = true;
-        public var showTemperature:Boolean = false;
-        public var showForests:Boolean = true;
-        public var showMountains:Boolean = false;
-        public var showDesirability:Boolean = false;
-        public var showSettlements:Boolean = true;
-        public var showBiomeLinkage:Boolean = false;
-        public var showRegions:Boolean = false;
+        // Toggles
+        public var drawOcean:Boolean = true;
+        public var drawTerrain:Boolean = true;
+        public var drawCoastlines:Boolean = true;
+        public var drawRivers:Boolean = true;
+        public var drawForests:Boolean = true;
+        public var drawMountains:Boolean = true;
+        public var drawSettlements:Boolean = true;
+        public var drawRegions:Boolean = false;
+        public var drawElevation:Boolean = false;
+        public var drawTemperature:Boolean = false;
+        public var drawDesirability:Boolean = false;
+        public var drawOutlines:Boolean = false;
+
 
         // Miscellaneous
         private var staticMode:Bitmap;
@@ -85,6 +88,23 @@ package {
             civ = Civilization.getInstance();
             names = Names.getInstance();
 
+            // Add layers
+            layers = [
+                oceanLayer,
+                terrainLayer,
+                coastlinesLayer,
+                riversLayer,
+                forestsLayer,
+                mountainsLayer,
+                reliefLayer,
+                settlementsLayer,
+                regionsLayer,
+                elevationLayer,
+                temperatureLayer,
+                desirabilityLayer,
+                outlinesLayer
+            ];
+
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
 
@@ -94,33 +114,13 @@ package {
             setTimeout(tryToLoadPoints, 500);
 
             addEventListener(MouseEvent.CLICK, onClick);
-            addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
         }
 
         override protected function createChildren():void {
             super.createChildren();
 
-            // Add layers
-            layers = [
-                oceanLayer,
-                coastlinesLayer,
-                terrainLayer,
-                riversLayer,
-                forestsLayer,
-                mountainsLayer,
-                settlementsLayer,
-                regionsLayer,
-                elevationLayer,
-                temperatureLayer,
-                desirabilityLayer,
-                outlinesLayer
-            ];
-
-            for each (var layer:Shape in layers) {
-                layer = new Shape();
+            for each (var layer:Shape in layers)
                 addChild(layer);
-            }
-
 
             staticMode = new Bitmap();
             addChild(staticMode);
@@ -166,8 +166,10 @@ package {
         }
 
         public function start(seed:Number = 1):void {
-            // Set map seed - the whole map uses this seed for any random decision making
-            this.seed = seed;
+            // Set map seed
+            this.masterSeed = seed;
+
+            reset();
 
             var tasks:Array = [{f: generateHeightMap, m: "Generating height map"},
                 {f: resolveDepressions, m: "Smoothing"},
@@ -202,7 +204,6 @@ package {
         private function determineRegions():void {
             // Check all reasonably sized land masses for settlements
             // If there are no settlements on the land mass, add one to a haven or a random place
-            var cell:Cell;
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
                 if (land.cells.length > 5) {
                     var hasSettlement:Boolean = false;
@@ -234,7 +235,7 @@ package {
             for each (var s:Settlement in civ.settlements)
                 settlements.push(s);
             // Sort by a unique value - point should do
-            settlements.sort(Sort.sortByPointY);
+            settlements.sort(Sort.sortByCellIndex);
 
             for each (var settlement:Settlement in settlements) {
                 var start:Cell = settlement.cell;
@@ -342,7 +343,7 @@ package {
 
                 civ.registerSettlement(cells[0]);
                 i++;
-            } while (i < 100);
+            } while (i < 10);
         }
 
         private function determineStaticDesirability():void {
@@ -499,24 +500,29 @@ package {
 
 
         private function calculateRivers():void {
-            // Sort list cells neighbors by their elevation from lowest to highest
-            for each (var cell:Cell in cells) {
-                if (cell.neighbors.length > 0) {
-                    cell.neighbors.sort(Sort.sortByLowestElevation);
-                }
-            }
-
             // Create rivers
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                for each (cell in land.cells) {
+                // Set the flux on all land cells first
+                for each (var cell:Cell in land.cells)
                     cell.flux = cell.moisture;
-                }
 
                 land.cells.sort(Sort.sortByHighestElevation);
                 for each (cell in land.cells) {
+                    // Pour to the lowest neighbor
+                    cell.neighbors.sort(Sort.sortByLowestElevation);
                     pour(cell, cell.neighbors[0]);
                 }
             }
+
+            // Register rivers as freshwater biomes
+            for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
+                river.centroid = river.cells[int(river.cells.length / 2)].point;
+                var freshWater:String = geo.registerFeature(Biome.FRESH_WATER);
+                for each (cell in river.cells)
+                    geo.addCellToFeature(cell, freshWater);
+            }
+
+            unuseCells();
 
             function pour(c:Cell, t:Cell):void {
                 t.flux += c.flux;
@@ -565,22 +571,17 @@ package {
                     }
                 }
             }
-
-            for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
-                river.centroid = river.cells[int(river.cells.length / 2)].point;
-                var freshWater:String = geo.registerFeature(Biome.FRESH_WATER);
-                for each (cell in river.cells)
-                    geo.addCellToFeature(cell, freshWater);
-            }
-
-            unuseCells();
         }
 
         private function resolveDepressions():void {
+            cells.sort(Sort.sortByIndex);
+
             var depressions:int;
             do {
                 depressions = 0;
                 for each (var cell:Cell in cells) {
+
+                    // Is it a depression?
                     if (cell.neighbors.length > 0) {
                         var d:Boolean = cell.elevation >= SEA_LEVEL;
                         for each (var neighbor:Cell in cell.neighbors) {
@@ -588,7 +589,9 @@ package {
                                 d = false;
                         }
                     }
+
                     if (d) {
+                        // If it's a depression, raise its elevation a little and increment the depression count
                         depressions++;
                         cell.elevation += .1;
                     }
@@ -726,11 +729,13 @@ package {
         }
 
         private function generateHeightMap():void {
-            // Generate a height map
-            reset();
+            cells.sort(Sort.sortByIndex);
+            for each (var cell:Cell in cells)
+                cell.neighbors.sort(Sort.sortByIndex);
 
-            // Random generator uses a seed
-            var rand:Rand = new Rand(seed);
+
+            // Generate a height map
+            var rand:Rand = new Rand(masterSeed);
 
             var cell:Cell;
             var w:Number = width / 2;
@@ -780,8 +785,7 @@ package {
         }
 
         private function placeMountain(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
-            // Random generator uses a seed
-            var rand:Rand = new Rand(seed);
+            var rand:Rand = new Rand(1);
 
             // Can only be placed once, at the beginning
             var queue:Array = [];
@@ -814,8 +818,7 @@ package {
         }
 
         private function placeHill(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
-            // Random generator uses a seed
-            var rand:Rand = new Rand(seed);
+            var rand:Rand = new Rand(1);
 
             var queue:Array = [];
             start.elevation += elevation;
@@ -845,8 +848,7 @@ package {
         }
 
         private function placePit(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
-            // Random generator uses a seed
-            var rand:Rand = new Rand(seed);
+            var rand:Rand = new Rand(1);
 
             var queue:Array = [];
             elevation *= -1;
@@ -926,184 +928,24 @@ package {
             for each (var layer:Shape in layers)
                 layer.graphics.clear();
 
+            // Draw all the layers
             drawOceanLayer();
-            drawCoastlinesLayer();
             drawTerrainLayer();
+            drawCoastlinesLayer();
             drawRiversLayer();
             drawForestsLayer();
             drawMountainsLayer();
             drawSettlementsLayer();
-            drawOverlayRegionsLayer();
+            drawRegionsLayer();
             drawElevationLayer();
             drawTemperatureLayer();
             drawDesirabilityLayer();
             drawOutlinesLayer();
 
-            if (showMountains) {
-                // Draw mountains
-                // todo overhaul this
-                canvas.graphics.lineStyle(1, 0xff000);
-                for each (var mountain:Object in geo.getFeaturesByType(Biome.MOUNTAIN)) {
-                    var mountainBase:Array = [];
-                    var mountainBody:Array = [];
-                    for each (cell in mountain.cells) {
-                        var isBase:Boolean = false;
-                        for each (var neighbor:Cell in cell.neighbors) {
-                            if (!neighbor.hasFeatureType(Biome.MOUNTAIN)) {
-                                isBase = true;
-                                break;
-                            }
-                        }
-                        if (!isBase)
-                            mountainBody.push(cell);
-                        else
-                            mountainBase.push(cell);
-                    }
+            // The show function toggles visibility on and off for specific layers
+            show();
 
-                    // Mark the highest point
-                    mountainBody.sortOn("elevation", Array.DESCENDING);
-                    canvas.graphics.lineStyle(2, 0x000000);
-                    canvas.graphics.beginFill(0xffffff);
-                    canvas.graphics.drawCircle(mountainBody[0].point.x, mountainBody[0].point.y, 5);
-                    canvas.graphics.endFill();
-
-                    canvas.graphics.lineStyle(1, 0x000000);
-                    // Draw an outline of the mountain
-                    for each (cell in mountainBase) {
-                        for each (edge in cell.edges) {
-                            if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                //if (!edge.d0.hasFeatureType(Biome.MOUNTAIN) || !edge.d1.hasFeatureType(Biome.MOUNTAIN))
-                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (showTemperature) {
-                // Draw temperature
-                canvas.graphics.lineStyle();
-                for each (cell in cells) {
-                    if (cell.elevation > SEA_LEVEL) {
-                        canvas.graphics.beginFill(getColorFromTemperature(cell.temperature), .6);
-                        for each (edge in cell.edges) {
-                            if (edge.v0 && edge.v1) {
-                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                canvas.graphics.lineTo(cell.point.x, cell.point.y);
-                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                            } else {
-                            }
-                        }
-                        canvas.graphics.endFill();
-                    }
-                }
-            }
-
-            if (showTerrain) {
-                // Draw terrain
-                canvas.graphics.lineStyle();
-                for each (cell in cells) {
-                    canvas.graphics.beginFill(getColorFromElevation(cell.elevation), 1);
-
-                    for each (edge in cell.edges) {
-                        if (edge.v0 && edge.v1) {
-                            canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                            canvas.graphics.lineTo(cell.point.x, cell.point.y);
-                            canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                        } else {
-                        }
-                    }
-                }
-                canvas.graphics.endFill();
-            }
-
-            if (showDesirability) {
-                // Draw desirability
-                canvas.graphics.lineStyle();
-                for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                    for each (cell in land.cells) {
-                        canvas.graphics.beginFill(Util.getColorBetweenColors(0x0000ff, 0xffff00, cell.desirability / 10));
-
-                        for each (edge in cell.edges) {
-                            if (edge.v0 && edge.v1) {
-                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                canvas.graphics.lineTo(cell.point.x, cell.point.y);
-                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                            } else {
-                            }
-                        }
-                    }
-                    canvas.graphics.endFill();
-                }
-            }
-
-            if (showRegions) {
-                // Draw regions
-                canvas.graphics.lineStyle();
-                for each (var region:Object in civ.regions) {
-                    color = 0xffffff * rand.next();
-                    canvas.graphics.beginFill(color);
-                    for each (cell in region.cells) {
-                        for each (edge in cell.edges) {
-                            if (edge.v0 && edge.v1) {
-                                canvas.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                canvas.graphics.lineTo(cell.point.x, cell.point.y);
-                                canvas.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                            } else {
-                            }
-                        }
-                    }
-                    canvas.graphics.endFill();
-                }
-            }
-
-            if (showSettlements) {
-                // Draw settlements
-                canvas.graphics.lineStyle(1, 0x000000);
-                for each (var settlement:Settlement in civ.settlements) {
-                    canvas.graphics.beginFill(0xffffff);
-                    canvas.graphics.drawCircle(settlement.point.x, settlement.point.y, 3);
-                    canvas.graphics.endFill();
-                }
-            }
-
-            if (showBiomeLinkage) {
-                // Draw biome influence
-                var c:Rand = new Rand(1);
-                for each (biomeType in Biome.list) {
-                    var color:uint = c.next() * 0xffffff;
-                    for each (biome in geo.getFeaturesByType(biomeType)) {
-                        canvas.graphics.lineStyle(1, color);
-                        canvas.graphics.beginFill(0xffffff);
-                        canvas.graphics.drawCircle(biome.centroid.x, biome.centroid.y, 3);
-                        canvas.graphics.endFill();
-
-                        if (biome.influence > 6)
-                            canvas.graphics.drawCircle(biome.centroid.x, biome.centroid.y, biome.influence);
-
-                        for each (var linkedBiome:Object in biome.linked) {
-                            canvas.graphics.moveTo(biome.centroid.x, biome.centroid.y);
-                            canvas.graphics.lineTo(linkedBiome.centroid.x, linkedBiome.centroid.y);
-                        }
-                    }
-                }
-            }
-
-            if (showOutlines) {
-                // Draw outlines
-                for each (edge in edges) {
-                    // Draw voronoi diagram
-                    outlines.graphics.lineStyle(1, 0x000000, .2);
-                    if (edge.v0 && edge.v1) {
-                        outlines.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                        outlines.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                    } else {
-                    }
-                }
-            }
-
-
+            // Make sure it starts live, not static
             staticModeOff();
         }
 
@@ -1122,7 +964,7 @@ package {
 
         private function addCellDetail(canvas:Graphics, cell:Cell):void {
             // Add detail to a cell
-            var rand:Rand = new Rand(int(cell.point.x));
+            var rand:Rand = new Rand(Math.random() * 99);
             var iconDensity:Number = 0;
             var c:Point = new Point(cell.point.x + rand.between(-4, 4), cell.point.y + rand.between(-4, 4));
             var d:Number;
@@ -1133,7 +975,7 @@ package {
                 if (rand.next() > iconDensity)
                     return;
 
-                if (bordersForeignType(Biome.TEMPERATE_FOREST))
+                if (bordersForeignType(cell, Biome.TEMPERATE_FOREST))
                     return;
 
                 canvas.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
@@ -1152,16 +994,16 @@ package {
                 canvas.lineTo(c.x + d, c.y);
             }
 
-            function bordersForeignType(type:String):Boolean {
-                // Check that the cell isn't bordering any foreign biome types
-                for each (var neighbor:Cell in cell.neighbors)
-                    if (!neighbor.hasFeatureType(type))
-                        return true;
-                return false;
-            }
-
             if (rand.next() < iconDensity)
                 addCellDetail(canvas, cell);
+        }
+
+        private function bordersForeignType(cell:Cell, type:String):Boolean {
+            // Check that the cell isn't bordering any foreign biome types
+            for each (var neighbor:Cell in cell.neighbors)
+                if (!neighbor.hasFeatureType(type))
+                    return true;
+            return false;
         }
 
         private function drawOceanLayer():void {
@@ -1173,31 +1015,6 @@ package {
             // Just make a big honking rectangle of salt water
             oceanLayer.graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
             oceanLayer.graphics.drawRect(0, 0, width, height);
-        }
-
-        private function drawCoastlinesLayer():void {
-            /**
-             * Draw Coastlines
-             */
-
-            var coastlineFeatureTypes:Array = [Geography.LAND, Geography.LAKE];
-            for (var featureType:String in coastlineFeatureTypes) {
-                for (var key:String in geo.getFeaturesByType(featureType)) {
-                    var feature:Object = geo.features[key];
-                    coastlinesLayer.graphics.lineStyle(1, Biome.colors.saltWater_stroke);
-                    if (feature.type != Geography.OCEAN) {
-                        for each (var cell:Cell in feature.cells) {
-                            for each (var edge:Edge in cell.edges) {
-                                if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                                    coastlinesLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                    if (!edge.d0.features[key] || !edge.d1.features[key])
-                                        coastlinesLayer.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         private function drawTerrainLayer():void {
@@ -1216,7 +1033,33 @@ package {
 
             // Draw details for all cells
             for each (cell in cells)
-                addCellDetail(terrainLayer.graphics, cell);
+                addCellDetail(reliefLayer.graphics, cell);
+        }
+
+        private function drawCoastlinesLayer():void {
+            /**
+             * Draw Coastlines
+             */
+
+            var coastlineFeatureTypes:Array = [Geography.LAND, Geography.LAKE];
+            var coastlineColors:Object = {"land": Biome.colors.saltWater_stroke, "lake": Biome.colors.freshWater_stroke}
+            for each (var featureType:String in coastlineFeatureTypes) {
+                for (var key:String in geo.getFeaturesByType(featureType)) {
+                    var feature:Object = geo.features[key];
+                    coastlinesLayer.graphics.lineStyle(1, coastlineColors[featureType]);
+                    if (feature.type != Geography.OCEAN) {
+                        for each (var cell:Cell in feature.cells) {
+                            for each (var edge:Edge in cell.edges) {
+                                if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                                    coastlinesLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                                    if (!edge.d0.features[key] || !edge.d1.features[key])
+                                        coastlinesLayer.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private function drawRiversLayer():void {
@@ -1249,7 +1092,7 @@ package {
             drawForests(Biome.BOREAL_FOREST, Biome.colors["borealForest"], Biome.colors["borealForest_stroke"], Biome.colors["borealForest_bottomStroke"]);
 
             function drawForests(type:String, fillColor:uint, outlineColor:uint, bottomOutlineColor:uint):void {
-                // Draw forests
+                // Draw forests of a specific type
                 for each (var forest:Object in geo.getFeaturesByType(type)) {
                     // Fill
                     forestsLayer.graphics.lineStyle();
@@ -1296,6 +1139,89 @@ package {
             }
         }
 
+        private function drawMountainsLayer():void {
+            /**
+             * Draw Mountains
+             */
+
+            // todo
+        }
+
+        private function drawSettlementsLayer():void {
+            /**
+             * Draw Settlements
+             */
+
+            settlementsLayer.graphics.lineStyle(1, 0x000000);
+            for each (var settlement:Settlement in civ.settlements) {
+                settlementsLayer.graphics.beginFill(0xffffff);
+                settlementsLayer.graphics.drawCircle(settlement.point.x, settlement.point.y, 3);
+                settlementsLayer.graphics.endFill();
+            }
+        }
+
+        private function drawRegionsLayer():void {
+            /**
+             * Draw Regions
+             */
+
+            var rand:Rand = new Rand(1);
+            regionsLayer.graphics.lineStyle();
+            for each (var region:Object in civ.regions) {
+                var color:uint = 0xffffff * rand.next();
+                for each (var cell:Cell in region.cells)
+                    fillCell(regionsLayer.graphics, cell, color);
+            }
+        }
+
+        private function drawElevationLayer():void {
+            /**
+             * Draw Elevation
+             */
+
+            elevationLayer.graphics.lineStyle();
+            for each (var cell:Cell in cells)
+                fillCell(elevationLayer.graphics, cell, getColorFromElevation(cell.elevation));
+        }
+
+        private function drawTemperatureLayer():void {
+            /**
+             * Draw Temperature
+             */
+
+            temperatureLayer.graphics.lineStyle();
+            for each (var cell:Cell in cells) {
+                if (cell.elevation > SEA_LEVEL)
+                    fillCell(temperatureLayer.graphics, cell, getColorFromTemperature(cell.temperature));
+            }
+        }
+
+        private function drawDesirabilityLayer():void {
+            /**
+             * Draw Desirability
+             */
+
+            desirabilityLayer.graphics.lineStyle();
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
+                for each (var cell:Cell in land.cells)
+                    fillCell(desirabilityLayer.graphics, cell, Util.getColorBetweenColors(0x0000ff, 0xffff00, cell.desirability / 10));
+            }
+        }
+
+        private function drawOutlinesLayer():void {
+            /**
+             * Draw outlines
+             */
+            for each (var edge:Edge in edges) {
+                // Draw voronoi diagram
+                outlinesLayer.graphics.lineStyle(1, 0x000000, .2);
+                if (edge.v0 && edge.v1) {
+                    outlinesLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                    outlinesLayer.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                }
+            }
+        }
+
         private function getColorFromElevation(elevation:Number):uint {
             if (elevation > 1)
                 elevation = 1;
@@ -1327,6 +1253,7 @@ package {
 
         public function pickRandomPoints():void {
             // Pick points
+            var rand:Rand = new Rand(1);
             points = new Vector.<Point>;
             for (var i:int = 0; i < NUM_POINTS; i++) {
                 points.push(new Point(rand.next() * width, rand.next() * height));
@@ -1507,41 +1434,23 @@ package {
             for each (var cell:Cell in cells)
                 cell.reset();
 
+            cells.sort(Sort.sortByIndex);
+
             unuseCells();
         }
 
         private function onClick(event:MouseEvent):void {
             var cell:Cell = getCellClosestToPoint(mouse);
             trace(humanReadableCell(cell));
-
-            // Highlight feature
-            for each (var feature:Object in cell.features) {
-                if (feature.type != Geography.LAND && feature.type != Geography.LAKE)
-                    break;
-            }
-
-            //highlightFeature(feature);
-        }
-
-        private function highlightFeature(feature:Object):void {
-            // Highlight a feature
-            highlights.graphics.clear();
-            highlights.graphics.lineStyle(2, 0x000000, .4);
-            for each (var cell:Cell in feature.cells) {
-                for each (var edge:Edge in cell.edges) {
-                    if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                        highlights.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                        if (!edge.d0.features[feature.id] || !edge.d1.features[feature.id])
-                            highlights.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
-                    }
-                }
-            }
         }
 
         private function humanReadableCell(cell:Cell):String {
             var str:String = "#" + cell.index;
             if (cell.settlement)
                 str += "\n settlement: (" + cell.settlement.influence + ") " + cell.settlement.id;
+
+            str += "\n elevation: " + cell.elevation;
+            str += "\n neighbors: " + cell.neighbors.length;
 
             for each (var feature:Object in cell.features) {
                 str += "\n > " + feature.type + " (" + feature.cells.length + ")";
@@ -1561,10 +1470,6 @@ package {
             return str;
         }
 
-        private function onRightClick(event:MouseEvent):void {
-            highlights.graphics.clear();
-        }
-
         public function get mouse():Point {
             // Return a point referring to the current mouse position
             return new Point(mouseX, mouseY);
@@ -1573,20 +1478,39 @@ package {
         public function staticModeOn():void {
             // Take screenshot
             staticMode.visible = true;
-            canvas.visible = false;
+            hide();
         }
 
         public function staticModeOff():void {
             staticMode.visible = false;
-            canvas.visible = true;
+            show();
 
             // Static Mode
             var source:BitmapData = new BitmapData(this.width, this.height);
             source.draw(this);
-//            const rc:Number = 1 / 3, gc:Number = 1 / 3, bc:Number = 1 / 3;
-//            source.applyFilter(source, source.rect, new Point(), new ColorMatrixFilter([rc, gc, bc, 0, 0, rc, gc, bc, 0, 0, rc, gc, bc, 0, 0, 0, 0, 0, 1, 0]));
             staticMode.bitmapData = source;
             staticMode.smoothing = true;
+        }
+
+        public function hide():void {
+            for each (var layer:Shape in layers)
+                layer.visible = false;
+        }
+
+        public function show():void {
+            oceanLayer.visible = drawOcean;
+            terrainLayer.visible = drawTerrain;
+            reliefLayer.visible = drawTerrain;
+            coastlinesLayer.visible = drawCoastlines;
+            riversLayer.visible = drawRivers;
+            forestsLayer.visible = drawForests;
+            mountainsLayer.visible = drawMountains;
+            settlementsLayer.visible = drawSettlements;
+            regionsLayer.visible = drawRegions;
+            elevationLayer.visible = drawElevation;
+            temperatureLayer.visible = drawTemperature;
+            desirabilityLayer.visible = drawDesirability;
+            outlinesLayer.visible = drawOutlines;
         }
     }
 }

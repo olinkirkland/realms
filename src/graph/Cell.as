@@ -18,61 +18,32 @@ package graph {
         public var regionInfluence:int;
 
         /**
-         * Properties
+         * Static Properties
          */
 
         public var point:Point;
-
-        // A set of adjacent polygons
         public var neighbors:Vector.<Cell>;
-
-        // A set of bordering edges
         public var edges:Vector.<Edge>;
-
-        // A set of polygon corners
         public var corners:Vector.<Corner>;
 
-        // A set feature references
-        public var features:Object;
+        /**
+         * Properties
+         */
 
-        // Settlement
+        public var features:Object;
         public var settlement:Settlement;
 
-        public function hasFeatureType(type:String):Boolean {
-            for each (var feature:Object in features) {
-                if (feature.type == type) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public function getFeaturesByType(type:String):Object {
-            var obj:Object = {};
-            for each (var feature:Object in features) {
-                if (feature.type == type) {
-                    obj[feature.id] = feature;
-                }
-            }
-            return obj;
-        }
-
-        // Temperature
         public var realTemperature:Number;
         public var temperature:Number;
 
-        // Latitude
         public var realLatitude:Number;
         public var latitude:Number;
 
-        // Moisture
         public var moisture:Number;
         public var precipitation:Number;
-
-        // Flux
         public var flux:Number;
 
-        // Elevation
+        public var realElevation:Number;
         private var _elevation:Number;
 
         public function get elevation():Number {
@@ -85,8 +56,6 @@ package graph {
             realElevation = Util.round(e * 2000, 2);
         }
 
-        public var realElevation:Number;
-
         public function Cell() {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
@@ -95,22 +64,52 @@ package graph {
             reset();
         }
 
+        public function hasFeatureType(featureType:String):Boolean {
+            for each (var feature:Object in features) {
+                if (feature.type == featureType) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public function getFeaturesByType(featureType:String):Object {
+            var obj:Object = {};
+            for each (var feature:Object in features) {
+                if (feature.type == featureType) {
+                    obj[feature.id] = feature;
+                }
+            }
+            return obj;
+        }
+
         public function reset():void {
-            // Generation
+            // For Generation Only
             used = false;
+            biome = null;
+            biomeType = null;
+            desirability = 0;
+            region = null;
+            regionInfluence = 0;
 
             // Properties
             features = {};
-            realTemperature = 0;
-            moisture = 0;
-            flux = 0;
-            _elevation = 0;
-            realElevation = 0;
-            biome = null;
-            desirability = 0;
             settlement = null;
-            region = null;
-            regionInfluence = 0;
+            realTemperature = 0;
+            temperature = 0;
+
+            realLatitude = 0;
+            latitude = 0;
+
+            moisture = 0;
+            precipitation = 0;
+            flux = 0;
+
+            realElevation = 0;
+            _elevation = 0;
+
+            // Sort neighbors (by lowest elevation)
+            neighbors.sort(Sort.sortByLowestElevation);
         }
     }
 }
