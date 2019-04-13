@@ -15,20 +15,23 @@ Requires (Included)
 - [Andy Woodruff's Continuous Curves](http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/)
 - Flash.swc
 
-![Regions](https://i.imgur.com/AiNUwI2.png)
-Region boundaries
+Coastlines w/ voronoi cells
+![](https://i.imgur.com/jPxSztJ.jpg)
 
-![River Names](https://i.imgur.com/4BS9Tzw.png)
-Local features to name rivers  
+Height Map
+![](https://i.imgur.com/PefyZbt.png)
 
-![Mountain drawing](https://i.imgur.com/MXSi5HI.png)
-Experimenting with mountain drawing  
+Temperature Map
+![](https://i.imgur.com/0KNspF5.png)
 
-![Procedurally Generated Terrain](https://i.imgur.com/jfRGyjT.png)
-Procedurally generated terrain
+Biomes and rivers
+![](https://i.imgur.com/v4HgjpC.png)
 
+Stylized forests
+![](https://i.imgur.com/1jd39Zq.png)
 
-![River Mapping](https://i.imgur.com/oKNWJWE.png)
-River mapping  
+Optimally placed settlements
+![](https://i.imgur.com/JprMnnU.png)
 
-[Zoom Function](zoom.mp4)  
+Settlement regions (area of influence)
+![](https://i.imgur.com/tpllVEv.png)
