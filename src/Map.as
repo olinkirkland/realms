@@ -679,7 +679,9 @@ package {
                         for each (var neighbor:Cell in cell.neighbors) {
                             // What's the cost of adding this cell to the region?
                             var cost:int = 1;
-                            if (neighbor.hasFeatureType(Geography.OCEAN) || neighbor.hasFeatureType(Biome.MOUNTAIN))
+                            if (neighbor.hasFeatureType(Geography.OCEAN))
+                                cost = 40;
+                            if (neighbor.hasFeatureType(Biome.MOUNTAIN))
                                 cost = 20;
                             if ((cell.hasFeatureType(Biome.TUNDRA) || cell.hasFeatureType(Biome.GRASSLAND) || cell.hasFeatureType(Biome.SAVANNA)) && (neighbor.hasFeatureType(Biome.BOREAL_FOREST) || neighbor.hasFeatureType(Biome.TEMPERATE_FOREST) || neighbor.hasFeatureType(Biome.RAIN_FOREST)))
                                 cost = 10;
