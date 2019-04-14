@@ -1,4 +1,6 @@
 package generation {
+    import generation.Enumerators.LandType;
+
     import graph.Cell;
 
     import mx.utils.UIDUtil;
@@ -61,6 +63,27 @@ package generation {
                 }
             }
             return obj;
+        }
+
+        public function nameLands():void {
+            for each (var land:Object in getFeaturesByType(LAND)) {
+                if (land.cells.length < 3) {
+                    // Tiny island
+                    land.landType = LandType.tinyIsland;
+                } else if (land.cells.length < 40) {
+                    // Small island
+                    land.landType = LandType.smallIsland;
+                } else if (land.cells.length < 200) {
+                    // Large island
+                    land.landType = LandType.largeIsland;
+                } else {
+                    // Continent
+                    land.landType = LandType.continent;
+                }
+
+
+                land.name = land.landType;
+            }
         }
     }
 }

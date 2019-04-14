@@ -553,6 +553,7 @@ package {
                             if (!edge.d0.hasFeatureType(Geography.LAND) || !edge.d1.hasFeatureType(Geography.LAND)) {
                                 // It's coastal
                                 var coastal:Cell = !edge.d0.hasFeatureType(Geography.LAND) ? edge.d1 : edge.d0;
+                                coastal.coastal = true;
                                 var oceanNeighborCount:int = 0;
                                 for each (neighbor in coastal.neighbors) {
                                     if (neighbor.hasFeatureType(Geography.OCEAN))
@@ -622,34 +623,31 @@ package {
 
                 civ.registerSettlement(cells[0]);
                 i++;
-            } while (i < 40);
+            } while (i < 100);
         }
 
         private function determineRegions():void {
-            // Check all reasonably sized land masses for settlements
-            // If there are no settlements on the land mass, add one to a haven or a random place
+            // If there are no settlements on a land mass, add one to a haven or a random place
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                if (land.cells.length > 5) {
-                    var hasSettlement:Boolean = false;
-                    for each (var cell:Cell in land.cells) {
-                        if (cell.settlement) {
-                            hasSettlement = true;
+                var hasSettlement:Boolean = false;
+                for each (var cell:Cell in land.cells) {
+                    if (cell.settlement) {
+                        hasSettlement = true;
+                        break;
+                    }
+                }
+
+                if (!hasSettlement) {
+                    // Add a settlement to the landmass
+                    for each (cell in land.cells) {
+                        var haven:Cell = land.cells[0];
+                        if (cell.hasFeatureType(Geography.HAVEN)) {
+                            haven = cell;
                             break;
                         }
                     }
 
-                    if (!hasSettlement) {
-                        // Add a settlement to the landmass
-                        for each (cell in land.cells) {
-                            var haven:Cell = land.cells[0];
-                            if (cell.hasFeatureType(Geography.HAVEN)) {
-                                haven = cell;
-                                break;
-                            }
-                        }
-
-                        civ.registerSettlement(haven);
-                    }
+                    civ.registerSettlement(haven);
                 }
             }
 
@@ -707,6 +705,7 @@ package {
             }
 
             civ.analyzeRegions();
+            civ.nameRegions();
         }
 
         private function determineNames():void {
@@ -877,6 +876,21 @@ package {
             }
 
             unuseCells();
+
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
+                // First, determine the center point of the land
+                var avgX:Number = 0;
+                var avgY:Number = 0;
+
+                for each (cell in land.cells) {
+                    avgX += cell.point.x;
+                    avgY += cell.point.y;
+                }
+
+                land.centroid = new Point(avgX /= land.cells.length, avgY /= land.cells.length);
+            }
+
+            geo.nameLands();
         }
 
         private function unuseCells():void {
@@ -1479,7 +1493,7 @@ package {
             }
 
             if (cell.region)
-                str += "\n" + JSON.stringify(civ.regions[cell.region].analysis);
+                str += "\n" + JSON.stringify(civ.regions[cell.region].analysis, null, " ");
             return str;
         }
 

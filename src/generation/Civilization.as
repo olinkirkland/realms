@@ -1,4 +1,6 @@
 package generation {
+    import flash.geom.Point;
+
     import graph.Cell;
 
     import mx.utils.UIDUtil;
@@ -65,13 +67,25 @@ package generation {
 
         public function analyzeRegions():void {
             for each (var region:Object in regions) {
+                // Bounds
+                // First, determine the center point of the biome
+                var avgX:Number = 0;
+                var avgY:Number = 0;
+
+                for each (var cell:Cell in region.cells) {
+                    avgX += cell.point.x;
+                    avgY += cell.point.y;
+                }
+
+                region.centroid = new Point(avgX /= region.cells.length, avgY /= region.cells.length);
+
                 var analysis:Object = {};
                 // Region size
                 analysis.size = region.cells.length < 50 ? "normal" : "large";
 
-                // Array of biomes and their # of cells
+                // Array of biomes and their percent of cells
                 var regionalBiomesObject:Object = {};
-                for each (var cell:Cell in region.cells) {
+                for each (cell in region.cells) {
                     if (regionalBiomesObject[cell.biomeType])
                         regionalBiomesObject[cell.biomeType].count++;
                     else if (cell.biomeType)
@@ -88,18 +102,34 @@ package generation {
                 analysis.regionalBiomes = regionalBiomes;
 
                 // Percent of river cells in region
-                var riverRating:int = 0;
+                // Percent of coastal cells
+                // Average elevation
+                var riverCount:int = 0;
+                var coastalCount:int = 0;
+                var averageElevation:Number = 0;
                 for each (cell in region.cells) {
                     if (cell.hasFeatureType(Geography.RIVER))
-                        riverRating++;
+                        riverCount++;
+
+                    if (cell.coastal)
+                        coastalCount++;
+
+                    averageElevation += cell.elevation;
                 }
-                analysis.riverRating = riverRating;
 
-                // # of coastal cells
+                averageElevation /= region.cells.length;
 
-                // average elevation
+                analysis.riverRating = int((riverCount / region.cells.length) * 100);
+                analysis.coastalRating = int((coastalCount / region.cells.length) * 100);
+                analysis.averageElevation = averageElevation;
 
                 region.analysis = analysis;
+            }
+        }
+
+        public function nameRegions():void {
+            for each (var region:Object in regions) {
+                region.name = "Hello world";
             }
         }
     }

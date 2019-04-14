@@ -1,10 +1,7 @@
 package generation {
-    import graph.Cell;
-
     public class Names {
         private static var _instance:Names;
         private var featureManager:Geography;
-        private static var riverNames:Array = [];
 
         /**
          * Biomes
