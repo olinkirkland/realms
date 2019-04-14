@@ -16,6 +16,7 @@ package {
     import generation.Civilization;
     import generation.Ecosystem;
     import generation.Geography;
+    import generation.Geography;
     import generation.Names;
     import generation.Settlement;
 
@@ -651,7 +652,7 @@ package {
                 }
             }
 
-            // Determine regions
+            // Determine regionNameDictionary
             var settlements:Array = [];
             for each (var s:Settlement in civ.settlements)
                 settlements.push(s);
@@ -661,10 +662,15 @@ package {
             for each (var settlement:Settlement in settlements) {
                 var start:Cell = settlement.cell;
                 // Define region
-                var region:String = civ.registerRegion();
+                var regionId:String = civ.registerRegion();
 
                 var r:Rand = new Rand(1);
-                civ.addCellToRegion(start, region, 200 + int(r.next() * 5) * 4);
+                civ.addCellToRegion(start, regionId, 200 + int(r.next() * 5) * 4);
+
+                for each (land in start.getFeaturesByType(Geography.LAND))
+                    break;
+                civ.regions[regionId].land = land;
+
                 start.used = true;
 
                 var queue:Array = [start];
@@ -677,7 +683,7 @@ package {
                             // What's the cost of adding this cell to the region?
                             var cost:int = 1;
                             if (neighbor.hasFeatureType(Geography.OCEAN))
-                                cost = 40;
+                                cost = 999;
                             if (neighbor.hasFeatureType(Biome.MOUNTAIN))
                                 cost = 20;
                             if ((cell.hasFeatureType(Biome.TUNDRA) || cell.hasFeatureType(Biome.GRASSLAND) || cell.hasFeatureType(Biome.SAVANNA)) && (neighbor.hasFeatureType(Biome.BOREAL_FOREST) || neighbor.hasFeatureType(Biome.TEMPERATE_FOREST) || neighbor.hasFeatureType(Biome.RAIN_FOREST)))
@@ -690,7 +696,7 @@ package {
                             if (!neighbor.used && neighbor.regionInfluence < influence) {
                                 // Use ocean tiles, but don't add them to the region
                                 if (!neighbor.hasFeatureType(Geography.OCEAN))
-                                    civ.addCellToRegion(neighbor, region, influence);
+                                    civ.addCellToRegion(neighbor, regionId, influence);
                                 else
                                     neighbor.regionInfluence = influence;
 
@@ -704,12 +710,23 @@ package {
                 unuseCells();
             }
 
-            civ.analyzeRegions();
-            civ.nameRegions();
+            for each (var region:Object in civ.regions) {
+                // Determine the center point of the region
+                var avgX:Number = 0;
+                var avgY:Number = 0;
+
+                for each (cell in region.cells) {
+                    avgX += cell.point.x;
+                    avgY += cell.point.y;
+                }
+
+                region.centroid = new Point(avgX /= region.cells.length, avgY /= region.cells.length);
+            }
         }
 
         private function determineNames():void {
-            // Regions
+            names.nameLands(geo.getFeaturesByType(Geography.LAND));
+            names.nameRegions(civ.regions);
         }
 
         private function determineStaticDesirability():void {
@@ -878,7 +895,6 @@ package {
             unuseCells();
 
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                // First, determine the center point of the land
                 var avgX:Number = 0;
                 var avgY:Number = 0;
 
@@ -889,8 +905,6 @@ package {
 
                 land.centroid = new Point(avgX /= land.cells.length, avgY /= land.cells.length);
             }
-
-            geo.nameLands();
         }
 
         private function unuseCells():void {

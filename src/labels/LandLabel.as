@@ -1,15 +1,14 @@
-package {
-    import flash.display.MovieClip;
+package labels {
     import flash.text.TextField;
     import flash.text.TextFieldAutoSize;
     import flash.text.TextFormat;
 
     import generation.Enumerators.LandType;
 
-    public class LandLabel extends MovieClip {
+    public class LandLabel extends MapLabel {
         public function LandLabel(land:Object) {
             var fontSize:int;
-            switch (land.landType) {
+            switch ((land.analysis as Object).landType) {
                 case LandType.tinyIsland:
                     fontSize = 12;
                     break;
@@ -26,7 +25,7 @@ package {
                     break;
             }
 
-            var format:TextFormat = new TextFormat(Fonts.elaborateTitle, fontSize, 0x000000);
+            var format:TextFormat = new TextFormat(Fonts.fancy, fontSize, 0x000000);
             var txt:TextField = new TextField();
             txt.embedFonts = true;
             txt.defaultTextFormat = format;
@@ -36,10 +35,9 @@ package {
             txt.autoSize = TextFieldAutoSize.LEFT;
             txt.width = txt.textWidth;
             addChild(txt);
-            txt.borderColor = 0xff0000;
-            txt.border = true;
 
             txt.x = -txt.width / 2;
+            txt.y = -txt.height / 2;
         }
     }
 }

@@ -145,7 +145,7 @@ package com.nodename.Delaunay
 
 		/**
 		 * 
-		 * @param proximityMap a BitmapData whose regions are filled with the site index values; see PlanePointsCanvas::fillRegions()
+		 * @param proximityMap a BitmapData whose regionNameDictionary are filled with the site index values; see PlanePointsCanvas::fillRegions()
 		 * @param x
 		 * @param y
 		 * @return coordinates of nearest Site to (x, y)

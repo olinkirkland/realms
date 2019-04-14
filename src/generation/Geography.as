@@ -9,6 +9,7 @@ package generation {
         private static var _instance:Geography;
 
         // Generation
+        private var names:Names;
         public var features:Object = {};
         public var colors:Object = {};
 
@@ -28,6 +29,8 @@ package generation {
             _instance = this;
 
             // Setup
+            names = Names.getInstance();
+
             colors[OCEAN] = 0x4890B1;
             colors[LAND] = 0x387089;
             colors[LAKE] = 0x387089;
@@ -63,27 +66,6 @@ package generation {
                 }
             }
             return obj;
-        }
-
-        public function nameLands():void {
-            for each (var land:Object in getFeaturesByType(LAND)) {
-                if (land.cells.length < 3) {
-                    // Tiny island
-                    land.landType = LandType.tinyIsland;
-                } else if (land.cells.length < 40) {
-                    // Small island
-                    land.landType = LandType.smallIsland;
-                } else if (land.cells.length < 200) {
-                    // Large island
-                    land.landType = LandType.largeIsland;
-                } else {
-                    // Continent
-                    land.landType = LandType.continent;
-                }
-
-
-                land.name = land.landType;
-            }
         }
     }
 }

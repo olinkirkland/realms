@@ -1,12 +1,20 @@
 package {
     public class Fonts {
         [Embed(source="assets/fonts/Chomsky.otf",
-                fontName="Chomsky",
+                fontName="fancy",
                 mimeType="application/x-font",
                 advancedAntiAliasing="true",
                 embedAsCFF="false")]
         private var chomsky:Class;
 
-        public static var elaborateTitle:String = "Chomsky";
+        [Embed(source="assets/fonts/Alice-Regular.ttf",
+                fontName="regular",
+                mimeType="application/x-font",
+                advancedAntiAliasing="true",
+                embedAsCFF="false")]
+        private var antiqueBookCover:Class;
+
+        public static var fancy:String = "fancy";
+        public static var regular:String = "regular";
     }
 }

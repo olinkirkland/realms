@@ -65,6 +65,20 @@ package {
             return str.substr(0, 1).toUpperCase() + str.substr(1);
         }
 
+        public static function randomElementFromArray(arr:Array, r:Rand):Object {
+            return arr[int(r.between(0,
+                    arr.length))];
+        }
+
+
+        public static function keysFromObject(obj:Object):Array {
+            var arr:Array = [];
+            for (var key:String in obj) {
+                arr.push(key);
+            }
+            return arr;
+        }
+
         public static function generateNoisyPoints(p1:Point,
                                                    p2:Point,
                                                    iterations:int):Array {
@@ -99,6 +113,14 @@ package {
                                                   p2:Point):Point {
             return new Point((p1.x + p2.x) / 2,
                     (p1.y + p2.y) / 2);
+        }
+
+        public static function sharedPropertiesBetweenArrays(arr1:Array, arr2:Array):Array {
+            var shared:Array = [];
+            for each (var element:* in arr1)
+                if (arr2.indexOf(element > -1))
+                    shared.push(element);
+            return shared;
         }
     }
 }
