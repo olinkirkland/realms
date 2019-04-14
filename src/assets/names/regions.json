@@ -2,13 +2,12 @@
   "subjectPrefix": {
     "grassland": [
       {
-        "use": [
-          "none",
+        "uses": [
           "geography",
           "grassland",
           "river",
           "lake",
-          "forest"
+          "forest","place","valley"
         ],
         "names": [
           "Green"
@@ -17,36 +16,32 @@
     ],
     "forest": [
       {
-        "use": [
-          "none",
+        "uses": [
           "geography",
           "grassland",
           "river",
           "lake",
-          "island"
+          "island","place","valley"
         ],
         "names": [
           "Wood"
         ]
       },
       {
-        "use": [
-          "none",
+        "uses": [
           "geography",
           "grassland",
           "river",
           "lake",
           "island",
-          "forest"
+          "forest","place","valley"
         ],
         "names": [
           "[tree]"
         ]
       },
       {
-        "use": [
-          "none"
-        ],
+        "uses": [],
         "names": [
           "[name]"
         ]
@@ -55,26 +50,24 @@
         "names": [
           "Green"
         ],
-        "use": [
-          "none",
+        "uses": [
           "geography",
           "grassland",
           "river",
           "lake",
           "island",
-          "forest"
+          "forest","valley"
         ]
       }
     ],
     "warm": [
       {
-        "use": [
-          "none",
+        "uses": [
           "geography",
           "grassland",
           "river",
           "lake",
-          "island"
+          "island","forest","place"
         ],
         "names": [
           "Somer",
@@ -84,13 +77,12 @@
     ],
     "cold": [
       {
-        "use": [
-          "none",
+        "uses": [
           "geography",
           "grassland",
           "river",
           "lake",
-          "island"
+          "island","forest","place"
         ],
         "names": [
           "Winter"
@@ -99,12 +91,11 @@
     ],
     "river": [
       {
-        "use": [
-          "none",
+        "uses": [
           "grassland",
           "valley",
           "lake",
-          "island"
+          "island","forest","place","valley"
         ],
         "names": [
           "Valen",
@@ -113,14 +104,13 @@
         ]
       },
       {
-        "use": [
-          "none",
+        "uses": [
           "geography",
           "grassland",
           "river",
           "valley",
           "lake",
-          "island"
+          "island","forest","place","valley"
         ],
         "names": [
           "Aver",
@@ -130,9 +120,12 @@
     ],
     "north": [
       {
-        "use": [
-          "none",
-          "geography"
+        "uses": [
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island","forest"
         ],
         "names": [
           "North"
@@ -141,24 +134,31 @@
     ],
     "south": [
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river","valley"
         ],
         "names": [
           "Souther"
         ]
       },
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river","forest","place","valley"
         ],
         "names": [
           "Suther"
         ]
       },
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river",
+          "island","forest","place","valley"
         ],
         "names": [
           "Sur"
@@ -167,8 +167,12 @@
     ],
     "west": [
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island","forest","valley"
         ],
         "names": [
           "Wester"
@@ -177,16 +181,21 @@
     ],
     "east": [
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island","forest","valley"
         ],
         "names": [
           "Easter"
         ]
       },
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland","forest","valley"
         ],
         "names": [
           "Ast"
@@ -195,16 +204,24 @@
     ],
     "highElevation": [
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island","forest","valley"
         ],
         "names": [
           "High"
         ]
       },
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island","forest","place","valley"
         ],
         "names": [
           "Bryn"
@@ -213,16 +230,22 @@
     ],
     "lowElevation": [
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island","forest","place"
         ],
         "names": [
           "Nether"
         ]
       },
       {
-        "use": [
-          "none"
+        "uses": [
+          "geography",
+          "grassland",
+          "river"
         ],
         "names": [
           "Low"
@@ -231,9 +254,12 @@
     ],
     "lake": [
       {
-        "use": [
-          "none",
-          "river"
+        "uses": [
+          "geography",
+          "grassland",
+          "river",
+          "lake",
+          "island","forest","place","valley"
         ],
         "names": [
           "Tober"
@@ -250,7 +276,7 @@
       "field",
       "feld"
     ],
-    "valley": [
+    "river": [
       "vale",
       "dale"
     ],
@@ -269,7 +295,7 @@
       "set",
       "sey"
     ],
-    "river": [
+    "valley": [
       "more",
       "mory"
     ]

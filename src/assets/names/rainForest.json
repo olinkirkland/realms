@@ -2,9 +2,8 @@
   "treeDiversity": 3,
   "plantDiversity": 3,
   "smallAnimalDiversity": 6,
-  "bigAnimalDiversity": 3,
+  "bigAnimalDiversity": 2,
   "trees": [
-    "ceiba",
     "rubber",
     "cecropia",
     "kapok",
@@ -18,14 +17,12 @@
   ],
   "plants": [
     "orchid",
-    "heliconia",
     "pitcher",
     "liana",
     "fly trap",
     "cactus",
-    "monkey brush",
-    "palm vine",
-    "basket vine"
+    "brush",
+    "vine"
   ],
   "smallAnimals": [
     "toucan",

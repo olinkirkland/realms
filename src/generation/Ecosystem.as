@@ -23,6 +23,14 @@ package generation {
                 var smallAnimalDiversity:int = content.smallAnimalDiversity;
                 var bigAnimalDiversity:int = content.bigAnimalDiversity;
 
+                if (biome.cells.length < 3) {
+                    // Tiny
+                    size = "tiny";
+                    treeDiversity = 0;
+                    plantDiversity *= .5;
+                    smallAnimalDiversity *= .5;
+                    bigAnimalDiversity = 0;
+                }
                 if (biome.cells.length < 10) {
                     // Small
                     size = "small";
@@ -65,24 +73,15 @@ package generation {
             bigAnimals = Util.removeDuplicatesFromArray(bigAnimals);
         }
 
-        public function spread():void {
+        public function spreadProperties():void {
             // Spread properties to linked biomes
             biome.linked.sort(Sort.sortByCellCount);
             for each (var linkedBiome:Object in biome.linked) {
-                var difference:int = biome.cells.length - linkedBiome.cells.length;
-                if (difference > 100) {
-                    // Overwrite
-                    linkedBiome.ecosystem.trees = trees.concat();
-                    linkedBiome.ecosystem.plants = plants.concat();
-                    linkedBiome.ecosystem.smallAnimals = smallAnimals.concat();
-                    linkedBiome.ecosystem.bigAnimals = bigAnimals.concat();
-                } else if (difference > 10) {
-                    // Add
-                    linkedBiome.ecosystem.trees.push(trees[0]);
-                    linkedBiome.ecosystem.plants.push(plants[0]);
-                    linkedBiome.ecosystem.smallAnimals.push(smallAnimals[0]);
-                    linkedBiome.ecosystem.bigAnimals.push(bigAnimals[0]);
-                }
+                // Replace
+                linkedBiome.ecosystem.trees = trees.concat();
+                linkedBiome.ecosystem.plants = plants.concat();
+                linkedBiome.ecosystem.smallAnimals = smallAnimals.concat();
+                linkedBiome.ecosystem.bigAnimals = bigAnimals.concat();
 
                 linkedBiome.ecosystem.removeDuplicates();
             }

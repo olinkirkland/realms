@@ -1,23 +1,18 @@
 {
   "treeDiversity": 0,
   "plantDiversity": 0,
-  "smallAnimalDiversity": 3,
+  "smallAnimalDiversity": 2,
   "bigAnimalDiversity": 0,
   "trees": [
   ],
   "plants": [
   ],
   "smallAnimals": [
-    "Bluegill",
-    "Pike",
-    "Minnow",
-    "Perch",
-    "Goldfish",
-    "Snakehead",
-    "Gar",
-    "Pollock",
-    "Koi",
-    "Sturgeon"
+    "pike",
+    "minnow",
+    "perch",
+    "pollock",
+    "sturgeon"
   ],
   "bigAnimals": [
   ]

@@ -2,7 +2,7 @@
   "treeDiversity": 3,
   "plantDiversity": 3,
   "smallAnimalDiversity": 6,
-  "bigAnimalDiversity": 3,
+  "bigAnimalDiversity": 2,
   "trees": [
     "larch",
     "spruce",
@@ -19,12 +19,10 @@
     "lingonberry",
     "cloudberry",
     "bilberry",
-    "brown mushroom",
-    "sunset mushroom"
+    "mushroom"
   ],
   "smallAnimals": [
     "weasel",
-    "stoat",
     "otter",
     "mink",
     "fox",
@@ -32,8 +30,6 @@
     "mouse",
     "hare",
     "adder",
-    "frog",
-    "toad",
     "thrush",
     "sparrow",
     "warbler",

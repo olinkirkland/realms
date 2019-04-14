@@ -46,6 +46,8 @@ package graph {
         public var realElevation:Number;
         private var _elevation:Number;
 
+        public var terrainColor:uint;
+
         public function get elevation():Number {
             return _elevation;
         }
@@ -107,6 +109,8 @@ package graph {
 
             realElevation = 0;
             _elevation = 0;
+
+            terrainColor = 0;
 
             // Sort neighbors (by lowest elevation)
             neighbors.sort(Sort.sortByLowestElevation);

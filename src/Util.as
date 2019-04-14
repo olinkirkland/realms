@@ -64,5 +64,41 @@ package {
         public static function capitalizeFirstLetter(str:String):String {
             return str.substr(0, 1).toUpperCase() + str.substr(1);
         }
+
+        public static function generateNoisyPoints(p1:Point,
+                                                   p2:Point,
+                                                   iterations:int):Array {
+            var rand:Rand = new Rand(int(p1.x * p1.y));
+
+            var arr:Array = [p1,
+                p2];
+
+            for (var i:int = 0; i < iterations; i++) {
+                var newArray:Array = [arr[0]];
+
+                for (var j:int = 0; j < arr.length - 1; j++) {
+                    var p:Point = pointBetweenPoints(arr[j],
+                            arr[j + 1]);
+
+                    p.y += rand.between(-1,
+                            1);
+                    p.x += rand.between(-1,
+                            1);
+
+                    newArray.push(p,
+                            arr[j + 1]);
+                }
+
+                arr = newArray;
+            }
+
+            return arr;
+        }
+
+        public static function pointBetweenPoints(p1:Point,
+                                                  p2:Point):Point {
+            return new Point((p1.x + p2.x) / 2,
+                    (p1.y + p2.y) / 2);
+        }
     }
 }

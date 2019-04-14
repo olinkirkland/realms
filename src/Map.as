@@ -127,7 +127,7 @@ package {
         }
 
         private function tryToLoadPoints():void {
-            // Determine if points file exists
+            // Does the points file exist?
             if (Util.isAir()) {
                 points = AirOnlyUtil.loadPointsFromFile();
 
@@ -608,7 +608,7 @@ package {
                         biome.ecosystem = new Ecosystem(biome);
 
                     for each (biome in biomes)
-                        biome.ecosystem.spread();
+                        biome.ecosystem.spreadProperties();
                 }
             }
         }
@@ -1034,6 +1034,7 @@ package {
                 for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
                     for each (var cell:Cell in biome.cells) {
                         fillCell(terrainLayer.graphics, cell, Biome.colors[biomeType]);
+                        cell.terrainColor = Biome.colors[biomeType];
                     }
                 }
             }
@@ -1048,19 +1049,34 @@ package {
              * Draw Coastlines
              */
 
-            var coastlineFeatureTypes:Array = [Geography.LAND, Geography.LAKE];
+            var coastlineFeatureTypes:Array = [Geography.OCEAN, Geography.LAND, Geography.LAKE];
             var coastlineColors:Object = {"land": Biome.colors.saltWater_stroke, "lake": Biome.colors.freshWater_stroke}
             for each (var featureType:String in coastlineFeatureTypes) {
                 for (var key:String in geo.getFeaturesByType(featureType)) {
                     var feature:Object = geo.features[key];
-                    coastlinesLayer.graphics.lineStyle(1, coastlineColors[featureType]);
-                    if (feature.type != Geography.OCEAN) {
-                        for each (var cell:Cell in feature.cells) {
-                            for each (var edge:Edge in cell.edges) {
-                                if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
-                                    coastlinesLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
-                                    if (!edge.d0.features[key] || !edge.d1.features[key])
-                                        coastlinesLayer.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+                    for each (var cell:Cell in feature.cells) {
+                        for each (var edge:Edge in cell.edges) {
+                            if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
+                                if (!edge.d0.features[key] || !edge.d1.features[key]) {
+                                    var noisyPoints:Array = Util.generateNoisyPoints(edge.v0.point, edge.v1.point, 2);
+
+                                    // Fill
+                                    coastlinesLayer.graphics.lineStyle();
+                                    for (var i:int = 0; i < noisyPoints.length - 1; i++) {
+                                        coastlinesLayer.graphics.beginFill(cell.terrainColor);
+                                        coastlinesLayer.graphics.moveTo(noisyPoints[i].x, noisyPoints[i].y);
+                                        coastlinesLayer.graphics.lineTo(cell.point.x, cell.point.y);
+                                        coastlinesLayer.graphics.lineTo(noisyPoints[i + 1].x, noisyPoints[i + 1].y);
+                                        coastlinesLayer.graphics.endFill();
+                                    }
+
+                                    // Outline
+                                    if (feature.type != Geography.OCEAN) {
+                                        coastlinesLayer.graphics.moveTo(noisyPoints[0].x, noisyPoints[0].y);
+                                        coastlinesLayer.graphics.lineStyle(.1, coastlineColors[featureType]);
+                                        for each (var point:Point in noisyPoints)
+                                            coastlinesLayer.graphics.lineTo(point.x, point.y);
+                                    }
                                 }
                             }
                         }
@@ -1132,10 +1148,10 @@ package {
                                 forestsLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                                 if (!edge.d0.features[forest.id]) {
                                     // Draw a curved line
-                                    forestsLayer.graphics.lineStyle(1, outlineColor);
+                                    forestsLayer.graphics.lineStyle(.1, outlineColor);
                                     forestsLayer.graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
                                 } else if (!edge.d1.features[forest.id]) {
-                                    forestsLayer.graphics.lineStyle(1, bottomOutlineColor);
+                                    forestsLayer.graphics.lineStyle(.1, bottomOutlineColor);
                                     // Draw a curved line (opposite direction)
                                     forestsLayer.graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
                                 }
@@ -1221,7 +1237,7 @@ package {
              */
             for each (var edge:Edge in edges) {
                 // Draw voronoi diagram
-                outlinesLayer.graphics.lineStyle(1, 0x000000, .2);
+                outlinesLayer.graphics.lineStyle(1, 0x000000, 1);
                 if (edge.v0 && edge.v1) {
                     outlinesLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                     outlinesLayer.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
@@ -1453,12 +1469,6 @@ package {
 
         private function humanReadableCell(cell:Cell):String {
             var str:String = "#" + cell.index;
-            if (cell.settlement)
-                str += "\n settlement: (" + cell.settlement.influence + ") " + cell.settlement.id;
-
-            str += "\n elevation: " + cell.elevation;
-            str += "\n neighbors: " + cell.neighbors.length;
-
             for each (var feature:Object in cell.features) {
                 str += "\n > " + feature.type + " (" + feature.cells.length + ")";
                 if (feature.ecosystem) {

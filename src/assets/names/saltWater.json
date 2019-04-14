@@ -2,23 +2,24 @@
   "treeDiversity": 0,
   "plantDiversity": 0,
   "smallAnimalDiversity": 8,
-  "bigAnimalDiversity": 0,
+  "bigAnimalDiversity": 2,
   "trees": [
   ],
   "plants": [
   ],
   "smallAnimals": [
-    "Trout",
-    "Cod",
-    "Salmon",
-    "Lamprey",
-    "Flounder",
-    "Goby",
-    "Boxfish",
-    "Garibaldi",
-    "Longfin",
-    "Char"
+    "trout",
+    "cod",
+    "salmon",
+    "lamprey",
+    "flounder",
+    "goby",
+    "boxfish",
+    "longfin",
+    "char"
   ],
   "bigAnimals": [
+    "shark",
+    "whale"
   ]
 }
