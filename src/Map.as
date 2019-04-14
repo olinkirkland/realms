@@ -653,7 +653,6 @@ package {
                 }
             }
 
-
             // Determine regions
             var settlements:Array = [];
             for each (var s:Settlement in civ.settlements)
@@ -706,17 +705,12 @@ package {
 
                 unuseCells();
             }
+
+            civ.analyzeRegions();
         }
 
         private function determineNames():void {
-            // Rivers
-            // Sort rivers by length
-            var rivers:Array = [];
-            for each (var river:Object in geo.getFeaturesByType(Geography.RIVER))
-                rivers.push(river);
-            rivers.sortOn(Sort.sortByCellCount);
-            for each (river in rivers)
-                river.name = names.getNewRiverName(river);
+            // Regions
         }
 
         private function determineStaticDesirability():void {
@@ -1237,7 +1231,7 @@ package {
              */
             for each (var edge:Edge in edges) {
                 // Draw voronoi diagram
-                outlinesLayer.graphics.lineStyle(1, 0x000000, 1);
+                outlinesLayer.graphics.lineStyle(1, 0x000000, .1);
                 if (edge.v0 && edge.v1) {
                     outlinesLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                     outlinesLayer.graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
@@ -1484,6 +1478,8 @@ package {
                 }
             }
 
+            if (cell.region)
+                str += "\n" + JSON.stringify(civ.regions[cell.region].analysis);
             return str;
         }
 

@@ -10,7 +10,7 @@ package generation {
          * Biomes
          */
 
-        [Embed(source="../assets/names/borealForest.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/tundra.json", mimeType="application/octet-stream")]
         private static const tundra_json:Class;
 
         [Embed(source="../assets/names/borealForest.json", mimeType="application/octet-stream")]
@@ -28,10 +28,10 @@ package generation {
         [Embed(source="../assets/names/rainForest.json", mimeType="application/octet-stream")]
         private static const rainForest_json:Class;
 
-        [Embed(source="../assets/names/temperateForest.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/mountain.json", mimeType="application/octet-stream")]
         private static const mountain_json:Class;
 
-        [Embed(source="../assets/names/temperateForest.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/desert.json", mimeType="application/octet-stream")]
         private static const desert_json:Class;
 
         [Embed(source="../assets/names/saltWater.json", mimeType="application/octet-stream")]
@@ -58,7 +58,11 @@ package generation {
         [Embed(source="../assets/names/rivers.json", mimeType="application/octet-stream")]
         private static const rivers_json:Class;
 
+        [Embed(source="../assets/names/regions.json", mimeType="application/octet-stream")]
+        private static const regions_json:Class;
+
         public var rivers:Object;
+        public var regions:Object;
 
         public static function getInstance():Names {
             if (!_instance)
@@ -87,76 +91,7 @@ package generation {
 
             // Features
             rivers = JSON.parse(new rivers_json());
-        }
-
-        public function getNewRiverName(river:Object):String {
-            var r:Rand = new Rand(river.cells[0].index);
-
-            var trees:Array = [];
-            var plants:Array = [];
-            var smallAnimals:Array = [];
-            var bigAnimals:Array = [];
-
-            var cell:Cell = river.cells[int(river.cells.length / 2)];
-            var features:Array = [featureManager.features[cell.biome]];
-            for each (var neighbor:Cell in cell.neighbors)
-                if (features.indexOf(neighbor.biome) < 0)
-                    features.push(featureManager.features[neighbor.biome]);
-
-            for each (var biome:Object in features) {
-                if (biome && biome.ecosystem) {
-                    trees = trees.concat(biome.ecosystem.trees);
-                    plants = plants.concat(biome.ecosystem.plants);
-                    smallAnimals = smallAnimals.concat(biome.ecosystem.smallAnimals);
-                    bigAnimals = bigAnimals.concat(biome.ecosystem.bigAnimals);
-                }
-            }
-
-            var suffix:String;
-            var prefix:String;
-            var subject:String;
-            var subjectInspirations:Array;
-
-            if (river.cells.length > 8) {
-                /**
-                 * Long
-                 */
-
-                if (r.next() < .2)
-                    prefix = rivers.longPrefix[int(r.between(0, rivers.longPrefix.length))];
-                if (r.next() < .6) {
-                    suffix = rivers.longSuffix[int(r.between(0, rivers.longSuffix.length))];
-                } else {
-                    prefix = "The";
-                }
-
-                // Name river after trees or big animals
-                subjectInspirations = trees.concat(bigAnimals);
-                subject = subjectInspirations[int(r.between(0, subjectInspirations.length))];
-
-            } else {
-                /**
-                 * Short
-                 */
-
-                if (r.next() < .2)
-                    prefix = rivers.shortPrefix[int(r.between(0, rivers.shortPrefix.length))];
-                if (r.next() < 1)
-                    suffix = rivers.shortSuffix[int(r.between(0, rivers.shortSuffix.length))];
-
-                // Name river after trees, plants, or small animals
-                subjectInspirations = trees.concat(plants, smallAnimals);
-                subject = subjectInspirations[int(r.between(0, subjectInspirations.length))];
-            }
-
-            var str:String = "";
-            if (prefix)
-                str += prefix + " ";
-            str += Util.capitalizeFirstLetter(subject);
-            if (suffix)
-                str += " " + suffix;
-
-            return str;
+            regions = JSON.parse(new regions_json());
         }
     }
 }

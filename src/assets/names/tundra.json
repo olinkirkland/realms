@@ -1,0 +1,32 @@
+{
+  "treeDiversity": 0,
+  "plantDiversity": 2,
+  "smallAnimalDiversity": 2,
+  "bigAnimalDiversity": 1,
+  "trees": [
+  ],
+  "plants": [
+    "lichen",
+    "moss",
+    "shrub",
+    "cranberry",
+    "lingonberry",
+    "cloudberry",
+    "heath",
+    "blackberry",
+    "crowberry"
+  ],
+  "smallAnimals": [
+    "fox",
+    "hare",
+    "lemming",
+    "goose"
+  ],
+  "bigAnimals": [
+    "muskox",
+    "polar bear",
+    "seal",
+    "reindeer",
+    "swan"
+  ]
+}

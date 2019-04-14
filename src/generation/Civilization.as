@@ -33,6 +33,17 @@ package generation {
             settlementsByCell = {};
         }
 
+        public function registerSettlement(cell:Cell):String {
+            var id:String = UIDUtil.createUID();
+            var settlement:Settlement = new Settlement(cell, id);
+            cell.settlement = settlement;
+
+            settlementsById[id] = settlement;
+            settlementsByCell[cell] = settlement;
+
+            return id;
+        }
+
         public function registerRegion():String {
             var id:String = UIDUtil.createUID();
 
@@ -52,15 +63,44 @@ package generation {
             regions[region].cells.push(cell);
         }
 
-        public function registerSettlement(cell:Cell):String {
-            var id:String = UIDUtil.createUID();
-            var settlement:Settlement = new Settlement(cell, id);
-            cell.settlement = settlement;
+        public function analyzeRegions():void {
+            for each (var region:Object in regions) {
+                var analysis:Object = {};
+                // Region size
+                analysis.size = region.cells.length < 50 ? "normal" : "large";
 
-            settlementsById[id] = settlement;
-            settlementsByCell[cell] = settlement;
+                // Array of biomes and their # of cells
+                var regionalBiomesObject:Object = {};
+                for each (var cell:Cell in region.cells) {
+                    if (regionalBiomesObject[cell.biomeType])
+                        regionalBiomesObject[cell.biomeType].count++;
+                    else if (cell.biomeType)
+                        regionalBiomesObject[cell.biomeType] = {type: cell.biomeType, count: 1};
+                }
+                var regionalBiomes:Array = [];
+                for each (var regionalBiome:Object in regionalBiomesObject) {
+                    if (regionalBiome.count > 0) {
+                        regionalBiomes.push(regionalBiome);
+                        regionalBiome.percent = int((regionalBiome.count / region.cells.length) * 100);
+                    }
+                }
+                regionalBiomes.sortOn("count");
+                analysis.regionalBiomes = regionalBiomes;
 
-            return id;
+                // Percent of river cells in region
+                var riverRating:int = 0;
+                for each (cell in region.cells) {
+                    if (cell.hasFeatureType(Geography.RIVER))
+                        riverRating++;
+                }
+                analysis.riverRating = riverRating;
+
+                // # of coastal cells
+
+                // average elevation
+
+                region.analysis = analysis;
+            }
         }
     }
 }

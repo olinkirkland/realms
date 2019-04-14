@@ -21,12 +21,13 @@ package {
         }
 
         public static function sortByDesirability(n1:Cell, n2:Cell):Number {
-            if (n1.desirability < n2.desirability)
+            if (n1.desirability == 0 && n2.desirability == 0)
+                return 0;
+            else if (n1.desirability < n2.desirability)
                 return 1;
             else if (n1.desirability > n2.desirability)
                 return -1;
-            else
-                return sortByIndex(n1, n2);
+            else return sortByIndex(n1, n2);
         }
 
         public static function sortByCellCount(n1:Object, n2:Object):Number {
