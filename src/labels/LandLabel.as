@@ -3,27 +3,19 @@ package labels {
     import flash.text.TextFieldAutoSize;
     import flash.text.TextFormat;
 
-    import generation.Enumerators.LandType;
-
     public class LandLabel extends MapLabel {
         public function LandLabel(land:Object) {
-            var fontSize:int;
-            switch ((land.analysis as Object).landType) {
-                case LandType.tinyIsland:
-                    fontSize = 12;
-                    break;
-                case LandType.smallIsland:
-                    fontSize = 18;
-                    break;
-                case LandType.largeIsland:
-                    fontSize = 24;
-                    break;
-                case LandType.continent:
-                    fontSize = 32;
-                    break;
-                default:
-                    break;
-            }
+            super();
+
+            var fontSize:int = 10;
+            if (land.analysis["tinyIsland"])
+                fontSize = 12;
+            if (land.analysis["smallIsland"])
+                fontSize = 16;
+            if (land.analysis["largeIsland"])
+                fontSize = 24;
+            if (land.analysis["continent"])
+                fontSize = 36;
 
             var format:TextFormat = new TextFormat(Fonts.fancy, fontSize, 0x000000);
             var txt:TextField = new TextField();

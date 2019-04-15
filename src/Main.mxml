@@ -13,6 +13,8 @@
         private var drag:Point = null;
 
         public static const MAX_ZOOM:Number = 3;
+        public static const ZOOM_SPEED:Number = .3;
+
         private var zoomToCursor:Boolean = false;
 
 
@@ -59,15 +61,27 @@
             map.staticModeOn();
             TweenMax.killTweensOf(map);
             TweenMax.to(map,
-                    .3,
+                    ZOOM_SPEED,
                     {
                         x: p.x,
                         y: p.y,
                         scaleX: scale,
                         scaleY: scale,
-                        onUpdate: constrain,
-                        onComplete: map.staticModeOff
+                        onUpdate: updateZoom,
+                        onComplete: endZoom
                     });
+
+            overlay.visible = false;
+
+            function updateZoom():void {
+                constrain();
+            }
+
+            function endZoom():void {
+                map.staticModeOff();
+                overlay.positionLabels(map.scaleX);
+                overlay.visible = true;
+            }
         }
 
         private function onButtonGenerateClick(event:MouseEvent):void {
@@ -89,8 +103,10 @@
             progress.visible = percent != 1;
             hint.visible = !progress.visible;
 
-            if (hint.visible)
+            if (hint.visible) {
                 overlay.drawLabels();
+                overlay.visible = true;
+            }
 
             progressMessage.text = message + " (" + int(percent * 100) + "%)";
 
@@ -198,9 +214,6 @@
                 map.y = height - map.height * map.scaleY;
 
             overlay.validate();
-
-            // Only show overlay
-            overlay.visible = map.scaleX == 1;
         }
 
         private function onMouseDown(event:MouseEvent):void {

@@ -1,6 +1,4 @@
 package generation {
-    import generation.Enumerators.LandType;
-
     import graph.Cell;
 
     import mx.utils.UIDUtil;

@@ -1,6 +1,4 @@
 package generation {
-    import generation.Enumerators.LandType;
-
     import graph.Cell;
 
     public class Names {
@@ -56,14 +54,10 @@ package generation {
          * Features
          */
 
-        [Embed(source="../assets/names/rivers.json", mimeType="application/octet-stream")]
-        private static const rivers_json:Class;
-
         [Embed(source="../assets/names/regions.json", mimeType="application/octet-stream")]
         private static const regions_json:Class;
 
-        public var riverNameDictionary:Object;
-        public var regionNameDictionary:Object;
+        public var regionDictionary:Object;
 
         public static function getInstance():Names {
             if (!_instance)
@@ -91,8 +85,7 @@ package generation {
             saltWater = JSON.parse(new saltWater_json());
 
             // Features
-            riverNameDictionary = JSON.parse(new rivers_json());
-            regionNameDictionary = JSON.parse(new regions_json());
+            regionDictionary = JSON.parse(new regions_json());
         }
 
         public function analyzeArea(cells:Vector.<Cell>):Object {
@@ -118,7 +111,11 @@ package generation {
                 }
             }
             regionalBiomes.sortOn("count");
-            analysis.regionalBiomes = regionalBiomes;
+            if (regionalBiomes[0].percent > 60) {
+                analysis.primaryBiomeType = regionalBiomes[0].type;
+                if (regionalBiomes[1] && regionalBiomes[1].percent > 20)
+                    analysis.secondaryBiomeType = regionalBiomes[1].type;
+            }
 
             // Percent of river cells in region
             // Percent of coastal cells
@@ -138,25 +135,43 @@ package generation {
                 averageTemperature += cell.temperature;
             }
 
-            analysis.riverRating = int((riverCount / cells.length) * 100);
-            analysis.coastalRating = int((coastalCount / cells.length) * 100);
-            analysis.averageElevation = averageElevation / cells.length;
-            analysis.averageTemperature = averageTemperature / cells.length;
+            var riverRating:Number = int((riverCount / cells.length) * 100);
+            if (riverRating > 10)
+                analysis.highRiverRating = true;
 
+            var coastalRating:Number = int((coastalCount / cells.length) * 100);
+            if (coastalRating > 40)
+                analysis.highCoastalRating = true;
+
+            averageElevation = averageElevation / cells.length;
+            averageTemperature = averageTemperature / cells.length;
+
+            if (averageElevation < .3)
+                analysis.lowElevation = true;
+            else if (averageElevation > .7)
+                analysis.highElevation = true;
+
+            if (averageTemperature < .3)
+                analysis.lowTemperature = true;
+            else if (averageTemperature > .7)
+                analysis.highTemperature = true;
+
+            // Analyze land (regions cannot span more than one land)
             var lands:Object = cells[0].getFeaturesByType(Geography.LAND);
             for each (var land:Object in lands)
                 break;
-
-            analysis.landType = LandType.continent;
-            if (analysis.coastalRating == 100 && land.cells.length < 3) {
+            if (land.cells.length < 3) {
                 // Tiny island
-                analysis.landType = LandType.tinyIsland;
+                analysis.tinyIsland = true;
             } else if (land.cells.length < 100) {
                 // Small island
-                analysis.landType = LandType.smallIsland;
+                analysis.smallIsland = true;
             } else if (land.cells.length < 400) {
                 // Large island
-                analysis.landType = LandType.largeIsland;
+                analysis.largeIsland = true;
+            } else {
+                // Continent
+                analysis.continent = true;
             }
 
             return analysis;
@@ -167,11 +182,11 @@ package generation {
             var regionsArray:Array = [];
             for each (var region:Object in regions)
                 regionsArray.push(region);
-            regionsArray.sortOn("centroid.x");
+            regionsArray.sort(Sort.sortBySettlementCellIndex);
 
             for each (region in regionsArray) {
                 region.analysis = analyzeArea(region.cells);
-                region.name = nameArea(region.analysis, rand, regionNameDictionary);
+                region.name = generatePlaceName(region.analysis, rand, regionDictionary).name;
             }
         }
 
@@ -179,27 +194,16 @@ package generation {
             var rand:Rand = new Rand(1);
             for each (var land:Object in lands) {
                 land.analysis = analyzeArea(land.cells);
-                land.name = nameArea(land.analysis, rand, regionNameDictionary);
+                // Name land
+                land.name = land.analysis["tinyIsland"] || land.analysis["smallIsland"] ? "Island" : "Land";
             }
         }
 
-        public function nameArea(analysis:Object, rand:Rand, dictionary:Object):String {
-            var prefixes:Object = dictionary.subjectPrefix;
-            var prefixKeys:Array = Util.keysFromObject(dictionary.subjectPrefix);
-            var suffixes:Object = dictionary.subjectSuffix;
+        public function generatePlaceName(analysis:Object, rand:Rand, dictionary:Object):Object {
+            var prefix:String;
+            var suffix:String;
 
-            var prefixKey:String = Util.randomElementFromArray(prefixKeys, rand) as String;
-
-            var possiblePrefixes:Array = prefixes[prefixKey];
-            var prefixObject:Object = Util.randomElementFromArray(possiblePrefixes, rand);
-            var prefix:String = Util.randomElementFromArray(prefixObject.names, rand) as String;
-
-            var suffixKey:String = Util.randomElementFromArray(prefixObject.uses, rand) as String;
-
-            var possibleSuffixes:Array = suffixes[suffixKey];
-            var suffix:String = possibleSuffixes ? Util.randomElementFromArray(possibleSuffixes, rand) as String : "";
-
-            return prefix + suffix;
+            return {prefix: prefix, suffix: suffix, name: prefix + suffix}
         }
     }
 }

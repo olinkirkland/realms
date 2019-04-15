@@ -7,13 +7,11 @@ package {
     import generation.Geography;
 
     import labels.LandLabel;
-
+    import labels.MapLabel;
     import labels.RegionLabel;
 
     import mx.core.UIComponent;
     import mx.events.FlexEvent;
-
-    import spark.primitives.Rect;
 
     public class Overlay extends UIComponent {
         public var map:Map;
@@ -47,22 +45,29 @@ package {
 
             // Draw new labels
             labelLands();
-//            labelRegions();
+            labelRegions();
 
-            // Space out labels
-            spaceLabels();
+            // Position labels
+            positionLabels(1);
         }
 
-        private function spaceLabels():void {
+        public function positionLabels(scale:Number):void {
+            // Position labels
+            for (var i:int = 0; i < overlay.numChildren; i++) {
+                var label:MapLabel = overlay.getChildAt(i) as MapLabel;
+                label.x = label.point.x * scale;
+                label.y = label.point.y * scale;
+            }
+
             // Make sure labels aren't overlapping
             var intersections:int;
             do {
                 intersections = 0;
-                for (var i:int = 0; i < overlay.numChildren; i++) {
+                for (i = 0; i < overlay.numChildren; i++) {
                     for (var j:int = 0; j < overlay.numChildren; j++) {
                         if (i != j) {
-                            var label1:Object = overlay.getChildAt(i);
-                            var label2:Object = overlay.getChildAt(j);
+                            var label1:MapLabel = overlay.getChildAt(i) as MapLabel;
+                            var label2:MapLabel = overlay.getChildAt(j) as MapLabel;
                             if (label1.getBounds(this).intersects(label2.getBounds(this))) {
                                 while (label1.getBounds(this).intersects(label2.getBounds(this))) {
                                     var rect:Rectangle = label1.getBounds(this).intersection(label2.getBounds(this));
@@ -89,26 +94,22 @@ package {
                         }
                     }
                 }
-            } while (intersections > 0)
+            } while (intersections > 0);
         }
 
         private function labelLands():void {
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                var point:Point = land.centroid;
                 var label:LandLabel = new LandLabel(land);
+                label.point = new Point(land.centroid.x, land.centroid.y);
                 overlay.addChild(label);
-                label.x = point.x;
-                label.y = point.y;
             }
         }
 
         private function labelRegions():void {
             for each (var region:Object in civ.regions) {
-                var point:Point = region.centroid;
                 var label:RegionLabel = new RegionLabel(region);
+                label.point = new Point(region.centroid.x, region.centroid.y);
                 overlay.addChild(label);
-                label.x = point.x;
-                label.y = point.y;
             }
         }
     }

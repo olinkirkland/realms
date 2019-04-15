@@ -6,6 +6,8 @@ package labels {
 
     public class RegionLabel extends MapLabel {
         public function RegionLabel(region:Object) {
+            super();
+
             var background:Sprite = new Sprite();
             addChild(background);
 
@@ -22,8 +24,8 @@ package labels {
             txt.y = -txt.height / 2;
             addChild(txt);
 
-            var hPadding:int = 1;
-            var vPadding:int = 3;
+            var hPadding:int = 3;
+            var vPadding:int = 1;
             background.graphics.beginFill(0x000000, .7);
             background.graphics.drawRoundRect(txt.x - hPadding, txt.y - vPadding, txt.width + 2 * hPadding, txt.height + 2 * vPadding, 15, 15);
             background.graphics.endFill();

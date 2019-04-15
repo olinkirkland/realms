@@ -120,11 +120,11 @@ package {
         override protected function createChildren():void {
             super.createChildren();
 
-            for each (var layer:Shape in layers)
-                addChild(layer);
-
             staticMode = new Bitmap();
             addChild(staticMode);
+
+            for each (var layer:Shape in layers)
+                addChild(layer);
         }
 
         private function tryToLoadPoints():void {
@@ -223,7 +223,7 @@ package {
 
             // Add hills
             for (var i:int = 0; i < 30; i++)
-                placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
+                placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(1, .2));
 
             // Add troughs
 
@@ -669,7 +669,9 @@ package {
 
                 for each (land in start.getFeaturesByType(Geography.LAND))
                     break;
+
                 civ.regions[regionId].land = land;
+                civ.regions[regionId].settlement = settlement;
 
                 start.used = true;
 
@@ -999,7 +1001,7 @@ package {
             var d:Number;
 
             if (cell.hasFeatureType(Biome.TEMPERATE_FOREST)) {
-                iconDensity = .4;
+                iconDensity = .6;
 
                 if (rand.next() > iconDensity)
                     return;
@@ -1011,6 +1013,7 @@ package {
                 canvas.moveTo(c.x - (d = rand.between(1, 2)), c.y);
                 canvas.curveTo(c.x, c.y - rand.between(1, 5), c.x + d, c.y);
             }
+
             if (cell.hasFeatureType(Biome.BOREAL_FOREST)) {
                 iconDensity = .8;
 
@@ -1022,9 +1025,6 @@ package {
                 canvas.lineTo(c.x, c.y - rand.between(1, 3));
                 canvas.lineTo(c.x + d, c.y);
             }
-
-            if (rand.next() < iconDensity)
-                addCellDetail(canvas, cell);
         }
 
         private function bordersForeignType(cell:Cell, type:String):Boolean {
@@ -1095,7 +1095,7 @@ package {
                                     // Outline
                                     if (feature.type != Geography.OCEAN) {
                                         coastlinesLayer.graphics.moveTo(noisyPoints[0].x, noisyPoints[0].y);
-                                        coastlinesLayer.graphics.lineStyle(.1, coastlineColors[featureType]);
+                                        coastlinesLayer.graphics.lineStyle(1, coastlineColors[featureType]);
                                         for each (var point:Point in noisyPoints)
                                             coastlinesLayer.graphics.lineTo(point.x, point.y);
                                     }
@@ -1170,10 +1170,10 @@ package {
                                 forestsLayer.graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
                                 if (!edge.d0.features[forest.id]) {
                                     // Draw a curved line
-                                    forestsLayer.graphics.lineStyle(.1, outlineColor);
+                                    forestsLayer.graphics.lineStyle(1, outlineColor);
                                     forestsLayer.graphics.curveTo(edge.d0.point.x, edge.d0.point.y, edge.v1.point.x, edge.v1.point.y);
                                 } else if (!edge.d1.features[forest.id]) {
-                                    forestsLayer.graphics.lineStyle(.1, bottomOutlineColor);
+                                    forestsLayer.graphics.lineStyle(1, bottomOutlineColor);
                                     // Draw a curved line (opposite direction)
                                     forestsLayer.graphics.curveTo(edge.d1.point.x, edge.d1.point.y, edge.v1.point.x, edge.v1.point.y);
                                 }
@@ -1517,12 +1517,13 @@ package {
         }
 
         public function staticModeOn():void {
-            // Take screenshot
+            // Show screenshot
             staticMode.visible = true;
             hide();
         }
 
         public function staticModeOff():void {
+            // Hide screenshot
             staticMode.visible = false;
             show();
 

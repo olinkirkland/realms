@@ -56,5 +56,9 @@ package {
             else
                 return 0;
         }
+
+        public static function sortBySettlementCellIndex(n1:Object, n2:Object):Number {
+            return sortByCellIndex(n1.settlement, n2.settlement);
+        }
     }
 }
