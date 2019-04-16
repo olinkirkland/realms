@@ -16,22 +16,22 @@ Requires (Included)
 - Flash.swc
 
 Coastlines w/ voronoi cells
-![](https://i.imgur.com/jPxSztJ.jpg)
+[![](https://i.imgur.com/jPxSztJ.jpg)](https://i.imgur.com/jPxSztJ.jpg)
 
 Height Map
-![](https://i.imgur.com/PefyZbt.png)
+[![](https://i.imgur.com/PefyZbt.png)](https://i.imgur.com/PefyZbt.png)
 
 Temperature Map
-![](https://i.imgur.com/0KNspF5.png)
+[![](https://i.imgur.com/0KNspF5.png)](https://i.imgur.com/0KNspF5.png)
 
 Biomes and rivers
-![](https://i.imgur.com/v4HgjpC.png)
+[![](https://i.imgur.com/v4HgjpC.png)]()
 
 Stylized forests
-![](https://i.imgur.com/1jd39Zq.png)
+[![](https://i.imgur.com/1jd39Zq.png)](https://i.imgur.com/1jd39Zq.png)
 
 Optimally placed settlements
-![](https://i.imgur.com/JprMnnU.png)
+[![](https://i.imgur.com/JprMnnU.png)](https://i.imgur.com/JprMnnU.png)
 
 Settlement regions (area of influence)
-![](https://i.imgur.com/tpllVEv.png)
+[![](https://i.imgur.com/tpllVEv.png)](https://i.imgur.com/tpllVEv.png)
