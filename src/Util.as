@@ -66,8 +66,8 @@ package {
         }
 
         public static function randomElementFromArray(arr:Array, r:Rand):Object {
-            return arr[int(r.between(0,
-                    arr.length))];
+            var i:int = r.between(0, arr.length);
+            return arr[i];
         }
 
 
@@ -118,7 +118,7 @@ package {
         public static function sharedPropertiesBetweenArrays(arr1:Array, arr2:Array):Array {
             var shared:Array = [];
             for each (var element:* in arr1)
-                if (arr2.indexOf(element > -1))
+                if (arr2.indexOf(element) > -1)
                     shared.push(element);
             return shared;
         }

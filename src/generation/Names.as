@@ -9,34 +9,34 @@ package generation {
          * Biomes
          */
 
-        [Embed(source="../assets/names/tundra.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/tundra.json", mimeType="application/octet-stream")]
         private static const tundra_json:Class;
 
-        [Embed(source="../assets/names/borealForest.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/borealForest.json", mimeType="application/octet-stream")]
         private static const borealForest_json:Class;
 
-        [Embed(source="../assets/names/grassland.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/grassland.json", mimeType="application/octet-stream")]
         private static const grassland_json:Class;
 
-        [Embed(source="../assets/names/temperateForest.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/temperateForest.json", mimeType="application/octet-stream")]
         private static const temperateForest_json:Class;
 
-        [Embed(source="../assets/names/savanna.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/savanna.json", mimeType="application/octet-stream")]
         private static const savanna_json:Class;
 
-        [Embed(source="../assets/names/rainForest.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/rainForest.json", mimeType="application/octet-stream")]
         private static const rainForest_json:Class;
 
-        [Embed(source="../assets/names/mountain.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/mountain.json", mimeType="application/octet-stream")]
         private static const mountain_json:Class;
 
-        [Embed(source="../assets/names/desert.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/desert.json", mimeType="application/octet-stream")]
         private static const desert_json:Class;
 
-        [Embed(source="../assets/names/saltWater.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/saltWater.json", mimeType="application/octet-stream")]
         private static const saltWater_json:Class;
 
-        [Embed(source="../assets/names/freshWater.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/biomes/freshWater.json", mimeType="application/octet-stream")]
         private static const freshWater_json:Class;
 
         public var tundra:Object;
@@ -54,10 +54,18 @@ package generation {
          * Features
          */
 
-        [Embed(source="../assets/names/regions.json", mimeType="application/octet-stream")]
-        private static const regions_json:Class;
+        [Embed(source="../assets/names/places/prefixesByContext.json", mimeType="application/octet-stream")]
+        private static const prefixesByContext_json:Class;
 
-        public var regionDictionary:Object;
+        [Embed(source="../assets/names/places/suffixesByContext.json", mimeType="application/octet-stream")]
+        private static const suffixesByContext_json:Class;
+
+        [Embed(source="../assets/names/places/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
+        private static const suffixesByNamingGroup_json:Class;
+
+        public var prefixesByContext:Object;
+        public var suffixesByContext:Object;
+        public var suffixesByNamingGroup:Object;
 
         public static function getInstance():Names {
             if (!_instance)
@@ -84,16 +92,37 @@ package generation {
             freshWater = JSON.parse(new freshWater_json());
             saltWater = JSON.parse(new saltWater_json());
 
-            // Features
-            regionDictionary = JSON.parse(new regions_json());
+            // Places
+            prefixesByContext = JSON.parse(new prefixesByContext_json());
+            suffixesByContext = JSON.parse(new suffixesByContext_json());
+            suffixesByNamingGroup = JSON.parse(new suffixesByNamingGroup_json());
         }
 
-        public function analyzeArea(cells:Vector.<Cell>):Object {
-            // Bounds
+        public function analyzeLand(cells:Vector.<Cell>):Object {
             var analysis:Object = {};
 
             // Size
             analysis.size = cells.length;
+
+            if (cells.length < 3) {
+                // Tiny island
+                analysis.tinyIsland = true;
+            } else if (cells.length < 100) {
+                // Small island
+                analysis.smallIsland = true;
+            } else if (cells.length < 400) {
+                // Large island
+                analysis.largeIsland = true;
+            } else {
+                // Continent
+                analysis.continent = true;
+            }
+
+            return analysis;
+        }
+
+        public function analyzeRegion(cells:Vector.<Cell>):Object {
+            var analysis:Object = {};
 
             // Array of biomes and their percent of cells
             var regionalBiomesObject:Object = {};
@@ -107,26 +136,28 @@ package generation {
             for each (var regionalBiome:Object in regionalBiomesObject) {
                 if (regionalBiome.count > 0) {
                     regionalBiomes.push(regionalBiome);
-                    regionalBiome.percent = int((regionalBiome.count / cells.length) * 100);
+                    regionalBiome.percent = regionalBiome.count / cells.length;
                 }
             }
             regionalBiomes.sortOn("count");
-            if (regionalBiomes[0].percent > 60) {
-                analysis.primaryBiomeType = regionalBiomes[0].type;
-                if (regionalBiomes[1] && regionalBiomes[1].percent > 20)
-                    analysis.secondaryBiomeType = regionalBiomes[1].type;
-            }
+            if (regionalBiomes[0].percent > .6)
+                analysis[regionalBiomes[0].type] = true;
 
-            // Percent of river cells in region
+            // Percent of river cells
+            // Percent of lake cells
             // Percent of coastal cells
             // Average elevation
             var riverCount:int = 0;
+            var lakeCount:int = 0;
             var coastalCount:int = 0;
             var averageElevation:Number = 0;
             var averageTemperature:Number = 0;
             for each (cell in cells) {
                 if (cell.hasFeatureType(Geography.RIVER))
                     riverCount++;
+
+                if (cell.hasFeatureType(Geography.LAKE))
+                    lakeCount++;
 
                 if (cell.coastal)
                     coastalCount++;
@@ -135,43 +166,44 @@ package generation {
                 averageTemperature += cell.temperature;
             }
 
-            var riverRating:Number = int((riverCount / cells.length) * 100);
-            if (riverRating > 10)
+            if (riverCount > 4)
                 analysis.highRiverRating = true;
 
-            var coastalRating:Number = int((coastalCount / cells.length) * 100);
-            if (coastalRating > 40)
+            if (lakeCount > 4)
+                analysis.highLakeRating = true;
+
+            if (coastalCount / cells.length > .2)
                 analysis.highCoastalRating = true;
 
             averageElevation = averageElevation / cells.length;
             averageTemperature = averageTemperature / cells.length;
 
-            if (averageElevation < .3)
+            if (averageElevation < .4)
                 analysis.lowElevation = true;
-            else if (averageElevation > .7)
+            else if (averageElevation > .6)
                 analysis.highElevation = true;
 
-            if (averageTemperature < .3)
+            if (averageTemperature < .2)
                 analysis.lowTemperature = true;
-            else if (averageTemperature > .7)
+            else if (averageTemperature > .6)
                 analysis.highTemperature = true;
 
-            // Analyze land (regions cannot span more than one land)
+            // Analyze land (regions cannot span more than one land so don't worr y about it)
             var lands:Object = cells[0].getFeaturesByType(Geography.LAND);
             for each (var land:Object in lands)
                 break;
             if (land.cells.length < 3) {
                 // Tiny island
-                analysis.tinyIsland = true;
+                analysis.tinyIslandOrSmallIsland = true;
             } else if (land.cells.length < 100) {
                 // Small island
-                analysis.smallIsland = true;
+                analysis.tinyIslandOrSmallIsland = true;
             } else if (land.cells.length < 400) {
                 // Large island
-                analysis.largeIsland = true;
+                analysis.largeIslandOrContinent = true;
             } else {
                 // Continent
-                analysis.continent = true;
+                analysis.largeIslandOrContinent = true;
             }
 
             return analysis;
@@ -185,25 +217,122 @@ package generation {
             regionsArray.sort(Sort.sortBySettlementCellIndex);
 
             for each (region in regionsArray) {
-                region.analysis = analyzeArea(region.cells);
-                region.name = generatePlaceName(region.analysis, rand, regionDictionary).name;
+                region.analysis = analyzeRegion(region.cells);
+                region.name = generateRegionName(region.analysis, new Rand(int(rand.next() * 9999))).name;
             }
+        }
+
+        public function generateRegionName(analysis:Object, rand:Rand):Object {
+            var prefix:String;
+            var suffix:String;
+
+            // Analysis keys
+            var analysisKeys:Array = [];
+            for (var key:String in analysis)
+                analysisKeys.push(key);
+
+            // Prefix keys
+            var prefixKeys:Array = [];
+            for (key in prefixesByContext)
+                prefixKeys.push(key);
+
+            // Suffix keys
+            var suffixKeys:Array = [];
+            for (key in suffixesByContext)
+                suffixKeys.push(key);
+
+            // Possible keys
+            var possiblePrefixKeys:Array = Util.sharedPropertiesBetweenArrays(analysisKeys, prefixKeys);
+            var possibleSuffixKeys:Array = Util.sharedPropertiesBetweenArrays(analysisKeys, suffixKeys);
+
+            // Possible prefixes
+            var possiblePrefixes:Array = [];
+            for each (var possiblePrefixKey:String in possiblePrefixKeys) {
+                if (prefixesByContext[possiblePrefixKey] && prefixesByContext[possiblePrefixKey].length > 0) {
+                    var possiblePrefixVariations:Array = prefixesByContext[possiblePrefixKey];
+                    for each (var possiblePrefix:Object in possiblePrefixVariations) {
+                        possiblePrefixes.push(possiblePrefix);
+                        possiblePrefix.context = possiblePrefixKey;
+                    }
+                }
+            }
+
+            // Possible suffixes
+            var possibleSuffixes:Array = [];
+            for each (var possibleSuffixKey:String in possibleSuffixKeys)
+                possibleSuffixes = possibleSuffixes.concat(suffixesByContext[possibleSuffixKey]);
+
+            // Possible combinations
+            var possibleCombinations:Array = [];
+            for each (possiblePrefix in possiblePrefixes) {
+                for each (var namingGroupIndex:int in possiblePrefix.suffixNamingGroups) {
+                    var possibleSuffixesForPrefix:Array = Util.sharedPropertiesBetweenArrays(possibleSuffixes, suffixesByNamingGroup[namingGroupIndex]);
+                    if (possibleSuffixesForPrefix.length > 0) {
+                        var vettedSuffixesForPrefix:Array = [];
+
+                        for each (var unvettedSuffix:String in possibleSuffixesForPrefix) {
+                            if (isValidPlaceName(possiblePrefix.name, unvettedSuffix)) {
+                                vettedSuffixesForPrefix.push(unvettedSuffix);
+                            }
+                        }
+
+                        for each (var vettedSuffix:String in vettedSuffixesForPrefix) {
+                            possibleCombinations.push({prefix: possiblePrefix.name, suffix: vettedSuffix});
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Choose from possible combinations
+            possibleCombinations = Util.removeDuplicatesFromArray(possibleCombinations);
+            var choice:Object = Util.randomElementFromArray(possibleCombinations, rand);
+            prefix = choice ? choice.prefix : "...";
+            suffix = choice ? choice.suffix : "...";
+            return {prefix: prefix, suffix: suffix, name: prefix + suffix};
         }
 
         public function nameLands(lands:Object):void {
             var rand:Rand = new Rand(1);
             for each (var land:Object in lands) {
-                land.analysis = analyzeArea(land.cells);
+                land.analysis = analyzeLand(land.cells);
                 // Name land
-                land.name = land.analysis["tinyIsland"] || land.analysis["smallIsland"] ? "Island" : "Land";
+                if (land.analysis["tinyIsland"])
+                    land.name = "Tiny Island";
+                if (land.analysis["smallIsland"])
+                    land.name = "Small Island";
+                if (land.analysis["largeIsland"])
+                    land.name = "Large Island";
+                if (land.analysis["continent"])
+                    land.name = "Continent";
             }
         }
 
-        public function generatePlaceName(analysis:Object, rand:Rand, dictionary:Object):Object {
-            var prefix:String;
-            var suffix:String;
+        private function isValidPlaceName(prefix:String,
+                                          suffix:String):Boolean {
+            var vowels:String = "aeiouyw";
+            if ((isVowel(prefix.charAt(prefix.length - 1)) && isVowel(suffix.charAt(0)))) {
+                return false;
+            }
 
-            return {prefix: prefix, suffix: suffix, name: prefix + suffix}
+            if (hasThreeConsecutiveCharacters(prefix + suffix)) {
+                return false;
+            }
+
+            if (prefix.charAt(prefix.length - 1) == "t" && suffix.charAt(0) == "h") {
+                return false;
+            }
+
+            return true;
+
+            function hasThreeConsecutiveCharacters(s:String):Boolean {
+                return s.match(/([a-z])\1\1+/g).length > 0;
+            }
+
+
+            function isVowel(c:String):Boolean {
+                return vowels.indexOf(c) >= 0;
+            }
         }
     }
 }

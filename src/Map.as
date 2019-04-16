@@ -723,6 +723,9 @@ package {
                 }
 
                 region.centroid = new Point(avgX /= region.cells.length, avgY /= region.cells.length);
+
+                // Lands contain a list of their contained regions
+                region.land.regions.push(region);
             }
         }
 
@@ -904,6 +907,8 @@ package {
                     avgX += cell.point.x;
                     avgY += cell.point.y;
                 }
+
+                land.regions = [];
 
                 land.centroid = new Point(avgX /= land.cells.length, avgY /= land.cells.length);
             }

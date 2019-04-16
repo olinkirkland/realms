@@ -1,0 +1,58 @@
+{
+  "lowElevation": [
+    "don",
+    "den"
+  ],
+  "highElevation": [],
+  "lowTemperature": [],
+  "highTemperature": [],
+  "highRiverRating": [
+    "vale",
+    "dale",
+    "more",
+    "mory",
+    "combe",
+    "den",
+    "don",
+    "glen"
+  ],
+  "highLakeRating": [
+    "moss",
+    "mere",
+    "water",
+    "lake"
+  ],
+  "tundra": [],
+  "borealForest": [],
+  "grassland": [
+    "field",
+    "feld"
+  ],
+  "temperateForest": [
+    "shaw",
+    "wood",
+    "forest"
+  ],
+  "savanna": [],
+  "rainForest": [],
+  "desert": [],
+  "tinyIslandOrSmallIsland": [
+    "holme",
+    "ey",
+    "ea",
+    "isle",
+    "eg"
+  ],
+  "largeIslandOrContinent": [
+    "set",
+    "sey",
+    "land",
+    "lands",
+    "ton",
+    "ing"
+  ],
+  "highCoastalRating": [
+    "sea",
+    "ai"
+  ]
+}

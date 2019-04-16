@@ -19,215 +19,215 @@
 
 
         private function onInitialize(event:FlexEvent):void {
-            map.addEventListener(Map.MAP_PROGRESS, onMapProgress);
+        map.addEventListener(Map.MAP_PROGRESS, onMapProgress);
         }
 
         private function onCreationComplete(event:FlexEvent):void {
-            systemManager.stage.addEventListener(Event.ENTER_FRAME, onFrame);
-            systemManager.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-            systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-            systemManager.stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
-            systemManager.stage.addEventListener(Event.RESIZE, onResize);
-            systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+        systemManager.stage.addEventListener(Event.ENTER_FRAME, onFrame);
+        systemManager.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+        systemManager.stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
+        systemManager.stage.addEventListener(Event.RESIZE, onResize);
+        systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 
-            buttonGenerate.addEventListener(MouseEvent.CLICK, onButtonGenerateClick);
+        buttonGenerate.addEventListener(MouseEvent.CLICK, onButtonGenerateClick);
         }
 
         private function onMouseWheel(event:MouseEvent):void {
-            var scale:Number;
-            if (event.delta > 0) {
-                // Zooming in
-                scale = MAX_ZOOM;
-            } else {
-                // Zooming out
-                scale = 1;
-            }
+        var scale:Number;
+        if (event.delta > 0) {
+        // Zooming in
+        scale = MAX_ZOOM;
+        } else {
+        // Zooming out
+        scale = 1;
+        }
 
-            // Get center
-            var p:Point = map.globalToLocal(new Point(stage.stageWidth / 2, stage.stageHeight / 2));
-            if (zoomToCursor)
-                p = map.globalToLocal(new Point(stage.mouseX, stage.mouseY));
+        // Get center
+        var p:Point = map.globalToLocal(new Point(stage.stageWidth / 2, stage.stageHeight / 2));
+        if (zoomToCursor)
+        p = map.globalToLocal(new Point(stage.mouseX, stage.mouseY));
 
-            var m:Matrix = new Matrix();
-            m.translate(-p.x,
-                    -p.y);
-            m.scale(scale,
-                    scale);
-            p = map.localToGlobal(p);
-            m.translate(p.x,
-                    p.y);
-            p = m.transformPoint(new Point());
+        var m:Matrix = new Matrix();
+        m.translate(-p.x,
+        -p.y);
+        m.scale(scale,
+        scale);
+        p = map.localToGlobal(p);
+        m.translate(p.x,
+        p.y);
+        p = m.transformPoint(new Point());
 
-            map.staticModeOn();
-            TweenMax.killTweensOf(map);
-            TweenMax.to(map,
-                    ZOOM_SPEED,
-                    {
-                        x: p.x,
-                        y: p.y,
-                        scaleX: scale,
-                        scaleY: scale,
-                        onUpdate: updateZoom,
-                        onComplete: endZoom
-                    });
+        map.staticModeOn();
+        TweenMax.killTweensOf(map);
+        TweenMax.to(map,
+        ZOOM_SPEED,
+        {
+        x: p.x,
+        y: p.y,
+        scaleX: scale,
+        scaleY: scale,
+        onUpdate: updateZoom,
+        onComplete: endZoom
+        });
 
-            overlay.visible = false;
+        overlay.visible = false;
 
-            function updateZoom():void {
-                constrain();
-            }
+        function updateZoom():void {
+        constrain();
+        }
 
-            function endZoom():void {
-                map.staticModeOff();
-                overlay.positionLabels(map.scaleX);
-                overlay.visible = true;
-            }
+        function endZoom():void {
+        map.staticModeOff();
+        overlay.positionLabels(map.scaleX);
+        overlay.visible = true;
+        }
         }
 
         private function onButtonGenerateClick(event:MouseEvent):void {
-            start();
+        start();
         }
 
         private function start():void {
-            var r:int = int(Math.random() * 9999);
-            if (inputSeed.text.length > 0)
-                r = int(inputSeed.text);
+        var r:int = int(Math.random() * 9999);
+        if (inputSeed.text.length > 0)
+        r = int(inputSeed.text);
 
-            map.start(r);
+        map.start(r);
         }
 
         private function onMapProgress(event:PayloadEvent):void {
-            var percent:Number = event.payload.percent;
-            var message:String = event.payload.message;
+        var percent:Number = event.payload.percent;
+        var message:String = event.payload.message;
 
-            progress.visible = percent != 1;
-            hint.visible = !progress.visible;
+        progress.visible = percent != 1;
+        hint.visible = !progress.visible;
 
-            if (hint.visible) {
-                overlay.drawLabels();
-                overlay.visible = true;
-            }
+        if (hint.visible) {
+        overlay.drawLabels();
+        overlay.visible = true;
+        }
 
-            progressMessage.text = message + " (" + int(percent * 100) + "%)";
+        progressMessage.text = message + " (" + int(percent * 100) + "%)";
 
-            labelSeed.text = "Seed: " + map.masterSeed;
+        labelSeed.text = "Seed: " + map.masterSeed;
         }
 
         public function onKeyUp(event:KeyboardEvent):void {
-            switch (event.keyCode) {
-                case Keyboard.PERIOD:
-                    // Zoom to cursor
-                    zoomToCursor = !zoomToCursor;
-                    trace("zoomToCursor", zoomToCursor);
-                    break;
-                case Keyboard.Q:
-                    map.drawOcean = !map.drawOcean;
-                    map.show();
-                    break;
-                case Keyboard.W:
-                    map.drawTerrain = !map.drawTerrain;
-                    map.show();
-                    break;
-                case Keyboard.E:
-                    map.drawCoastlines = !map.drawCoastlines;
-                    map.show();
-                    break;
-                case Keyboard.R:
-                    map.drawRivers = !map.drawRivers;
-                    map.show();
-                    break;
-                case Keyboard.A:
-                    map.drawForests = !map.drawForests;
-                    map.show();
-                    break;
-                case Keyboard.S:
-                    map.drawMountains = !map.drawMountains;
-                    map.show();
-                    break;
-                case Keyboard.D:
-                    map.drawSettlements = !map.drawSettlements;
-                    map.show();
-                    break;
-                case Keyboard.F:
-                    map.drawRegions = !map.drawRegions;
-                    map.show();
-                    break;
-                case Keyboard.Z:
-                    map.drawElevation = !map.drawElevation;
-                    map.show();
-                    break;
-                case Keyboard.X:
-                    map.drawTemperature = !map.drawTemperature;
-                    map.show();
-                    break;
-                case Keyboard.C:
-                    map.drawDesirability = !map.drawDesirability;
-                    map.show();
-                    break;
-                case Keyboard.V:
-                    map.drawOutlines = !map.drawOutlines;
-                    map.show();
-                    break;
-                default:
-                    break;
-            }
+        switch (event.keyCode) {
+        case Keyboard.PERIOD:
+        // Zoom to cursor
+        zoomToCursor = !zoomToCursor;
+        trace("zoomToCursor", zoomToCursor);
+        break;
+        case Keyboard.Q:
+        map.drawOcean = !map.drawOcean;
+        map.show();
+        break;
+        case Keyboard.W:
+        map.drawTerrain = !map.drawTerrain;
+        map.show();
+        break;
+        case Keyboard.E:
+        map.drawCoastlines = !map.drawCoastlines;
+        map.show();
+        break;
+        case Keyboard.R:
+        map.drawRivers = !map.drawRivers;
+        map.show();
+        break;
+        case Keyboard.A:
+        map.drawForests = !map.drawForests;
+        map.show();
+        break;
+        case Keyboard.S:
+        map.drawMountains = !map.drawMountains;
+        map.show();
+        break;
+        case Keyboard.D:
+        map.drawSettlements = !map.drawSettlements;
+        map.show();
+        break;
+        case Keyboard.F:
+        map.drawRegions = !map.drawRegions;
+        map.show();
+        break;
+        case Keyboard.Z:
+        map.drawElevation = !map.drawElevation;
+        map.show();
+        break;
+        case Keyboard.X:
+        map.drawTemperature = !map.drawTemperature;
+        map.show();
+        break;
+        case Keyboard.C:
+        map.drawDesirability = !map.drawDesirability;
+        map.show();
+        break;
+        case Keyboard.V:
+        map.drawOutlines = !map.drawOutlines;
+        map.show();
+        break;
+        default:
+        break;
+        }
 
-            trace("========================" +
-                    "\n[Q] oceanLayer: " + map.drawOcean +
-                    "\n[W] terrainLayer: " + map.drawTerrain +
-                    "\n[E] coastlinesLayer: " + map.drawCoastlines +
-                    "\n[R] riversLayer: " + map.drawRivers +
-                    "\n[A] forestsLayer: " + map.drawForests +
-                    "\n[S] mountainsLayer: " + map.drawMountains +
-                    "\n[D] settlementsLayer: " + map.drawSettlements +
-                    "\n[F] regionsLayer: " + map.drawRegions +
-                    "\n[Z] elevationLayer: " + map.drawElevation +
-                    "\n[X] temperatureLayer: " + map.drawTemperature +
-                    "\n[C] desirabilityLayer: " + map.drawDesirability +
-                    "\n[V] outlinesLayer: " + map.drawOutlines)
+        trace("========================" +
+        "\n[Q] oceanLayer: " + map.drawOcean +
+        "\n[W] terrainLayer: " + map.drawTerrain +
+        "\n[E] coastlinesLayer: " + map.drawCoastlines +
+        "\n[R] riversLayer: " + map.drawRivers +
+        "\n[A] forestsLayer: " + map.drawForests +
+        "\n[S] mountainsLayer: " + map.drawMountains +
+        "\n[D] settlementsLayer: " + map.drawSettlements +
+        "\n[F] regionsLayer: " + map.drawRegions +
+        "\n[Z] elevationLayer: " + map.drawElevation +
+        "\n[X] temperatureLayer: " + map.drawTemperature +
+        "\n[C] desirabilityLayer: " + map.drawDesirability +
+        "\n[V] outlinesLayer: " + map.drawOutlines)
         }
 
         private function onResize(event:Event):void {
-            constrain();
+        constrain();
         }
 
         private function onFrame(event:Event):void {
-            if (drag) {
-                // Drag
-                var newX:Number = systemManager.stage.mouseX - drag.x;
-                var newY:Number = systemManager.stage.mouseY - drag.y;
-                map.x += (newX - map.x) / 5;
-                map.y += (newY - map.y) / 5;
-                constrain();
-            }
+        if (drag) {
+        // Drag
+        var newX:Number = systemManager.stage.mouseX - drag.x;
+        var newY:Number = systemManager.stage.mouseY - drag.y;
+        map.x += (newX - map.x) / 5;
+        map.y += (newY - map.y) / 5;
+        constrain();
+        }
         }
 
         private function constrain():void {
-            // Constrain
-            if (map.x > 0)
-                map.x = 0;
-            if (map.y > 0)
-                map.y = 0;
-            if (width - map.width * map.scaleX > map.x)
-                map.x = width - map.width * map.scaleX;
-            if (height - map.height * map.scaleY > map.y)
-                map.y = height - map.height * map.scaleY;
+        // Constrain
+        if (map.x > 0)
+        map.x = 0;
+        if (map.y > 0)
+        map.y = 0;
+        if (width - map.width * map.scaleX > map.x)
+        map.x = width - map.width * map.scaleX;
+        if (height - map.height * map.scaleY > map.y)
+        map.y = height - map.height * map.scaleY;
 
-            overlay.validate();
+        overlay.validate();
         }
 
         private function onMouseDown(event:MouseEvent):void {
-            drag = new Point(systemManager.stage.mouseX - map.x, systemManager.stage.mouseY - map.y);
+        drag = new Point(systemManager.stage.mouseX - map.x, systemManager.stage.mouseY - map.y);
         }
 
         private function onMouseUp(event:MouseEvent):void {
-            drag = null;
+        drag = null;
         }
     </fx:Script>
 
     <local:Map id="map" cacheAsBitmap="true"
                width="{2272}" height="{1280}" includeInLayout="false"/>
-    <local:Overlay id="overlay" cacheAsBitmap="true" width="100%" height="100%" map="{map}"/>
+    <local:Overlay id="overlay" cacheAsBitmap="true" width="100%" height="100%" map="{map}" mouseEnabled="false"/>
     <s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
         <s:Group id="progress" width="100%" height="100%">
             <s:Rect width="100%" height="100%">
