@@ -16,7 +16,7 @@ Requires (Included)
 - Flash.swc
 
 Coastlines w/ voronoi cells
-![](https://i.imgur.com/jPxSztJ.jpg)
+[![](https://i.imgur.com/jPxSztJ.jpg)](https://i.imgur.com/jPxSztJ.jpg)
 
 Height Map
 ![](https://i.imgur.com/PefyZbt.png)
