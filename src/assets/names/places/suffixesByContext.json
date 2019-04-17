@@ -12,21 +12,22 @@
     "more",
     "mory",
     "combe",
-    "den",
     "don",
+    "den",
     "glen"
   ],
   "highLakeRating": [
     "moss",
     "mere",
-    "water",
-    "lake"
+    "pool"
   ],
   "tundra": [],
   "borealForest": [],
   "grassland": [
     "field",
-    "feld"
+    "feld",
+    "moor",
+    "briar"
   ],
   "temperateForest": [
     "shaw",
@@ -39,15 +40,15 @@
   "tinyIslandOrSmallIsland": [
     "holme",
     "ey",
+    "sey",
     "ea",
-    "isle",
-    "eg"
+    "sea"
   ],
   "largeIslandOrContinent": [
     "set",
     "sey",
-    "land",
     "lands",
+    "ia",
     "ton",
     "ing"
   ],

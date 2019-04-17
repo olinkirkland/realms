@@ -44,7 +44,7 @@ package {
                 overlay.removeChildAt(0);
 
             // Draw new labels
-            labelLands();
+            //labelLands();
             labelRegions();
 
             // Position labels
@@ -106,9 +106,23 @@ package {
         }
 
         private function labelRegions():void {
+            var regionLabels:Array = [];
             for each (var region:Object in civ.regions) {
                 var label:RegionLabel = new RegionLabel(region);
                 label.point = new Point(region.centroid.x, region.centroid.y);
+                regionLabels.push(label);
+            }
+
+            regionLabels.sort(function (n1:Object, n2:Object):Number {
+                if (n1.point.x > n2.point.x)
+                    return 1;
+                else if (n1.point.x < n2.point.x)
+                    return -1;
+                else
+                    return 0;
+            });
+
+            for each (var label:RegionLabel in regionLabels) {
                 overlay.addChild(label);
             }
         }

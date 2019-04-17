@@ -730,6 +730,7 @@ package {
         }
 
         private function determineNames():void {
+            names.reset();
             names.nameLands(geo.getFeaturesByType(Geography.LAND));
             names.nameRegions(civ.regions);
         }

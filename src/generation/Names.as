@@ -67,6 +67,8 @@ package generation {
         public var suffixesByContext:Object;
         public var suffixesByNamingGroup:Object;
 
+        private var existingNames:Array = [];
+
         public static function getInstance():Names {
             if (!_instance)
                 new Names();
@@ -140,7 +142,7 @@ package generation {
                 }
             }
             regionalBiomes.sortOn("count");
-            if (regionalBiomes[0].percent > .6)
+            if (regionalBiomes[0].percent > .4)
                 analysis[regionalBiomes[0].type] = true;
 
             // Percent of river cells
@@ -166,13 +168,13 @@ package generation {
                 averageTemperature += cell.temperature;
             }
 
-            if (riverCount > 4)
+            if (riverCount > 2)
                 analysis.highRiverRating = true;
 
-            if (lakeCount > 4)
+            if (lakeCount > 2)
                 analysis.highLakeRating = true;
 
-            if (coastalCount / cells.length > .2)
+            if (coastalCount / cells.length > .4)
                 analysis.highCoastalRating = true;
 
             averageElevation = averageElevation / cells.length;
@@ -183,12 +185,12 @@ package generation {
             else if (averageElevation > .6)
                 analysis.highElevation = true;
 
-            if (averageTemperature < .2)
+            if (averageTemperature < .3)
                 analysis.lowTemperature = true;
-            else if (averageTemperature > .6)
+            else if (averageTemperature > .5)
                 analysis.highTemperature = true;
 
-            // Analyze land (regions cannot span more than one land so don't worr y about it)
+            // Analyze land (regions cannot span more than one land so don't worry about it)
             var lands:Object = cells[0].getFeaturesByType(Geography.LAND);
             for each (var land:Object in lands)
                 break;
@@ -214,12 +216,14 @@ package generation {
             var regionsArray:Array = [];
             for each (var region:Object in regions)
                 regionsArray.push(region);
-            regionsArray.sort(Sort.sortBySettlementCellIndex);
+            regionsArray.sort(Sort.sortByCellCountAndSettlementCellIndex);
 
-            for each (region in regionsArray) {
+            for each (region in regionsArray)
                 region.analysis = analyzeRegion(region.cells);
+            for each (region in regionsArray)
                 region.name = generateRegionName(region.analysis, new Rand(int(rand.next() * 9999))).name;
-            }
+
+            trace(JSON.stringify(existingNames));
         }
 
         public function generateRegionName(analysis:Object, rand:Rand):Object {
@@ -286,10 +290,27 @@ package generation {
 
             // Choose from possible combinations
             possibleCombinations = Util.removeDuplicatesFromArray(possibleCombinations);
-            var choice:Object = Util.randomElementFromArray(possibleCombinations, rand);
+            possibleCombinations.sort(shuffleSort);
+            var choice:Object;
+            do {
+                if (possibleCombinations.length > 0)
+                    choice = possibleCombinations.shift();
+                else
+                    break;
+            } while (choice && existingNames.indexOf(choice.prefix + choice.suffix) > -1);
+            trace("choice: " + choice.prefix + choice.suffix);
+
             prefix = choice ? choice.prefix : "...";
             suffix = choice ? choice.suffix : "...";
+
+            if (choice)
+                existingNames.push(choice.prefix + choice.suffix);
+
             return {prefix: prefix, suffix: suffix, name: prefix + suffix};
+
+            function shuffleSort(n1:*, n2:*):int {
+                return (rand.next() > .5) ? 1 : -1;
+            }
         }
 
         public function nameLands(lands:Object):void {
@@ -333,6 +354,10 @@ package generation {
             function isVowel(c:String):Boolean {
                 return vowels.indexOf(c) >= 0;
             }
+        }
+
+        public function reset():void {
+            existingNames = [];
         }
     }
 }
