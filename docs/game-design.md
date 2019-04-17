@@ -2,7 +2,7 @@
 
 Realms is a single and multi-player turn-based grand-strategy game taking place in a procedurally generated world with player or AI controlled factions.
 
-The game generates a map with continents and islands to explore, numerous procedurally generated nations, and hundreds of regions containing cities and towns. Owned regions can be improved and customized with buildings and decrees to guide them towards economic, cultural, or military specializations.
+The game generates a map with continents and islands to explore, numerous procedurally generated nations, and hundreds of regions containing cities and towns. Controlled regions can be improved and customized with buildings and decrees to guide them towards economic, cultural, or military specializations.
 
 ### World Generation Scope
 
