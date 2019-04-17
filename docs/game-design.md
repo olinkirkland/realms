@@ -2,21 +2,23 @@
 
 Realms is a single and multi-player turn-based grand-strategy game taking place in a procedurally generated world with player or AI controlled factions.
 
-The game generates a map with several continents to explore, numerous factions to encounter, and hundreds of cities and emergent towns. Owned cities can be built up and customized with buildings and decrees to guide them towards economy, culture, or military.
+The game generates a map with continents and islands to explore, numerous procedurally generated nations, and hundreds of regions containing cities and towns. Owned regions can be improved and customized with buildings and decrees to guide them towards economic, cultural, or military specializations.
 
 ### World Generation Scope
 
-Initially, development is limited to a map mimicing 0° to 90° real-world latitude and climate. Temperate forests, grasslands, boreal forests, and tundras are the most common biomes. Factions are designated a "culture" that defines different faction traits including language, which is used to determine settlement toponyms. Starting languages include German, French, and Gaelic. By default, languages are assigned to cultures by biome with minor variation.
+Initially, the game is limited to a map mimicing 0° to 90° real-world latitude and climate reflecting Western Europe. Temperate forests, grasslands, boreal forests, and tundras dominate, but to the south large tracks of savannas and some spots of desert can be found. Factions are designated a culture that defines different faction traits including diplomatic attitude, industrial productivity, and language (which is used to determine initial settlement toponyms).
+
+New adjoining maps are planned to add landmasses west and south of the starting map, but this is a stretch goal.
 
 ### Economy
 
-Income sources are comprised of Taxes, Trade, Tribute, and Warfare. Players spend this income on developing their empire, recruiting new armies and fleets, military upkeep, and controlling the population.
+Income sources are comprised of taxes, trade, tribute, and warfare. Players spend this income on developing their empire, recruiting new armies and fleets, military upkeep, and controlling the population.
 
 ### Regions
 
-The world of Realms is broken into individual regions comprised of cities and towns. Each region has a city and whatever nation controls the city controls the entire region and its income.
+The world of Realms is broken into individual regions comprised of cities and towns. Each region has a city and whatever nation controls that city controls the entire region and its income.
 
-Outside the city, there are towns, farms, mines, plantations, ports, and road infrastructure. Each of these structures contributes money to the region's wealth.
+Outside the city, there are towns, farms, mines, ports, and road infrastructure. Each of these structures contributes money to the region's wealth.
 
 ### Taxation
 
@@ -33,7 +35,7 @@ Each region has a city, and every city has a government building. Government bui
 Tax income is proportional to a region's population, but wealth is the value of a region separate from the region's population. A region's wealth is generated or lost each turn depending on several factors:
 
 1. Industry
-2. Commercial Ports
+2. Ports
 3. Roads
 
 Wealth losses result from a nation's taxation policy; the higher the taxes are, the higher the negative modifier for wealth growth in a region. Each level of taxation will return a different modifier that depends on the current wealth rate of change.
@@ -42,7 +44,7 @@ Going Bankrupt will decrease the wealth generation by incurring a penalty for se
 
 ### Other Income
 
-The most common source is Protectorate Tribute. Every protectorate a nation has will return a percentage of its total income every turn. So the richer the protectorates, the higher this value will be.
+The most common source of other income is Protectorate Tribute. Every protectorate a nation has will return a percentage of its total income every turn. So the richer the protectorates, the higher this value will be.
 
 In diplomacy, nations have the option of demanding a payment for several turns as part of a treaty. As long as the treaty is valid, the money a nation has demanded will be added to their income.
 
@@ -50,11 +52,11 @@ In diplomacy, nations have the option of demanding a payment for several turns a
 
 Raiding a trade route by parking a raiding army or fleet on it returns 50% of the value of the trade route to the raider, modified by the army/fleet size, and decreases the value of the trade route.
 
-Sacking or razing a city or town returns a high percentage of its value.
+Sacking a city or town returns a high percentage of its value (40%) while razing it returns a low percentage of its value (5%).
 
 ### Trade, Trade Partners, and Trade Routes
 
-A nation can trade with any nation with a shared border. If a nation has a commercial port, they can also trade with any nation that has commercial ports even if they are on the other side of the world.
+A nation can trade with any nation with a shared border. If a nation has a port, they can also trade with any nation that has ports even if they are on the other side of the world.
 
 When a nation forms a trade agreement with another nation, a trade route will link the two nations capitals together. If there is a direct land route from one nation's capital to its trade partner's capital and all the regions in between are controlled by either nation, then trade will be conducted by land.
 
@@ -62,34 +64,30 @@ The longer two nations have a trade agreement, the more money they will earn fro
 
 ### Securing Trade
 
-Any hostile navy can blockade a port, which results in a total loss of transport of goods that might have been coming in or out of that port.
+Any hostile navy can blockade a port, which results in a total loss of trade that might have been coming in or out of that port.
 
-Raiding is performed on trade routes on either land trade routes or naval trade routes.
+Raiding is performed on trade routes on either land trade routes or naval trade routes and takes some percentage of the value of the trade route.
 
-### Trade Resources, Plantations and Trade Nodes
+### Trade Resources and Trade Nodes
 
-There are eight types of commodities: Fur, Ivory, Spices, Cotton, Sugar, Tea, Coffee and Tobacco. All of these can be acquired by either controlling regions that produce them or by having trade fleets occupy trade nodes that generate them for you.
+There are several types of resources. All of these can be acquired by either controlling regions that produce them.
+Some building and unit types will require a specific resource.
 
-The price of these commodities is not constant. It depends on the supply and demand paradigm in the game. The scarcer a resource is, the higher its price.
+Most resource plots will allow one of two resource-harvesting towns to be built.
 
-Plantations can be built on resource plots. Most resource plots will allow one of two resource-harvesting plantations to be built.
+Mineral resources are scattered throughout the map, and can be extracted through mines. These mines will increase the taxable income generated by a region, and they can be upgraded to return more income. However, upgrading mines will lower happiness. Wood Camps are similar to mines and can also be constructed in limited areas around the map.
 
 ### Town and Port Growth
 
-Industrial structures, schools, cultural buildings and ports are all constructed in towns. Most regions have underdeveloped villages that grow according to global food and technologies implemented. Taxation Policy affects population and town growth negatively.
+Industrial structures, schools, cultural buildings, and ports are all constructed in towns. Regions contain underdeveloped villages that grow according to global food. When a village becomes an underdeveloped village becomes a town, it can be upgraded. Taxation Policy affects population and town growth negatively.
 
 ### Town and Port Wealth
 
-Town wealth rate of change depends on starting wealth of the town, the type of structure built, and the technologies have been researched as some of them affect town wealth directly.
+Town wealth rate of change depends on starting wealth of the town, the type of structure built, and the technologies that have been researched (some of them affect town wealth directly).
 
 ### Industrialization
 
-Industry takes an important role in increasing a regions' income. There are three types of industrial buildings: Metal Works, Weavers, and Pottery.
-Industrial buildings will add a constant income that contributes to a region's taxable income. This income depends on the type of industrial building. Happiness is negatively affected by industrial buildings.
-
-### Mines and Wood Camps
-
-Mineral resources are scattered throughout the map, and can be extracted through mines. These resources are Iron, Silver, Gold and Gems. These mines will increase the taxable income generated by a region, and they can be upgraded to return more income. However, upgrading mines will lower happiness. Wood Camps are similar to mines, and can also be constructed in limited areas around the map. All of those resources don't enter global trade and affect only your taxes.
+Industry takes an important role in increasing a regions' income. There are three types of industrial buildings: Metal Works, Weavers, and Pottery. Industrial buildings will add a constant income that contributes to a region's taxable income. This income depends on the type of industrial building. Happiness is negatively affected by industrial buildings.
 
 ### Farming
 
