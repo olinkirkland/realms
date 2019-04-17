@@ -122,9 +122,8 @@ package {
                     return 0;
             });
 
-            for each (var label:RegionLabel in regionLabels) {
+            for each (label in regionLabels)
                 overlay.addChild(label);
-            }
         }
     }
 }

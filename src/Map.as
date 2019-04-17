@@ -1512,8 +1512,6 @@ package {
                 }
             }
 
-            if (cell.region)
-                str += "\n" + JSON.stringify(civ.regions[cell.region].analysis, null, " ");
             return str;
         }
 

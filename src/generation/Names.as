@@ -1,9 +1,10 @@
 package generation {
-    import graph.Cell;
+    import graph.*;
 
     public class Names {
         private static var _instance:Names;
-        private var featureManager:Geography;
+        private var geo:Geography;
+        private var civ:Civilization;
 
         /**
          * Biomes
@@ -80,7 +81,8 @@ package generation {
                 throw new Error("Singleton; Use getInstance() instead");
             _instance = this;
 
-            featureManager = Geography.getInstance();
+            geo = Geography.getInstance();
+            civ = Civilization.getInstance();
 
             // Biomes
             tundra = JSON.parse(new tundra_json());
@@ -123,7 +125,7 @@ package generation {
             return analysis;
         }
 
-        public function analyzeRegion(cells:Vector.<Cell>):Object {
+        public function analyzeRegionProperties(cells:Vector.<Cell>):Object {
             var analysis:Object = {};
 
             // Array of biomes and their percent of cells
@@ -211,6 +213,65 @@ package generation {
             return analysis;
         }
 
+        private function analyzeRegionContext(region:Object):Object {
+            var analysis:Object = region.analysis;
+
+            // Get references to neighboring regions
+            var neighborRegions:Object = {};
+            for each (var cell:Cell in region.cells) {
+                for each(var neighbor:Cell in cell.neighbors) {
+                    if (neighbor.region != cell.region) {
+                        // Cell is a border cell
+                        // Only add neighbor's region if it's not null (ocean)
+                        if (neighbor.region)
+                            neighborRegions[neighbor.region] = {region: civ.regions[neighbor.region]};
+                    }
+                }
+            }
+
+            var keys:Array = [];
+            for (var key:String in analysis)
+                keys.push(key);
+
+            for each (var neighborRegion:Object in neighborRegions) {
+                var neighborKeys:Array = [];
+                for (key in neighborRegion.region.analysis)
+                    neighborKeys.push(key);
+                // Compare the two key sets
+                var shared:Array = Util.sharedPropertiesBetweenArrays(keys, neighborKeys);
+                neighborRegion.compare = shared.length / keys.length;
+
+                // Add the degrees between the two regions
+                neighborRegion.degrees = Util.getAngleBetweenTwoPoints(region.centroid, neighborRegion.region.centroid);
+
+                // Compass direction from angle
+                neighborRegion.compassDirection = Util.getCompassDirectionFromDegrees(neighborRegion.degrees);
+            }
+
+            var neighborRegionsArray:Array = [];
+            for each (neighborRegion in neighborRegions)
+                neighborRegionsArray.push(neighborRegion);
+            neighborRegionsArray.sort(Sort.sortByCompareValueAndSettlementCellIndex);
+
+            analysis.neighborRegions = neighborRegionsArray;
+
+            var rand:Rand = new Rand(1);
+            if (neighborRegions.length > 0) {
+                neighborRegion = neighborRegionsArray[0];
+                if (neighborRegionsArray[0].compare == 1 && !neighborRegionsArray[0].nameBinding) {
+                    if (rand.next() < .6) {
+                        // 60% chance to name-bind the regions
+                        region.nameBoundChild = neighborRegion.region;
+                        neighborRegion.region.nameBoundParent = region;
+                        region.nameBoundChildCompassDirection = Util.oppositeCompassDirection(neighborRegion.compassDirection);
+                        neighborRegion.region.nameBoundParentCompassDirection = neighborRegion.compassDirection;
+                    }
+                }
+            }
+
+            return analysis;
+        }
+
         public function nameRegions(regions:Object):void {
             var rand:Rand = new Rand(1);
             var regionsArray:Array = [];
@@ -219,11 +280,13 @@ package generation {
             regionsArray.sort(Sort.sortByCellCountAndSettlementCellIndex);
 
             for each (region in regionsArray)
-                region.analysis = analyzeRegion(region.cells);
+                region.analysis = analyzeRegionProperties(region.cells);
+
+            for each (region in regionsArray)
+                region.analysis = analyzeRegionContext(region);
+
             for each (region in regionsArray)
                 region.name = generateRegionName(region.analysis, new Rand(int(rand.next() * 9999))).name;
-
-            trace(JSON.stringify(existingNames));
         }
 
         public function generateRegionName(analysis:Object, rand:Rand):Object {

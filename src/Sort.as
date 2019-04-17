@@ -69,5 +69,14 @@ package {
             else
                 return sortBySettlementCellIndex(n1, n2);
         }
+
+        public static function sortByCompareValueAndSettlementCellIndex(n1:Object, n2:Object):int {
+            if (n1.compare < n2.compare)
+                return 1;
+            else if (n1.compare > n2.compare)
+                return -1;
+            else
+                return sortBySettlementCellIndex(n1.region, n2.region);
+        }
     }
 }

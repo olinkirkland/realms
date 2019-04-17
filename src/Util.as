@@ -122,5 +122,33 @@ package {
                     shared.push(element);
             return shared;
         }
+
+        public static function getAngleBetweenTwoPoints(point1:Point, point2:Point):Number {
+            var perpendicular:Number = (point1.y - point2.y);
+            var base:Number = (point1.x - point2.x);
+            return radiansToDegrees(Math.atan2(perpendicular, base));
+        }
+
+        public static function getCompassDirectionFromDegrees(degrees:Number):String {
+            if (degrees > 315 || degrees < 45)
+                return "north";
+            if (degrees < 135)
+                return "east"
+            if (degrees < 225)
+                return "south";
+            if (degrees < 315)
+                return "west"
+
+            // Unknown degrees
+            return "[" + degrees + "]";
+        }
+
+        public static function oppositeCompassDirection(compassDirection:String):String {
+            var directions:Array = [{north: "south"}, {east: "west"}, {south: "north"}, {west: "east"}];
+            if (directions.hasOwnProperty(compassDirection))
+                return directions[compassDirection];
+            else
+                return "[" + compassDirection + "]";
+        }
     }
 }
