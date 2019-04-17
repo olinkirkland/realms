@@ -210,6 +210,22 @@
         14,
         15
       ]
+    },
+    {
+      "name": "Cairn",
+      "suffixNamingGroups": [
+        0,
+        2,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        11,
+        12,
+        15
+      ]
     }
   ],
   "lowTemperature": [
@@ -248,6 +264,26 @@
         12,
         14
       ]
+    },
+    {
+      "name": "Bright",
+      "suffixNamingGroups": [
+        0,
+        3,
+        8,
+        10,
+        15
+      ]
+    },
+    {
+      "name": "Fair",
+      "suffixNamingGroups": [
+        7,
+        8,
+        10,
+        12,
+        15
+      ]
     }
   ],
   "highCoastalRating": [
@@ -267,6 +303,19 @@
       "suffixNamingGroups": [
         10,
         14
+      ]
+    },
+    {
+      "name": "Staff",
+      "suffixNamingGroups": [
+        0,
+        2,
+        5,
+        6,
+        8,
+        10,
+        11,
+        15
       ]
     }
   ],
@@ -339,6 +388,27 @@
         10,
         12,
         13,
+        14,
+        15
+      ]
+    },
+    {
+      "name": "Stream",
+      "suffixNamingGroups": [
+        8,
+        10,
+        11,
+        14
+      ]
+    },
+    {
+      "name": "River",
+      "suffixNamingGroups": [
+        0,
+        1,
+        7,
+        10,
+        12,
         14,
         15
       ]
@@ -507,18 +577,6 @@
       ]
     },
     {
-      "name": "Snow",
-      "suffixNamingGroups": [
-        0,
-        1,
-        2,
-        3,
-        11,
-        12,
-        14
-      ]
-    },
-    {
       "name": "Fin",
       "suffixNamingGroups": [
         0,
@@ -529,6 +587,14 @@
         10,
         12,
         13
+      ]
+    },
+    {
+      "name": "Deep",
+      "suffixNamingGroups": [
+        2,
+        4,
+        10
       ]
     }
   ],
@@ -586,6 +652,42 @@
         5,
         8,
         10
+      ]
+    }
+  ],
+  "desert": [
+    {
+      "name": "Dune",
+      "suffixNamingGroups": [
+        10,
+        13,
+        14
+      ]
+    },
+    {
+      "name": "Sand",
+      "suffixNamingGroups": [
+        0,
+        1,
+        2,
+        8,
+        10,
+        12,
+        14
+      ]
+    }
+  ],
+  "largeIslandOrContinent": [
+    {
+      "name": "Kings",
+      "suffixNamingGroups": [
+        1,
+        2,
+        7,
+        8,
+        10,
+        11,
+        15
       ]
     }
   ]
