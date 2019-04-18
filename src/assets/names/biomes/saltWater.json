@@ -13,12 +13,10 @@
     "salmon",
     "lamprey",
     "flounder",
-    "goby",
-    "boxfish",
-    "longfin",
-    "char"
+    "longfin"
   ],
   "bigAnimals": [
+    "stingray",
     "shark",
     "whale"
   ]

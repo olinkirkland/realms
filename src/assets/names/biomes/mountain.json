@@ -2,26 +2,21 @@
   "treeDiversity": 0,
   "plantDiversity": 3,
   "smallAnimalDiversity": 3,
-  "bigAnimalDiversity": 3,
+  "bigAnimalDiversity": 2,
   "trees": [],
   "plants": [
     "yarrow",
     "wolfsbane",
     "sticklewort",
-    "catsfoot",
     "bell flower",
     "star flower",
     "orchid",
-    "lily",
-    "butterwort",
-    "globe flower"
+    "lily"
   ],
   "smallAnimals": [
-    "hare",
     "grouse",
     "goat",
     "eagle",
-    "mouse",
     "salamander"
   ],
   "bigAnimals": [

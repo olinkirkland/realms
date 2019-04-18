@@ -1,8 +1,8 @@
 {
   "treeDiversity": 1,
   "plantDiversity": 3,
-  "smallAnimalDiversity": 6,
-  "bigAnimalDiversity": 3,
+  "smallAnimalDiversity": 4,
+  "bigAnimalDiversity": 2,
   "trees": [
     "oak",
     "willow"
@@ -12,25 +12,22 @@
     "foxtail",
     "aster",
     "brush",
-    "clover",
-    "wild oat"
+    "clover"
   ],
   "smallAnimals": [
     "mouse",
     "fox",
-    "skunk",
     "badger",
     "quail",
     "sparrow",
     "hawk",
-    "owl",
     "snake",
     "swan"
   ],
   "bigAnimals": [
     "deer",
     "wolf",
-    "wild horse",
+    "horse",
     "lynx"
   ]
 }

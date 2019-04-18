@@ -1,6 +1,6 @@
 {
   "treeDiversity": 1,
-  "plantDiversity": 2,
+  "plantDiversity": 1,
   "smallAnimalDiversity": 2,
   "bigAnimalDiversity": 1,
   "trees": [
@@ -8,33 +8,15 @@
     "olive"
   ],
   "plants": [
-    "gourd",
     "cactus"
   ],
   "smallAnimals": [
-    "ant",
     "scorpion",
     "viper",
-    "lizard",
-    "hare"
+    "lizard"
   ],
   "bigAnimals": [
-    "crocodile",
-    "gazelle",
     "camel",
     "vulture"
-  ],
-  "associatedAdjectives": [
-    "dry",
-    "hot",
-    "bone",
-    "white",
-    "sandy",
-    "dune"
-  ],
-  "associatedNouns": [
-    "desert",
-    "expanse",
-    "wastes"
   ]
 }

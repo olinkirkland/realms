@@ -299,22 +299,6 @@
       ]
     },
     {
-      "name": "Coast",
-      "suffixNamingGroups": [
-        10,
-        14
-      ]
-    },
-    {
-      "name": "Staff",
-      "suffixNamingGroups": [
-        0,
-        2,
-        8,
-        15
-      ]
-    },
-    {
       "name": "Stan",
       "suffixNamingGroups": [
         0,
@@ -492,6 +476,28 @@
   ],
   "tundra": [
     {
+      "name": "[plants]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
+    {
+      "name": "[smallAnimals]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
+    {
       "name": "Car",
       "suffixNamingGroups": [
         0,
@@ -520,6 +526,39 @@
     }
   ],
   "borealForest": [
+    {
+      "name": "[trees]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
+    {
+      "name": "[plants]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
+    {
+      "name": "[smallAnimals]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
     {
       "name": "Wood",
       "suffixNamingGroups": [
@@ -598,6 +637,39 @@
   ],
   "temperateForest": [
     {
+      "name": "[trees]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
+    {
+      "name": "[plants]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
+    {
+      "name": "[smallAnimals]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
+    {
       "name": "Wood",
       "suffixNamingGroups": [
         2,
@@ -611,10 +683,7 @@
     {
       "name": "Green",
       "suffixNamingGroups": [
-        1,
-        2,
         3,
-        4,
         8,
         9,
         14
@@ -631,6 +700,17 @@
     }
   ],
   "desert": [
+    {
+      "name": "[smallAnimals]",
+      "suffixNamingGroups": [
+        2,
+        5,
+        7,
+        8,
+        11,
+        14
+      ]
+    },
     {
       "name": "Dun",
       "suffixNamingGroups": [
@@ -674,11 +754,8 @@
       "suffixNamingGroups": [
         1,
         2,
-        7,
-        8,
         10,
-        11,
-        15
+        11
       ]
     },
     {
@@ -686,11 +763,7 @@
       "suffixNamingGroups": [
         1,
         2,
-        7,
-        8,
-        10,
-        11,
-        15
+        7
       ]
     }
   ]

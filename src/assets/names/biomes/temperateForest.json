@@ -25,7 +25,6 @@
     "bluebell",
     "death cap",
     "chanterelle",
-    "mushroom",
     "truffle"
   ],
   "smallAnimals": [
@@ -34,9 +33,7 @@
     "rabbit",
     "squirrel",
     "ferret",
-    "mouse",
     "rat",
-    "chipmunk",
     "turtle",
     "adder",
     "falcon",

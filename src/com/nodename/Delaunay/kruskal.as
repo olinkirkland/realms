@@ -4,7 +4,7 @@ package com.nodename.Delaunay {
     import com.nodename.geom.LineSegment;
 
     /**
-     *  Kruskal's spanning tree algorithm with union-find
+     *  Kruskal's spanning trees algorithm with union-find
      * Skiena: The Algorithm Design Manual, p. 196ff
      * Note: the sites are implied: they consist of the end points of the line segments
      */
@@ -85,7 +85,7 @@ function find(node:Node):Node {
         return node;
     } else {
         var root:Node = find(node.parent);
-        // this line is just to speed up subsequent finds by keeping the tree depth low:
+        // this line is just to speed up subsequent finds by keeping the trees depth low:
         node.parent = root;
         return root;
     }

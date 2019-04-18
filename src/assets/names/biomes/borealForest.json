@@ -1,8 +1,8 @@
 {
   "treeDiversity": 3,
   "plantDiversity": 3,
-  "smallAnimalDiversity": 6,
-  "bigAnimalDiversity": 2,
+  "smallAnimalDiversity": 3,
+  "bigAnimalDiversity": 1,
   "trees": [
     "larch",
     "spruce",
@@ -11,15 +11,12 @@
     "willow"
   ],
   "plants": [
-    "lichen",
     "moss",
-    "fern",
+    "berry",
     "strawberry",
-    "cranberry",
-    "lingonberry",
+    "lingon",
     "cloudberry",
-    "bilberry",
-    "mushroom"
+    "bilberry"
   ],
   "smallAnimals": [
     "weasel",

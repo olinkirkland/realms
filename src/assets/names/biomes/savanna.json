@@ -4,29 +4,23 @@
   "smallAnimalDiversity": 6,
   "bigAnimalDiversity": 2,
   "trees": [
-    "acacia",
-    "baobab",
-    "jackalberry"
+    "acacia"
   ],
   "plants": [
     "grass",
-    "wild oat",
     "star grass",
     "lemon grass",
     "sickle bush",
-    "white raisin bush",
-    "buffalo thorn"
+    "raisin",
+    "thorn"
   ],
   "smallAnimals": [
-    "mouse",
     "mole",
-    "hyena",
-    "ibis",
+    "jackal",
     "owl",
     "stork",
     "heron",
     "bat",
-    "monkey",
     "fox"
   ],
   "bigAnimals": [
@@ -35,7 +29,6 @@
     "lion",
     "gazelle",
     "giraffe",
-    "buffalo",
     "leopard",
     "antelope",
     "rhinoceros"

@@ -171,7 +171,7 @@ package generation {
             if (riverCount > 2)
                 analysis.highRiverRating = true;
 
-            if (lakeCount > 2)
+            if (lakeCount / cells.length > .05)
                 analysis.highLakeRating = true;
 
             if (coastalCount / cells.length > .3)
@@ -197,11 +197,25 @@ package generation {
             // Array of biomes and their percent of cells
             var regionalBiomesObject:Object = {};
             for each (cell in cells) {
-                if (regionalBiomesObject[cell.biomeType])
+                if (regionalBiomesObject[cell.biomeType]) {
                     regionalBiomesObject[cell.biomeType].count++;
-                else if (cell.biomeType)
-                    regionalBiomesObject[cell.biomeType] = {type: cell.biomeType, count: 1};
+                } else if (cell.biomeType) {
+                    regionalBiomesObject[cell.biomeType] = {
+                        type: cell.biomeType,
+                        count: 1
+                    };
+
+                    var biomes:Array = [];
+                    for each (var biome:Object in cell.getFeaturesByType(cell.biomeType))
+                        biomes.push(biome);
+
+                    if (biomes.length > 1)
+                        biomes = biomes.sortOn("influence");
+
+                    regionalBiomesObject[cell.biomeType].biome = biome;
+                }
             }
+
             var regionalBiomes:Array = [];
             for each (var regionalBiome:Object in regionalBiomesObject) {
                 if (regionalBiome.count > 0) {
@@ -209,9 +223,10 @@ package generation {
                     regionalBiome.percent = regionalBiome.count / cells.length;
                 }
             }
+
             regionalBiomes.sortOn("count");
             if (regionalBiomes[0].percent > .4)
-                analysis[regionalBiomes[0].type] = true;
+                analysis[regionalBiomes[0].type] = regionalBiomes[0].biome;
 
             return analysis;
         }
@@ -220,6 +235,7 @@ package generation {
             var analysis:Object = region.analysis;
 
             // Get references to neighboring regions
+            var coastalRegion:Boolean = false;
             var neighborRegions:Object = {};
             for each (var cell:Cell in region.cells) {
                 for each(var neighbor:Cell in cell.neighbors) {
@@ -228,8 +244,17 @@ package generation {
                         // Only add neighbor's region if it's not null (ocean)
                         if (neighbor.region)
                             neighborRegions[neighbor.region] = {region: civ.regions[neighbor.region]};
+                        else
+                            coastalRegion = true;
                     }
                 }
+            }
+
+            if (coastalRegion && region.land.cells.length > 1000) {
+                // Find a compass direction between the region and the centroid of the land it's on, but only if it's on a big land
+                var angleToLandCentroid:Number = Util.getAngleBetweenTwoPoints(region.centroid, region.land.centroid);
+                var compassDirectionToLandCentroid:String = Util.getCompassDirectionFromDegrees(angleToLandCentroid + 90);
+                region.analysis[compassDirectionToLandCentroid] = true;
             }
 
             var keys:Array = [];
@@ -262,7 +287,7 @@ package generation {
             if (neighborRegionsArray.length > 0) {
                 neighborRegion = neighborRegionsArray[0];
                 if (neighborRegionsArray[0].compare == 1 && !region.nameBinding && !neighborRegion.region.nameBinding) {
-                    if (rand.next() < .1) {
+                    if (rand.next() < .05) {
                         // Name-bind the regions
                         region.nameBinding = true;
                         neighborRegion.region.nameBinding = true;
@@ -291,7 +316,7 @@ package generation {
                 region.analysis = analyzeRegionContext(region);
 
             for each (region in regionsArray)
-                region.nameObject = generateRegionPrefixAndSuffix(region.analysis, new Rand(int(rand.next() * 9999)));
+                region.nameObject = generateRegionPrefixAndSuffix(region, new Rand(int(rand.next() * 9999)));
 
             for each (region in regionsArray) {
                 if (region.nameBoundChild && rand.next() < .7)
@@ -310,9 +335,20 @@ package generation {
                 if (n.hasOwnProperty("nameBoundQualifier"))
                     region.name = n.nameBoundQualifier + " " + region.name;
             }
+
+            if (region.analysis.north)
+                region.name = "[N]";
+            if (region.analysis.east)
+                region.name = "[E]";
+            if (region.analysis.south)
+                region.name = "[S]";
+            if (region.analysis.west)
+                region.name = "[W]";
         }
 
-        public function generateRegionPrefixAndSuffix(analysis:Object, rand:Rand):Object {
+        public function generateRegionPrefixAndSuffix(region:Object, rand:Rand):Object {
+            var analysis:Object = region.analysis;
+
             var prefix:String;
             var suffix:String;
 
@@ -366,8 +402,21 @@ package generation {
                             }
                         }
 
-                        for each (var vettedSuffix:String in vettedSuffixesForPrefix)
-                            possibleCombinations.push({prefix: possiblePrefix.name, suffix: vettedSuffix});
+                        for each (var vettedSuffix:String in vettedSuffixesForPrefix) {
+                            if (possiblePrefix.name == "[trees]" || possiblePrefix.name == "[plants]" || possiblePrefix.name == "[smallAnimals]") {
+                                var biome:Object = region.analysis[possiblePrefix.context];
+                                // Remove the brackets
+                                var category:String = possiblePrefix.name.substr(1, possiblePrefix.name.length - 2);
+                                for each (var detail:String in biome.ecosystem[category]) {
+                                    possibleCombinations.push({
+                                        prefix: Util.capitalizeFirstLetter(detail),
+                                        suffix: vettedSuffix
+                                    });
+                                }
+                            } else {
+                                possibleCombinations.push({prefix: possiblePrefix.name, suffix: vettedSuffix});
+                            }
+                        }
                     }
                 }
             }
@@ -375,21 +424,19 @@ package generation {
             // Choose from possible combinations
             possibleCombinations = Util.removeDuplicatesFromArray(possibleCombinations);
             possibleCombinations.sort(shuffleSort);
+
             var str:String = "Analysis: " + analysisKeys.join(",") + "\nCombinations: ";
             for each (var p:Object in possibleCombinations)
                 str += p.prefix + p.suffix + ",";
-            var choice:Object;
+            var choice:Object = {};
             do {
                 if (possibleCombinations.length > 0) {
                     choice = possibleCombinations.shift();
                 } else {
-                    choice = {prefix: ".", suffix: "."}
+                    choice.prefix = "New " + choice.prefix;
                     break;
                 }
             } while (choice && existingNames.indexOf(choice.prefix + choice.suffix) > -1);
-
-            if (choice.prefix == "." && choice.suffix == ".")
-                trace(str.substr(0, str.length - 1));
 
             trace("choice: " + choice.prefix + choice.suffix);
 
@@ -398,6 +445,8 @@ package generation {
 
             if (choice)
                 existingNames.push(choice.prefix + choice.suffix);
+
+            trace(str);
 
             return {prefix: prefix, suffix: suffix};
 
