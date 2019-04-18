@@ -310,11 +310,16 @@
       "suffixNamingGroups": [
         0,
         2,
-        5,
-        6,
         8,
-        10,
-        11,
+        15
+      ]
+    },
+    {
+      "name": "Stan",
+      "suffixNamingGroups": [
+        0,
+        2,
+        8,
         15
       ]
     }
@@ -647,22 +652,26 @@
       ]
     }
   ],
-  "largeIslandOrContinent": [
+  "land": [
     {
       "name": "Kings",
       "suffixNamingGroups": [
         1,
-        2,
-        7,
         8,
         10,
-        11,
-        15
+        17
       ]
     },
     {
       "name": "Queens",
       "suffixNamingGroups": [
+        8,
+        17
+      ]
+    },
+    {
+      "name": "Kirk",
+      "suffixNamingGroups": [
         1,
         2,
         7,
@@ -673,7 +682,7 @@
       ]
     },
     {
-      "name": "Kirk",
+      "name": "Kin",
       "suffixNamingGroups": [
         1,
         2,

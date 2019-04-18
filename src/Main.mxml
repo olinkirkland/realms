@@ -15,7 +15,7 @@
         public static const MAX_ZOOM:Number = 3;
         public static const ZOOM_SPEED:Number = .3;
 
-        private var zoomToCursor:Boolean = false;
+        private var zoomToCursor:Boolean = true;
 
 
         private function onInitialize(event:FlexEvent):void {

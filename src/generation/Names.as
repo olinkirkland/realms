@@ -133,24 +133,17 @@ package generation {
         public function analyzeRegionProperties(cells:Vector.<Cell>):Object {
             var analysis:Object = {};
 
-            // Array of biomes and their percent of cells
-            var regionalBiomesObject:Object = {};
-            for each (var cell:Cell in cells) {
-                if (regionalBiomesObject[cell.biomeType])
-                    regionalBiomesObject[cell.biomeType].count++;
-                else if (cell.biomeType)
-                    regionalBiomesObject[cell.biomeType] = {type: cell.biomeType, count: 1};
+            // Analyze land (regions cannot span more than one land so don't worry about it)
+            var lands:Object = cells[0].getFeaturesByType(Geography.LAND);
+            for each (var land:Object in lands)
+                break;
+            if (land.cells.length < 3) {
+                // Tiny island
+                analysis.island = true;
+            } else {
+                // Continent
+                analysis.land = true;
             }
-            var regionalBiomes:Array = [];
-            for each (var regionalBiome:Object in regionalBiomesObject) {
-                if (regionalBiome.count > 0) {
-                    regionalBiomes.push(regionalBiome);
-                    regionalBiome.percent = regionalBiome.count / cells.length;
-                }
-            }
-            regionalBiomes.sortOn("count");
-            if (regionalBiomes[0].percent > .4)
-                analysis[regionalBiomes[0].type] = true;
 
             // Percent of river cells
             // Percent of lake cells
@@ -161,7 +154,7 @@ package generation {
             var coastalCount:int = 0;
             var averageElevation:Number = 0;
             var averageTemperature:Number = 0;
-            for each (cell in cells) {
+            for each (var cell:Cell in cells) {
                 if (cell.hasFeatureType(Geography.RIVER))
                     riverCount++;
 
@@ -181,7 +174,7 @@ package generation {
             if (lakeCount > 2)
                 analysis.highLakeRating = true;
 
-            if (coastalCount / cells.length > .4)
+            if (coastalCount / cells.length > .3)
                 analysis.highCoastalRating = true;
 
             averageElevation = averageElevation / cells.length;
@@ -197,23 +190,28 @@ package generation {
             else if (averageTemperature > .5)
                 analysis.highTemperature = true;
 
-            // Analyze land (regions cannot span more than one land so don't worry about it)
-            var lands:Object = cells[0].getFeaturesByType(Geography.LAND);
-            for each (var land:Object in lands)
-                break;
-            if (land.cells.length < 3) {
-                // Tiny island
-                analysis.tinyIslandOrSmallIsland = true;
-            } else if (land.cells.length < 100) {
-                // Small island
-                analysis.tinyIslandOrSmallIsland = true;
-            } else if (land.cells.length < 400) {
-                // Large island
-                analysis.largeIslandOrContinent = true;
-            } else {
-                // Continent
-                analysis.largeIslandOrContinent = true;
+            // If it's an island, don't bother with biomes
+            if (analysis.island)
+                return analysis;
+
+            // Array of biomes and their percent of cells
+            var regionalBiomesObject:Object = {};
+            for each (cell in cells) {
+                if (regionalBiomesObject[cell.biomeType])
+                    regionalBiomesObject[cell.biomeType].count++;
+                else if (cell.biomeType)
+                    regionalBiomesObject[cell.biomeType] = {type: cell.biomeType, count: 1};
             }
+            var regionalBiomes:Array = [];
+            for each (var regionalBiome:Object in regionalBiomesObject) {
+                if (regionalBiome.count > 0) {
+                    regionalBiomes.push(regionalBiome);
+                    regionalBiome.percent = regionalBiome.count / cells.length;
+                }
+            }
+            regionalBiomes.sortOn("count");
+            if (regionalBiomes[0].percent > .4)
+                analysis[regionalBiomes[0].type] = true;
 
             return analysis;
         }
@@ -296,7 +294,7 @@ package generation {
                 region.nameObject = generateRegionPrefixAndSuffix(region.analysis, new Rand(int(rand.next() * 9999)));
 
             for each (region in regionsArray) {
-                if (region.nameBoundChild)
+                if (region.nameBoundChild && rand.next() < .7)
                     region.nameObject.nameBoundQualifier = compassDirections[region.nameBoundChildCompassDirection];
 
                 if (region.nameBoundParent) {
