@@ -32,7 +32,9 @@
   "temperateForest": [
     "shaw",
     "wood",
-    "forest"
+    "forest",
+    "berry",
+    "brush"
   ],
   "savanna": [],
   "rainForest": [],
@@ -53,7 +55,6 @@
     "ing"
   ],
   "highCoastalRating": [
-    "sea",
     "ai"
   ]
 }

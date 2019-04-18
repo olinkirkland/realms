@@ -368,10 +368,8 @@ package generation {
                             }
                         }
 
-                        for each (var vettedSuffix:String in vettedSuffixesForPrefix) {
+                        for each (var vettedSuffix:String in vettedSuffixesForPrefix)
                             possibleCombinations.push({prefix: possiblePrefix.name, suffix: vettedSuffix});
-                            break;
-                        }
                     }
                 }
             }
@@ -379,7 +377,7 @@ package generation {
             // Choose from possible combinations
             possibleCombinations = Util.removeDuplicatesFromArray(possibleCombinations);
             possibleCombinations.sort(shuffleSort);
-            var str:String = "";
+            var str:String = "Analysis: " + analysisKeys.join(",") + "\nCombinations: ";
             for each (var p:Object in possibleCombinations)
                 str += p.prefix + p.suffix + ",";
             var choice:Object;
