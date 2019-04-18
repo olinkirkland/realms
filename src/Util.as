@@ -129,7 +129,7 @@ package {
             return radiansToDegrees(Math.atan2(perpendicular, base));
         }
 
-        public static function getCompassDirectionFromDegrees(degrees:Number):String {
+        public static function getCompassDirectionFromDegrees(degrees:int):String {
             if (degrees > 315 || degrees < 45)
                 return "north";
             if (degrees < 135)
@@ -144,7 +144,7 @@ package {
         }
 
         public static function oppositeCompassDirection(compassDirection:String):String {
-            var directions:Array = [{north: "south"}, {east: "west"}, {south: "north"}, {west: "east"}];
+            var directions:Object = {north: "south", east: "west", south: "north", west: "east"};
             if (directions.hasOwnProperty(compassDirection))
                 return directions[compassDirection];
             else

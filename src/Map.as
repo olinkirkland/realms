@@ -16,7 +16,6 @@ package {
     import generation.Civilization;
     import generation.Ecosystem;
     import generation.Geography;
-    import generation.Geography;
     import generation.Names;
     import generation.Settlement;
 
@@ -1223,6 +1222,15 @@ package {
                 for each (var cell:Cell in region.cells)
                     fillCell(regionsLayer.graphics, cell, color);
             }
+
+            regionsLayer.graphics.lineStyle(1, 0xff0000);
+            for each (region in civ.regions) {
+                if (region.nameBoundChild) {
+                    regionsLayer.graphics.drawCircle(region.centroid.x, region.centroid.y, 5);
+                    regionsLayer.graphics.moveTo(region.centroid.x, region.centroid.y);
+                    regionsLayer.graphics.lineTo(region.nameBoundChild.centroid.x, region.nameBoundChild.centroid.y);
+                }
+            }
         }
 
         private function drawElevationLayer():void {
@@ -1511,6 +1519,8 @@ package {
                         str += "\n   > " + feature.ecosystem.bigAnimals;
                 }
             }
+
+            //var region:Object = civ.regions[cell.region];
 
             return str;
         }

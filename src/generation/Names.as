@@ -64,9 +64,13 @@ package generation {
         [Embed(source="../assets/names/places/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
         private static const suffixesByNamingGroup_json:Class;
 
+        [Embed(source="../assets/names/places/compassDirections.json", mimeType="application/octet-stream")]
+        private static const compassDirections_json:Class;
+
         public var prefixesByContext:Object;
         public var suffixesByContext:Object;
         public var suffixesByNamingGroup:Object;
+        public var compassDirections:Object;
 
         private var existingNames:Array = [];
 
@@ -100,6 +104,7 @@ package generation {
             prefixesByContext = JSON.parse(new prefixesByContext_json());
             suffixesByContext = JSON.parse(new suffixesByContext_json());
             suffixesByNamingGroup = JSON.parse(new suffixesByNamingGroup_json());
+            compassDirections = JSON.parse(new compassDirections_json());
         }
 
         public function analyzeLand(cells:Vector.<Cell>):Object {
@@ -242,10 +247,10 @@ package generation {
                 neighborRegion.compare = shared.length / keys.length;
 
                 // Add the degrees between the two regions
-                neighborRegion.degrees = Util.getAngleBetweenTwoPoints(region.centroid, neighborRegion.region.centroid);
+                neighborRegion.degrees = Util.getAngleBetweenTwoPoints(neighborRegion.region.centroid, region.centroid);
 
                 // Compass direction from angle
-                neighborRegion.compassDirection = Util.getCompassDirectionFromDegrees(neighborRegion.degrees);
+                neighborRegion.compassDirection = Util.getCompassDirectionFromDegrees(neighborRegion.degrees + 90);
             }
 
             var neighborRegionsArray:Array = [];
@@ -255,12 +260,14 @@ package generation {
 
             analysis.neighborRegions = neighborRegionsArray;
 
-            var rand:Rand = new Rand(1);
-            if (neighborRegions.length > 0) {
+            var rand:Rand = new Rand(region.settlement.cell.index);
+            if (neighborRegionsArray.length > 0) {
                 neighborRegion = neighborRegionsArray[0];
-                if (neighborRegionsArray[0].compare == 1 && !neighborRegionsArray[0].nameBinding) {
-                    if (rand.next() < .6) {
-                        // 60% chance to name-bind the regions
+                if (neighborRegionsArray[0].compare == 1 && !region.nameBinding && !neighborRegion.region.nameBinding) {
+                    if (rand.next() < .1) {
+                        // Name-bind the regions
+                        region.nameBinding = true;
+                        neighborRegion.region.nameBinding = true;
                         region.nameBoundChild = neighborRegion.region;
                         neighborRegion.region.nameBoundParent = region;
                         region.nameBoundChildCompassDirection = Util.oppositeCompassDirection(neighborRegion.compassDirection);
@@ -286,10 +293,28 @@ package generation {
                 region.analysis = analyzeRegionContext(region);
 
             for each (region in regionsArray)
-                region.name = generateRegionName(region.analysis, new Rand(int(rand.next() * 9999))).name;
+                region.nameObject = generateRegionPrefixAndSuffix(region.analysis, new Rand(int(rand.next() * 9999)));
+
+            for each (region in regionsArray) {
+                if (region.nameBoundChild)
+                    region.nameObject.nameBoundQualifier = compassDirections[region.nameBoundChildCompassDirection];
+
+                if (region.nameBoundParent) {
+                    region.nameObject.nameBoundQualifier = compassDirections[region.nameBoundParentCompassDirection];
+                    region.nameObject.prefix = region.nameBoundParent.nameObject.prefix;
+                    region.nameObject.suffix = region.nameBoundParent.nameObject.suffix;
+                }
+            }
+
+            for each (region in regionsArray) {
+                var n:Object = region.nameObject;
+                region.name = n.prefix + n.suffix;
+                if (n.hasOwnProperty("nameBoundQualifier"))
+                    region.name = n.nameBoundQualifier + " " + region.name;
+            }
         }
 
-        public function generateRegionName(analysis:Object, rand:Rand):Object {
+        public function generateRegionPrefixAndSuffix(analysis:Object, rand:Rand):Object {
             var prefix:String;
             var suffix:String;
 
@@ -354,22 +379,31 @@ package generation {
             // Choose from possible combinations
             possibleCombinations = Util.removeDuplicatesFromArray(possibleCombinations);
             possibleCombinations.sort(shuffleSort);
+            var str:String = "";
+            for each (var p:Object in possibleCombinations)
+                str += p.prefix + p.suffix + ",";
             var choice:Object;
             do {
-                if (possibleCombinations.length > 0)
+                if (possibleCombinations.length > 0) {
                     choice = possibleCombinations.shift();
-                else
+                } else {
+                    choice = {prefix: ".", suffix: "."}
                     break;
+                }
             } while (choice && existingNames.indexOf(choice.prefix + choice.suffix) > -1);
+
+            if (choice.prefix == "." && choice.suffix == ".")
+                trace(str.substr(0, str.length - 1));
+
             trace("choice: " + choice.prefix + choice.suffix);
 
-            prefix = choice ? choice.prefix : "...";
-            suffix = choice ? choice.suffix : "...";
+            prefix = choice.prefix;
+            suffix = choice.suffix;
 
             if (choice)
                 existingNames.push(choice.prefix + choice.suffix);
 
-            return {prefix: prefix, suffix: suffix, name: prefix + suffix};
+            return {prefix: prefix, suffix: suffix};
 
             function shuffleSort(n1:*, n2:*):int {
                 return (rand.next() > .5) ? 1 : -1;
@@ -377,7 +411,6 @@ package generation {
         }
 
         public function nameLands(lands:Object):void {
-            var rand:Rand = new Rand(1);
             for each (var land:Object in lands) {
                 land.analysis = analyzeLand(land.cells);
                 // Name land
