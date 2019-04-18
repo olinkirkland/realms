@@ -689,6 +689,30 @@
         11,
         15
       ]
+    },
+    {
+      "name": "Queens",
+      "suffixNamingGroups": [
+        1,
+        2,
+        7,
+        8,
+        10,
+        11,
+        15
+      ]
+    },
+    {
+      "name": "Kirk",
+      "suffixNamingGroups": [
+        1,
+        2,
+        7,
+        8,
+        10,
+        11,
+        15
+      ]
     }
   ]
 }
