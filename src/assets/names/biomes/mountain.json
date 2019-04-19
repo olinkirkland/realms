@@ -6,10 +6,9 @@
   "trees": [],
   "plants": [
     "yarrow",
-    "wolfsbane",
     "sticklewort",
-    "bell flower",
-    "star flower",
+    "bell",
+    "star",
     "orchid",
     "lily"
   ],
@@ -20,7 +19,7 @@
     "salamander"
   ],
   "bigAnimals": [
-    "mountain goat",
+    "goat",
     "lynx",
     "bear",
     "wolf",

@@ -287,7 +287,7 @@ package generation {
             if (neighborRegionsArray.length > 0) {
                 neighborRegion = neighborRegionsArray[0];
                 if (neighborRegionsArray[0].compare == 1 && !region.nameBinding && !neighborRegion.region.nameBinding) {
-                    if (rand.next() < .05) {
+                    if (rand.next() < .08) {
                         // Name-bind the regions
                         region.nameBinding = true;
                         neighborRegion.region.nameBinding = true;
@@ -397,9 +397,8 @@ package generation {
                         var vettedSuffixesForPrefix:Array = [];
 
                         for each (var unvettedSuffix:String in possibleSuffixesForPrefix) {
-                            if (isValidPlaceName(possiblePrefix.name, unvettedSuffix)) {
+                            if (isValidPlaceName(possiblePrefix.name, unvettedSuffix))
                                 vettedSuffixesForPrefix.push(unvettedSuffix);
-                            }
                         }
 
                         for each (var vettedSuffix:String in vettedSuffixesForPrefix) {
@@ -414,7 +413,12 @@ package generation {
                                     });
                                 }
                             } else {
-                                possibleCombinations.push({prefix: possiblePrefix.name, suffix: vettedSuffix});
+                                // Remove the last letter of the prefix if the prefix's last letter is the same as the first letter of the suffix
+                                var workablePrefix:String = possiblePrefix.name;
+                                if (workablePrefix.charAt(workablePrefix.length - 1) == vettedSuffix.charAt(0))
+                                    workablePrefix = workablePrefix.substr(0, workablePrefix.length - 1);
+
+                                possibleCombinations.push({prefix: workablePrefix, suffix: vettedSuffix});
                             }
                         }
                     }
@@ -438,7 +442,7 @@ package generation {
                 }
             } while (choice && existingNames.indexOf(choice.prefix + choice.suffix) > -1);
 
-            trace("choice: " + choice.prefix + choice.suffix);
+            //trace("choice: " + choice.prefix + choice.suffix);
 
             prefix = choice.prefix;
             suffix = choice.suffix;
@@ -446,7 +450,7 @@ package generation {
             if (choice)
                 existingNames.push(choice.prefix + choice.suffix);
 
-            trace(str);
+            //trace(str);
 
             return {prefix: prefix, suffix: suffix};
 

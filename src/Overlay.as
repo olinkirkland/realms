@@ -125,5 +125,10 @@ package {
             for each (label in regionLabels)
                 overlay.addChild(label);
         }
+
+        public function toggle():void {
+            for (var i:int = 0; i < numChildren; i++)
+                getChildAt(i).visible = !getChildAt(i).visible;
+        }
     }
 }

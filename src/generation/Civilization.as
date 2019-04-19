@@ -10,6 +10,7 @@ package generation {
         public var settlementsById:Object = {};
         public var settlementsByCell:Object = {};
         public var regions:Object = {};
+        public var roads:Object = {};
 
         public function Civilization() {
             if (_instance)
@@ -61,6 +62,19 @@ package generation {
             cell.region = regions[region].id;
             cell.regionInfluence = influence;
             regions[region].cells.push(cell);
+        }
+
+
+        public function registerRoad(startingSettlement:Settlement, endingSettlement:Settlement):String {
+            var id:String = UIDUtil.createUID();
+
+            roads[id] = {id: id, startingSettlement: startingSettlement, endingSettlement: endingSettlement};
+
+            return id;
+        }
+
+        public function addCellsToRoad(cells:Vector.<Cell>, road:String):void {
+            roads[road].cells = cells;
         }
     }
 }

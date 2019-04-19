@@ -136,6 +136,9 @@
                     map.drawRivers = !map.drawRivers;
                     map.show();
                     break;
+                case Keyboard.T:
+                    overlay.toggle();
+                    break;
                 case Keyboard.A:
                     map.drawForests = !map.drawForests;
                     map.show();
@@ -150,6 +153,10 @@
                     break;
                 case Keyboard.F:
                     map.drawRegions = !map.drawRegions;
+                    map.show();
+                    break;
+                case Keyboard.G:
+                    map.drawRoads = !map.drawRoads;
                     map.show();
                     break;
                 case Keyboard.Z:
@@ -181,6 +188,7 @@
                     "\n[S] mountainsLayer: " + map.drawMountains +
                     "\n[D] settlementsLayer: " + map.drawSettlements +
                     "\n[F] regionsLayer: " + map.drawRegions +
+                    "\n[G] roadsLayer: " + map.drawRoads +
                     "\n[Z] elevationLayer: " + map.drawElevation +
                     "\n[X] temperatureLayer: " + map.drawTemperature +
                     "\n[C] desirabilityLayer: " + map.drawDesirability +

@@ -57,6 +57,7 @@ package {
         private var mountainsLayer:Shape = new Shape();
         private var reliefLayer:Shape = new Shape();
         private var settlementsLayer:Shape = new Shape();
+        private var roadsLayer:Shape = new Shape();
         private var regionsLayer:Shape = new Shape();
         private var elevationLayer:Shape = new Shape();
         private var temperatureLayer:Shape = new Shape();
@@ -71,6 +72,7 @@ package {
         public var drawForests:Boolean = true;
         public var drawMountains:Boolean = true;
         public var drawSettlements:Boolean = true;
+        public var drawRoads:Boolean = true;
         public var drawRegions:Boolean = false;
         public var drawElevation:Boolean = false;
         public var drawTemperature:Boolean = false;
@@ -98,6 +100,7 @@ package {
                 mountainsLayer,
                 reliefLayer,
                 settlementsLayer,
+                roadsLayer,
                 regionsLayer,
                 elevationLayer,
                 temperatureLayer,
@@ -179,8 +182,9 @@ package {
                 {f: determineRivers, m: "Rivers"},
                 {f: determineBiomes, m: "Biomes"},
                 {f: determineSettlements, m: "Settlements"},
-                {f: determineRegions, m: "Regions"},
-                {f: determineNames, m: "Names"},
+                {f: determineRegions, m: "Regions (1)"},
+                {f: analyzeRegionsAndDetermineNames, m: "Regions (2)"},
+                {f: determineRoads, m: "Roads"},
                 {f: draw, m: "Drawing"}];
 
             progress(0, tasks[0].m);
@@ -728,10 +732,42 @@ package {
             }
         }
 
-        private function determineNames():void {
+        private function analyzeRegionsAndDetermineNames():void {
             names.reset();
             names.nameLands(geo.getFeaturesByType(Geography.LAND));
             names.nameRegions(civ.regions);
+        }
+
+        private function determineRoads():void {
+            var settlements:Array = [];
+            for each (var settlement:Settlement in civ.settlements)
+                settlements.push(settlement);
+
+            settlements.sort(Sort.sortByCellIndex);
+
+            var settlementPoints:Vector.<Point> = new Vector.<Point>();
+            for each (settlement in settlements)
+                settlementPoints.push(settlement.point);
+
+            // Create a voronoi diagram of the settlements to determine settlement neighbors
+            var voronoi:Voronoi = new Voronoi(settlementPoints, null, new Rectangle(0, 0, width, height));
+            for each (settlement in settlements)
+                voronoi.region(settlement.point);
+
+            for each (settlement in settlements) {
+                var neighborPoints:Vector.<Point> = voronoi.neighborSitesForSite(settlement.point);
+                for each (var neighborPoint:Point in neighborPoints) {
+                    for each (var possibleNeighbor:Settlement in settlements) {
+                        if (possibleNeighbor.point == neighborPoint) {
+                            // Add a road to this neighbor
+                            var road:String = civ.registerRoad(settlement, possibleNeighbor);
+                            var cells:Vector.<Cell> = new Vector.<Cell>();
+                            cells.push(settlement.cell, possibleNeighbor.cell);
+                            civ.addCellsToRoad(cells, road);
+                        }
+                    }
+                }
+            }
         }
 
         private function determineStaticDesirability():void {
@@ -972,6 +1008,7 @@ package {
             drawForestsLayer();
             drawMountainsLayer();
             drawSettlementsLayer();
+            drawRoadsLayer();
             drawRegionsLayer();
             drawElevationLayer();
             drawTemperatureLayer();
@@ -1207,6 +1244,21 @@ package {
                 settlementsLayer.graphics.beginFill(0xffffff);
                 settlementsLayer.graphics.drawCircle(settlement.point.x, settlement.point.y, 3);
                 settlementsLayer.graphics.endFill();
+            }
+        }
+
+        private function drawRoadsLayer():void {
+            /**
+             * Draw Roads
+             */
+
+            for each (var road:Object in civ.roads) {
+                roadsLayer.graphics.lineStyle(1, Util.randomColor());
+                roadsLayer.graphics.drawCircle(road.cells[0].point.x, road.cells[0].point.y, 7);
+                roadsLayer.graphics.moveTo(road.cells[0].point.x, road.cells[0].point.y);
+                for each (var cell:Cell in road.cells) {
+                    roadsLayer.graphics.lineTo(cell.point.x, cell.point.y);
+                }
             }
         }
 
@@ -1553,6 +1605,7 @@ package {
             forestsLayer.visible = drawForests;
             mountainsLayer.visible = drawMountains;
             settlementsLayer.visible = drawSettlements;
+            roadsLayer.visible = drawRoads;
             regionsLayer.visible = drawRegions;
             elevationLayer.visible = drawElevation;
             temperatureLayer.visible = drawTemperature;
