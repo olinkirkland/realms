@@ -25,6 +25,7 @@ package graph {
         public var costSoFar:int;
         public var cost:int;
         public var priority:int;
+        public var road:Boolean;
 
         /**
          * Static Properties
@@ -132,17 +133,17 @@ package graph {
         }
 
         public function determineCost():void {
-            // Default
-            cost = 1;
+            // Default is 2 because existing roads must be lower and cannot be 0
+            cost = 2;
             // Ocean
             if (hasFeatureType(Geography.OCEAN))
                 cost = 10;
             // River
             if (hasFeatureType(Geography.RIVER))
-                cost = 5;
+                cost = 6;
             // Forest
             if (hasFeatureType(Biome.BOREAL_FOREST) || hasFeatureType(Biome.TEMPERATE_FOREST) || hasFeatureType(Biome.RAIN_FOREST))
-                cost = 3;
+                cost = 4;
         }
     }
 }

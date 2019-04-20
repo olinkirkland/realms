@@ -627,7 +627,7 @@ package {
 
                 civ.registerSettlement(cells[0]);
                 i++;
-            } while (i < 10);
+            } while (i < 3);
         }
 
         private function determineRegions():void {
@@ -782,14 +782,15 @@ package {
                                 // Loop through queue
                                 for each (var next:Cell in current.neighbors) {
                                     // Each queue item's neighbors
-                                    var newCost:int = current.costSoFar + next.cost;
+                                    var nextCost:int = next.road ? 1 : next.cost;
+                                    var newCost:int = current.costSoFar + nextCost;
                                     if (!next.used || newCost < next.costSoFar) {
                                         next.used = true;
                                         next.costSoFar = newCost;
                                         next.cameFrom = current;
                                         next.priority = newCost;
                                         // Place 'next' in the queue then sort by priority
-                                        if (newCost < 1000) {
+                                        if (newCost < 500) {
                                             queue.push(next);
                                             queue.sort(Sort.sortByPriorityAndIndex);
                                         }
@@ -804,6 +805,7 @@ package {
                             var i:int = 0;
                             while (i < 1000) {
                                 roadCells.push(cell);
+                                cell.road = true;
                                 if (cell.index == settlement.cell.index)
                                     break;
                                 cell = cell.cameFrom;
