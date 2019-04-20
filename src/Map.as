@@ -1,6 +1,7 @@
 package {
     import com.nodename.Delaunay.Voronoi;
     import com.nodename.geom.LineSegment;
+    import com.woodruff.CubicBezier;
 
     import flash.display.Bitmap;
     import flash.display.BitmapData;
@@ -627,7 +628,7 @@ package {
 
                 civ.registerSettlement(cells[0]);
                 i++;
-            } while (i < 3);
+            } while (i < 140);
         }
 
         private function determineRegions():void {
@@ -759,10 +760,7 @@ package {
             for each (var cell:Cell in cells)
                 cell.determineCost();
 
-            var j:int = 1;
             for each (settlement in settlements) {
-                trace("Settlement " + j);
-                j++;
                 var neighborPoints:Vector.<Point> = voronoi.neighborSitesForSite(settlement.point);
                 for each (var neighborPoint:Point in neighborPoints) {
                     for each (var neighborSettlement:Settlement in settlements) {
@@ -789,10 +787,17 @@ package {
                                         next.costSoFar = newCost;
                                         next.cameFrom = current;
                                         next.priority = newCost;
-                                        // Place 'next' in the queue then sort by priority
+                                        // Place 'next' in the queue
                                         if (newCost < 500) {
-                                            queue.push(next);
-                                            queue.sort(Sort.sortByPriorityAndIndex);
+                                            if (queue.length > 0) {
+                                                for (var i:int = 0; i < queue.length; i++)
+                                                    if (queue[i].priority > next.priority)
+                                                        break;
+                                                queue.insertAt(i, next);
+                                            } else {
+                                                // Just add it
+                                                queue.push(next);
+                                            }
                                         }
                                     }
                                 }
@@ -802,21 +807,24 @@ package {
 
                             var roadCells:Vector.<Cell> = new Vector.<Cell>();
                             cell = neighborSettlement.cell;
-                            var i:int = 0;
-                            while (i < 1000) {
+                            var cost:int = 0;
+                            for (i = 0; i < 1000; i++) {
                                 roadCells.push(cell);
-                                cell.road = true;
                                 if (cell.index == settlement.cell.index)
                                     break;
                                 cell = cell.cameFrom;
-
-                                i++;
+                                cost += cell.costSoFar;
                             }
 
                             // Create the road
-                            var road:String = civ.registerRoad(settlement, neighborSettlement);
-                            civ.addCellsToRoad(roadCells, road);
+                            if (cost < 200) {
+                                var road:String = civ.registerRoad(settlement, neighborSettlement);
+                                civ.addCellsToRoad(roadCells, road);
+                                for each (var cell in roadCells)
+                                    cell.road = true;
+                            }
 
+                            // Clear cameFrom property in all cells
                             for each (cell in cells)
                                 cell.cameFrom = null;
                         }
@@ -1308,15 +1316,20 @@ package {
              */
 
             for each (var road:Object in civ.roads) {
-                var color:uint = Util.randomColor();
-                roadsLayer.graphics.lineStyle(1, color);
-                roadsLayer.graphics.moveTo(road.cells[0].point.x, road.cells[0].point.y);
-                roadsLayer.graphics.lineTo(road.cells[road.cells.length - 1].point.x, road.cells[road.cells.length - 1].point.y);
+                roadsLayer.graphics.lineStyle(1, 0x000000);
 
-                roadsLayer.graphics.lineStyle(3, color);
-                roadsLayer.graphics.moveTo(road.cells[0].point.x, road.cells[0].point.y);
-                for each (var cell:Cell in road.cells)
-                    roadsLayer.graphics.lineTo(cell.point.x, cell.point.y);
+                var points:Array = [];
+                var thicknesses:Array = [];
+                for each (var cell:Cell in road.cells) {
+                    points.push(cell.point);
+                    thicknesses.push(1);
+                }
+
+
+                CubicBezier.curveThroughPoints(roadsLayer.graphics, points, thicknesses, 0x000000);
+//                roadsLayer.graphics.moveTo(road.cells[0].point.x, road.cells[0].point.y);
+//                for each (var cell:Cell in road.cells)
+//                    roadsLayer.graphics.lineTo(cell.point.x, cell.point.y);
             }
         }
 

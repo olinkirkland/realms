@@ -133,17 +133,23 @@ package graph {
         }
 
         public function determineCost():void {
-            // Default is 2 because existing roads must be lower and cannot be 0
+            // Default is 5 because existing roads must be lower and cannot be 0
             cost = 2;
             // Ocean
             if (hasFeatureType(Geography.OCEAN))
+                cost = 30;
+            // Lake
+            if (hasFeatureType(Geography.LAKE))
                 cost = 10;
+            // Mountain
+            if (hasFeatureType(Biome.MOUNTAIN))
+                cost = 15;
             // River
             if (hasFeatureType(Geography.RIVER))
-                cost = 6;
+                cost = 10;
             // Forest
             if (hasFeatureType(Biome.BOREAL_FOREST) || hasFeatureType(Biome.TEMPERATE_FOREST) || hasFeatureType(Biome.RAIN_FOREST))
-                cost = 4;
+                cost = 5;
         }
     }
 }
