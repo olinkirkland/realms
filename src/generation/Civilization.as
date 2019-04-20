@@ -73,6 +73,14 @@ package generation {
             return id;
         }
 
+        public function roadExists(startingSettlement:Settlement, endingSettlement:Settlement):Boolean {
+            for each (var road:Object in roads)
+                if (road.endingSettlement.cell.index == startingSettlement.cell.index && road.startingSettlement.cell.index == endingSettlement.cell.index)
+                    return true;
+
+            return false;
+        }
+
         public function addCellsToRoad(cells:Vector.<Cell>, road:String):void {
             roads[road].cells = cells;
         }

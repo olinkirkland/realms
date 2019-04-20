@@ -67,10 +67,10 @@ package {
         // Toggles
         public var drawOcean:Boolean = true;
         public var drawTerrain:Boolean = true;
-        public var drawCoastlines:Boolean = true;
-        public var drawRivers:Boolean = true;
-        public var drawForests:Boolean = true;
-        public var drawMountains:Boolean = true;
+        public var drawCoastlines:Boolean = false;
+        public var drawRivers:Boolean = false;
+        public var drawForests:Boolean = false;
+        public var drawMountains:Boolean = false;
         public var drawSettlements:Boolean = true;
         public var drawRoads:Boolean = true;
         public var drawRegions:Boolean = false;
@@ -627,7 +627,7 @@ package {
 
                 civ.registerSettlement(cells[0]);
                 i++;
-            } while (i < 100);
+            } while (i < 10);
         }
 
         private function determineRegions():void {
@@ -655,10 +655,11 @@ package {
                 }
             }
 
-            // Determine regionNameDictionary
+            // Sort settlements
             var settlements:Array = [];
             for each (var s:Settlement in civ.settlements)
                 settlements.push(s);
+
             // Sort by a unique value - point should do
             settlements.sort(Sort.sortByCellIndex);
 
@@ -754,16 +755,68 @@ package {
             for each (settlement in settlements)
                 voronoi.region(settlement.point);
 
+            // Determine costs
+            for each (var cell:Cell in cells)
+                cell.determineCost();
+
+            var j:int = 1;
             for each (settlement in settlements) {
+                trace("Settlement " + j);
+                j++;
                 var neighborPoints:Vector.<Point> = voronoi.neighborSitesForSite(settlement.point);
                 for each (var neighborPoint:Point in neighborPoints) {
-                    for each (var possibleNeighbor:Settlement in settlements) {
-                        if (possibleNeighbor.point == neighborPoint) {
-                            // Add a road to this neighbor
-                            var road:String = civ.registerRoad(settlement, possibleNeighbor);
-                            var cells:Vector.<Cell> = new Vector.<Cell>();
-                            cells.push(settlement.cell, possibleNeighbor.cell);
-                            civ.addCellsToRoad(cells, road);
+                    for each (var neighborSettlement:Settlement in settlements) {
+                        if (neighborSettlement.point == neighborPoint && !civ.roadExists(settlement, neighborSettlement)) {
+                            // From settlement.cell to neighbor.cell
+                            var queue:Array = [];
+                            queue.push(settlement.cell);
+                            settlement.cell.costSoFar = 0;
+
+                            while (queue.length > 0) {
+                                var current:Cell = queue.shift();
+
+                                // Reached the destination
+                                if (current.index == neighborSettlement.cell.index)
+                                    break;
+
+                                // Loop through queue
+                                for each (var next:Cell in current.neighbors) {
+                                    // Each queue item's neighbors
+                                    var newCost:int = current.costSoFar + next.cost;
+                                    if (!next.used || newCost < next.costSoFar) {
+                                        next.used = true;
+                                        next.costSoFar = newCost;
+                                        next.cameFrom = current;
+                                        next.priority = newCost;
+                                        // Place 'next' in the queue then sort by priority
+                                        if (newCost < 1000) {
+                                            queue.push(next);
+                                            queue.sort(Sort.sortByPriorityAndIndex);
+                                        }
+                                    }
+                                }
+                            }
+
+                            unuseCells();
+
+                            var roadCells:Vector.<Cell> = new Vector.<Cell>();
+                            cell = neighborSettlement.cell;
+                            var i:int = 0;
+                            while (i < 1000) {
+                                roadCells.push(cell);
+                                if (cell.index == settlement.cell.index)
+                                    break;
+                                cell = cell.cameFrom;
+
+                                i++;
+                            }
+
+                            // Create the road
+                            var road:String = civ.registerRoad(settlement, neighborSettlement);
+                            civ.addCellsToRoad(roadCells, road);
+
+                            for each (cell in cells)
+                                cell.cameFrom = null;
                         }
                     }
                 }
@@ -1253,12 +1306,15 @@ package {
              */
 
             for each (var road:Object in civ.roads) {
-                roadsLayer.graphics.lineStyle(1, Util.randomColor());
-                roadsLayer.graphics.drawCircle(road.cells[0].point.x, road.cells[0].point.y, 7);
+                var color:uint = Util.randomColor();
+                roadsLayer.graphics.lineStyle(1, color);
                 roadsLayer.graphics.moveTo(road.cells[0].point.x, road.cells[0].point.y);
-                for each (var cell:Cell in road.cells) {
+                roadsLayer.graphics.lineTo(road.cells[road.cells.length - 1].point.x, road.cells[road.cells.length - 1].point.y);
+
+                roadsLayer.graphics.lineStyle(3, color);
+                roadsLayer.graphics.moveTo(road.cells[0].point.x, road.cells[0].point.y);
+                for each (var cell:Cell in road.cells)
                     roadsLayer.graphics.lineTo(cell.point.x, cell.point.y);
-                }
             }
         }
 

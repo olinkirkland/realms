@@ -48,6 +48,15 @@ package {
                 return 0;
         }
 
+        public static function sortByPriorityAndIndex(n1:Object, n2:Object):Number {
+            if (n1.priority > n2.priority)
+                return 1;
+            else if (n1.priority < n2.priority)
+                return -1;
+            else
+                return sortByIndex(n1, n2);
+        }
+
         public static function sortByCellIndex(n1:Object, n2:Object):Number {
             if (n1.cell.index > n2.cell.index)
                 return 1;

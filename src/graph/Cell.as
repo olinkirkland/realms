@@ -1,6 +1,10 @@
 package graph {
     import flash.geom.Point;
 
+    import generation.Biome;
+
+    import generation.Geography;
+
     import generation.Settlement;
 
     public class Cell {
@@ -16,6 +20,11 @@ package graph {
         public var desirability:Number;
         public var region:String;
         public var regionInfluence:int;
+
+        public var cameFrom:Cell;
+        public var costSoFar:int;
+        public var cost:int;
+        public var priority:int;
 
         /**
          * Static Properties
@@ -94,6 +103,10 @@ package graph {
             desirability = 0;
             region = null;
             regionInfluence = 0;
+            cameFrom = null;
+            costSoFar = 0;
+            cost = 1;
+            priority = 0;
 
             // Properties
             features = {};
@@ -116,6 +129,20 @@ package graph {
 
             // Sort neighbors (by lowest elevation)
             neighbors.sort(Sort.sortByLowestElevation);
+        }
+
+        public function determineCost():void {
+            // Default
+            cost = 1;
+            // Ocean
+            if (hasFeatureType(Geography.OCEAN))
+                cost = 10;
+            // River
+            if (hasFeatureType(Geography.RIVER))
+                cost = 5;
+            // Forest
+            if (hasFeatureType(Biome.BOREAL_FOREST) || hasFeatureType(Biome.TEMPERATE_FOREST) || hasFeatureType(Biome.RAIN_FOREST))
+                cost = 3;
         }
     }
 }
