@@ -21,6 +21,11 @@ package generation {
         public static var GLADE:String = "glade";
         public static var HAVEN:String = "haven";
 
+        // Resources
+        public static var STONE:String = "stone";
+        public static var SALT:String = "salt";
+        public static var IRON:String = "iron";
+
         public function Geography() {
             if (_instance)
                 throw new Error("Singleton; Use getInstance() instead");

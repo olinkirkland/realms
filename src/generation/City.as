@@ -3,7 +3,7 @@ package generation {
 
     import graph.Cell;
 
-    public class Settlement {
+    public class City {
         // Only for generation
         public var used:Boolean;
 
@@ -12,17 +12,17 @@ package generation {
         public var influence:int;
         public var point:Point;
         public var name:String;
+        public var neighbors:Array;
 
-        public function Settlement(cell:Cell, id:String) {
+        public function City(cell:Cell, id:String) {
             this.cell = cell;
             this.id = id;
 
             this.point = new Point(cell.point.x, cell.point.y);
-            var r:Rand = new Rand(cell.index);
-            point.x += r.between(-4, 4);
-            point.y += r.between(-4, 4);
 
             influence = cell.desirability;
+
+            neighbors = [];
 
             determineName();
         }

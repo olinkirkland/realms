@@ -283,7 +283,7 @@ package generation {
 
             analysis.neighborRegions = neighborRegionsArray;
 
-            var rand:Rand = new Rand(region.settlement.cell.index);
+            var rand:Rand = new Rand(region.city.cell.index);
             if (neighborRegionsArray.length > 0) {
                 neighborRegion = neighborRegionsArray[0];
                 if (neighborRegionsArray[0].compare == 1 && !region.nameBinding && !neighborRegion.region.nameBinding) {

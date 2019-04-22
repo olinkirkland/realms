@@ -31,6 +31,23 @@
             systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 
             buttonGenerate.addEventListener(MouseEvent.CLICK, onButtonGenerateClick);
+
+            updateInstructions();
+        }
+
+        private function updateInstructions():void {
+            labelInstructions.text = "[Q] Ocean " + (map.drawOcean ? "On" : "Off") +
+                    " [W] Terrain " + (map.drawTerrain ? "On" : "Off") +
+                    " [E] Coastlines " + (map.drawCoastlines ? "On" : "Off") +
+                    " [R] Rivers " + (map.drawRivers ? "On" : "Off") +
+                    " [A] Forests " + (map.drawForests ? "On" : "Off") +
+                    " [S] Mountains " + (map.drawMountains ? "On" : "Off") +
+                    " [D] Cities " + (map.drawCities ? "On" : "Off") +
+                    "\n[F] Regions " + (map.drawRegions ? "On" : "Off") +
+                    " [G] Roads " + (map.drawRoads ? "On" : "Off") +
+                    " [Z] Elevation " + (map.drawElevation ? "On" : "Off") +
+                    " [X] Temperature " + (map.drawTemperature ? "On" : "Off") +
+                    " [V] Outlines " + (map.drawOutlines ? "On" : "Off");
         }
 
         private function onMouseWheel(event:MouseEvent):void {
@@ -148,7 +165,7 @@
                     map.show();
                     break;
                 case Keyboard.D:
-                    map.drawSettlements = !map.drawSettlements;
+                    map.drawCities = !map.drawCities;
                     map.show();
                     break;
                 case Keyboard.F:
@@ -168,7 +185,7 @@
                     map.show();
                     break;
                 case Keyboard.C:
-                    map.drawDesirability = !map.drawDesirability;
+                    // Add a new toggle here
                     map.show();
                     break;
                 case Keyboard.V:
@@ -179,20 +196,7 @@
                     break;
             }
 
-            trace("========================" +
-                    "\n[Q] oceanLayer: " + map.drawOcean +
-                    "\n[W] terrainLayer: " + map.drawTerrain +
-                    "\n[E] coastlinesLayer: " + map.drawCoastlines +
-                    "\n[R] riversLayer: " + map.drawRivers +
-                    "\n[A] forestsLayer: " + map.drawForests +
-                    "\n[S] mountainsLayer: " + map.drawMountains +
-                    "\n[D] settlementsLayer: " + map.drawSettlements +
-                    "\n[F] regionsLayer: " + map.drawRegions +
-                    "\n[G] roadsLayer: " + map.drawRoads +
-                    "\n[Z] elevationLayer: " + map.drawElevation +
-                    "\n[X] temperatureLayer: " + map.drawTemperature +
-                    "\n[C] desirabilityLayer: " + map.drawDesirability +
-                    "\n[V] outlinesLayer: " + map.drawOutlines)
+            updateInstructions();
         }
 
         private function onResize(event:Event):void {
@@ -258,7 +262,8 @@
         <s:HGroup width="100%" top="10" bottom="10" left="10" right="10" verticalAlign="middle">
             <s:Button id="buttonGenerate" label="New Map" fontSize="14"/>
             <s:TextInput id="inputSeed" restrict="[0-9]" width="40" fontSize="14"/>
-            <s:Label id="labelSeed" color="white" fontSize="14"/>
+            <s:Label id="labelSeed" color="white" fontSize="18"/>
+            <s:Label id="labelInstructions" color="white" fontSize="10" maxDisplayedLines="2"/>
         </s:HGroup>
     </s:Group>
 

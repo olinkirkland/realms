@@ -5,7 +5,8 @@ package graph {
 
     import generation.Geography;
 
-    import generation.Settlement;
+    import generation.City;
+    import generation.towns.Town;
 
     public class Cell {
         public var index:int;
@@ -25,7 +26,7 @@ package graph {
         public var costSoFar:int;
         public var cost:int;
         public var priority:int;
-        public var road:Boolean;
+        public var road:int;
 
         /**
          * Static Properties
@@ -41,7 +42,8 @@ package graph {
          */
 
         public var features:Object;
-        public var settlement:Settlement;
+        public var city:City;
+        public var town:Town;
 
         public var realTemperature:Number;
         public var temperature:Number;
@@ -58,6 +60,7 @@ package graph {
 
         public var terrainColor:uint;
         public var coastal:Boolean;
+        public var crossroad:Boolean;
 
         public function get elevation():Number {
             return _elevation;
@@ -108,10 +111,12 @@ package graph {
             costSoFar = 0;
             cost = 1;
             priority = 0;
+            road = 0;
 
             // Properties
             features = {};
-            settlement = null;
+            city = null;
+            town = null;
             realTemperature = 0;
             temperature = 0;
 
@@ -127,13 +132,19 @@ package graph {
 
             terrainColor = 0;
             coastal = false;
+            crossroad = false;
 
             // Sort neighbors (by lowest elevation)
             neighbors.sort(Sort.sortByLowestElevation);
         }
 
         public function determineCost():void {
-            // Default is 5 because existing roads must be lower and cannot be 0
+            // Road
+            if (road > 0) {
+                cost = 1;
+                return;
+            }
+            // Default
             cost = 2;
             // Ocean
             if (hasFeatureType(Geography.OCEAN))
@@ -150,6 +161,9 @@ package graph {
             // Forest
             if (hasFeatureType(Biome.BOREAL_FOREST) || hasFeatureType(Biome.TEMPERATE_FOREST) || hasFeatureType(Biome.RAIN_FOREST))
                 cost = 5;
+            // City
+            if (city)
+                cost = 0;
         }
     }
 }

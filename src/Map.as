@@ -18,7 +18,8 @@ package {
     import generation.Ecosystem;
     import generation.Geography;
     import generation.Names;
-    import generation.Settlement;
+    import generation.City;
+    import generation.towns.Town;
 
     import graph.Cell;
     import graph.Corner;
@@ -57,12 +58,11 @@ package {
         private var forestsLayer:Shape = new Shape();
         private var mountainsLayer:Shape = new Shape();
         private var reliefLayer:Shape = new Shape();
-        private var settlementsLayer:Shape = new Shape();
+        private var citiesLayer:Shape = new Shape();
         private var roadsLayer:Shape = new Shape();
         private var regionsLayer:Shape = new Shape();
         private var elevationLayer:Shape = new Shape();
         private var temperatureLayer:Shape = new Shape();
-        private var desirabilityLayer:Shape = new Shape();
         private var outlinesLayer:Shape = new Shape();
 
         // Toggles
@@ -72,12 +72,11 @@ package {
         public var drawRivers:Boolean = false;
         public var drawForests:Boolean = false;
         public var drawMountains:Boolean = false;
-        public var drawSettlements:Boolean = true;
+        public var drawCities:Boolean = true;
         public var drawRoads:Boolean = true;
         public var drawRegions:Boolean = false;
         public var drawElevation:Boolean = false;
         public var drawTemperature:Boolean = false;
-        public var drawDesirability:Boolean = false;
         public var drawOutlines:Boolean = false;
 
 
@@ -100,12 +99,11 @@ package {
                 forestsLayer,
                 mountainsLayer,
                 reliefLayer,
-                settlementsLayer,
-                roadsLayer,
                 regionsLayer,
+                roadsLayer,
+                citiesLayer,
                 elevationLayer,
                 temperatureLayer,
-                desirabilityLayer,
                 outlinesLayer
             ];
 
@@ -182,10 +180,13 @@ package {
                 {f: calculateMoisture, m: "Moisture"},
                 {f: determineRivers, m: "Rivers"},
                 {f: determineBiomes, m: "Biomes"},
-                {f: determineSettlements, m: "Settlements"},
-                {f: determineRegions, m: "Regions (1)"},
-                {f: analyzeRegionsAndDetermineNames, m: "Regions (2)"},
+                {f: determineCities, m: "Cities"},
+                {f: determineRegions, m: "Regions"},
+                {f: analyzeRegionsAndDetermineNames, m: "Analyze"},
+                {f: determineResources, m: "Resources"},
                 {f: determineRoads, m: "Roads"},
+                {f: determineTowns, m: "Towns"},
+//                {f: determineSeaRoutes, m: "Sea routes"},
                 {f: draw, m: "Drawing"}];
 
             progress(0, tasks[0].m);
@@ -227,9 +228,22 @@ package {
 
             // Add hills
             for (var i:int = 0; i < 30; i++)
-                placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(1, .2));
+                placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
 
-            // Add troughs
+            // Add big islands further out
+            for (i = 0; i < 3; i++)
+                placeHill(cellFromDistribution(.3), rand.between(.4, .6), rand.between(.96, .99), rand.between(.1, .3));
+
+            // Add some island clusters
+            for (i = 0; i < 3; i++) {
+                var centroid:Point = cellFromDistribution(.3).point;
+                for (var j:int = 0; j < rand.between(5, 7); j++) {
+                    var radius:Number = rand.between(0, 200);
+                    var angle:Number = rand.next() * Math.PI * 2;
+                    var point:Point = new Point(centroid.x + Math.cos(angle) * radius, centroid.y + Math.sin(angle) * radius);
+                    placeHill(getCellClosestToPoint(point), rand.between(.25, .4), rand.between(.6, .9), rand.between(.1, .2));
+                }
+            }
 
             // Add pits
             for (i = 0; i < 15; i++)
@@ -619,31 +633,31 @@ package {
             }
         }
 
-        private function determineSettlements():void {
-            determineStaticDesirability();
+        private function determineCities():void {
+            determineStaticCityDesirability();
 
             var i:int = 0;
-            do {
-                determineDesirability();
+            for (var i:int = 0; i < 200; i++) {
+                determineCityDesirability();
 
-                civ.registerSettlement(cells[0]);
+                civ.registerCity(cells[0]);
                 i++;
-            } while (i < 140);
+            }
         }
 
         private function determineRegions():void {
-            // If there are no settlements on a land mass, add one to a haven or a random place
+            // If there are no cities on a land mass, add one to a haven or a random place
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                var hasSettlement:Boolean = false;
+                var hasCity:Boolean = false;
                 for each (var cell:Cell in land.cells) {
-                    if (cell.settlement) {
-                        hasSettlement = true;
+                    if (cell.city) {
+                        hasCity = true;
                         break;
                     }
                 }
 
-                if (!hasSettlement) {
-                    // Add a settlement to the landmass
+                if (!hasCity) {
+                    // Add a city to the landmass
                     for each (cell in land.cells) {
                         var haven:Cell = land.cells[0];
                         if (cell.hasFeatureType(Geography.HAVEN)) {
@@ -652,20 +666,20 @@ package {
                         }
                     }
 
-                    civ.registerSettlement(haven);
+                    civ.registerCity(haven);
                 }
             }
 
-            // Sort settlements
-            var settlements:Array = [];
-            for each (var s:Settlement in civ.settlements)
-                settlements.push(s);
+            // Sort cities
+            var cities:Array = [];
+            for each (var s:City in civ.cities)
+                cities.push(s);
 
             // Sort by a unique value - point should do
-            settlements.sort(Sort.sortByCellIndex);
+            cities.sort(Sort.sortByCellIndex);
 
-            for each (var settlement:Settlement in settlements) {
-                var start:Cell = settlement.cell;
+            for each (var city:City in cities) {
+                var start:Cell = city.cell;
                 // Define region
                 var regionId:String = civ.registerRegion();
 
@@ -676,7 +690,7 @@ package {
                     break;
 
                 civ.regions[regionId].land = land;
-                civ.regions[regionId].settlement = settlement;
+                civ.regions[regionId].city = city;
 
                 start.used = true;
 
@@ -735,52 +749,144 @@ package {
         }
 
         private function analyzeRegionsAndDetermineNames():void {
-            names.reset();
             names.nameLands(geo.getFeaturesByType(Geography.LAND));
             names.nameRegions(civ.regions);
         }
 
+        private function determineResources():void {
+            // Determine resource points
+            // Determine minerals
+            var resourceTypes:Array = [{type: Geography.STONE, count: 10},
+                {type: Geography.SALT, count: 10},
+                {type: Geography.IRON, count: 5}];
+            for each (var resourceType:Object in resourceTypes) {
+                // Determine static resource desirability
+                determineStaticResourceDesirability(resourceType.type);
+
+                // Reset all resource 'used' flags
+                for each (var r:String in resourceTypes)
+                    for each (var resource:Object in geo.getFeaturesByType(r))
+                        resource.used = false;
+
+                for (var i:int = 0; i < resourceType.count; i++) {
+                    determineResourceDesirability();
+
+                    if (cells[0].desirability > 0) {
+                        var feature:String = geo.registerFeature(resourceType.type);
+                        geo.addCellToFeature(cells[0], feature);
+                    }
+                }
+            }
+        }
+
+        private function determineStaticResourceDesirability(resourceType:String):void {
+            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
+                for each (var cell:Cell in land.cells) {
+                    cell.desirability = 0;
+                    for each (var neighbor:Cell in cell.neighbors) {
+                        // All minerals are found near mountains
+                        if (neighbor.hasFeatureType(Biome.MOUNTAIN)) {
+                            cell.desirability = 5;
+                            break;
+                        }
+
+                        // Salt is also found near lakes
+                        if (resourceType == Geography.SALT && neighbor.hasFeatureType(Geography.LAKE)) {
+                            cell.desirability = 5;
+                            break;
+                        }
+                    }
+
+                    // Don't allow minerals to spawn in mountains
+                    // Resource points will be used to spawn towns, and towns shouldn't generally exist up in mountains
+                    if (cell.hasFeatureType(Biome.MOUNTAIN))
+                        cell.desirability = 0;
+                }
+            }
+            for each (var city:City in civ.cities) {
+                city.cell.desirability = 0;
+                for each (neighbor in city.cell.neighbors)
+                    neighbor.desirability = 0;
+            }
+        }
+
+        private function determineResourceDesirability():void {
+            var resourceTypes:Array = [Geography.STONE, Geography.SALT, Geography.IRON];
+            for each (var resourceType:String in resourceTypes) {
+                for each (var resource:Object in geo.getFeaturesByType(resourceType)) {
+                    var queue:Array = [];
+                    var undesirability:Number = 20;
+                    var radius:Number = .8;
+
+                    resource.cells[0].used = true;
+                    resource.cells[0].desirability = 0;
+                    queue.push(resource.cells[0]);
+
+                    for (var i:int = 0; i < queue.length && undesirability > 0.01; i++) {
+                        undesirability *= radius;
+                        for each (var neighbor:Cell in (queue[i] as Cell).neighbors) {
+                            if (!neighbor.used) {
+                                neighbor.desirability -= undesirability;
+                                if (neighbor.desirability < 0)
+                                    neighbor.desirability = 0;
+
+                                neighbor.used = true;
+                                queue.push(neighbor);
+                            }
+                        }
+                    }
+
+                    unuseCells();
+                    resource.used = true;
+                }
+            }
+
+            cells.sort(Sort.sortByDesirability);
+        }
+
         private function determineRoads():void {
-            var settlements:Array = [];
-            for each (var settlement:Settlement in civ.settlements)
-                settlements.push(settlement);
+            // Determine roads
+            var cities:Array = [];
+            for each (var city:City in civ.cities)
+                cities.push(city);
 
-            settlements.sort(Sort.sortByCellIndex);
+            cities.sort(Sort.sortByCellIndex);
 
-            var settlementPoints:Vector.<Point> = new Vector.<Point>();
-            for each (settlement in settlements)
-                settlementPoints.push(settlement.point);
+            var cityPoints:Vector.<Point> = new Vector.<Point>();
+            for each (city in cities)
+                cityPoints.push(city.point);
 
-            // Create a voronoi diagram of the settlements to determine settlement neighbors
-            var voronoi:Voronoi = new Voronoi(settlementPoints, null, new Rectangle(0, 0, width, height));
-            for each (settlement in settlements)
-                voronoi.region(settlement.point);
+            // Create a voronoi diagram of the cities to determine city neighbors
+            var voronoi:Voronoi = new Voronoi(cityPoints, null, new Rectangle(0, 0, width, height));
+            for each (city in cities)
+                voronoi.region(city.point);
 
-            // Determine costs
+            // Initially determine costs
             for each (var cell:Cell in cells)
                 cell.determineCost();
 
-            for each (settlement in settlements) {
-                var neighborPoints:Vector.<Point> = voronoi.neighborSitesForSite(settlement.point);
+            for each (city in cities) {
+                var neighborPoints:Vector.<Point> = voronoi.neighborSitesForSite(city.point);
                 for each (var neighborPoint:Point in neighborPoints) {
-                    for each (var neighborSettlement:Settlement in settlements) {
-                        if (neighborSettlement.point == neighborPoint && !civ.roadExists(settlement, neighborSettlement)) {
-                            // From settlement.cell to neighbor.cell
-                            var queue:Array = [];
-                            queue.push(settlement.cell);
-                            settlement.cell.costSoFar = 0;
+                    for each (var neighborCity:City in cities) {
+                        if (neighborCity.point == neighborPoint) {
+                            city.neighbors.push(neighborCity);
+                            // From city.cell to neighbor.cell
+                            var queue:Vector.<Cell> = new Vector.<Cell>();
+                            queue.push(city.cell);
+                            city.cell.costSoFar = 0;
 
                             while (queue.length > 0) {
                                 var current:Cell = queue.shift();
 
                                 // Reached the destination
-                                if (current.index == neighborSettlement.cell.index)
+                                if (current.index == neighborCity.cell.index)
                                     break;
 
                                 // Loop through queue
                                 for each (var next:Cell in current.neighbors) {
                                     // Each queue item's neighbors
-                                    var nextCost:int = next.road ? 1 : next.cost;
+                                    var nextCost:int = next.cost;
                                     var newCost:int = current.costSoFar + nextCost;
                                     if (!next.used || newCost < next.costSoFar) {
                                         next.used = true;
@@ -788,9 +894,10 @@ package {
                                         next.cameFrom = current;
                                         next.priority = newCost;
                                         // Place 'next' in the queue
-                                        if (newCost < 500) {
-                                            if (queue.length > 0) {
-                                                for (var i:int = 0; i < queue.length; i++)
+                                        if (newCost < 1000) {
+                                            var queueLength:int = queue.length;
+                                            if (queueLength > 0) {
+                                                for (var i:int = 0; i < queueLength; i++)
                                                     if (queue[i].priority > next.priority)
                                                         break;
                                                 queue.insertAt(i, next);
@@ -806,22 +913,48 @@ package {
                             unuseCells();
 
                             var roadCells:Vector.<Cell> = new Vector.<Cell>();
-                            cell = neighborSettlement.cell;
+                            cell = neighborCity.cell;
+                            var lastCell:Cell;
+
                             var cost:int = 0;
                             for (i = 0; i < 1000; i++) {
                                 roadCells.push(cell);
-                                if (cell.index == settlement.cell.index)
+                                // Reached the city
+                                if (cell == city.cell)
                                     break;
+                                // Reached any road that's not on neighborCity
+                                if (cell.road > 0 && cell != neighborCity.cell) {
+
+                                    // If the last cell visited is neighborCity
+                                    // and neighborCity had a road, clear the roadCells
+                                    if (lastCell && lastCell.road > 0 && lastCell == neighborCity.cell)
+                                        roadCells = new Vector.<Cell>();
+
+
+                                    break;
+                                }
+
+                                lastCell = cell;
                                 cell = cell.cameFrom;
+
+                                if (!cell)
+                                    break;
+
                                 cost += cell.costSoFar;
                             }
 
                             // Create the road
-                            if (cost < 200) {
-                                var road:String = civ.registerRoad(settlement, neighborSettlement);
+                            if (cost < 200 && roadCells.length > 0) {
+                                var road:String = civ.registerRoad(neighborCity.cell, cell);
                                 civ.addCellsToRoad(roadCells, road);
-                                for each (var cell in roadCells)
-                                    cell.road = true;
+                                for each (cell in roadCells) {
+
+                                    if (!cell.crossroad && cell.road > 0 && !cell.city)
+                                        civ.registerCrossroad(cell);
+
+                                    cell.road++;
+                                    cell.determineCost();
+                                }
                             }
 
                             // Clear cameFrom property in all cells
@@ -833,7 +966,89 @@ package {
             }
         }
 
-        private function determineStaticDesirability():void {
+        private function determineTowns():void {
+            // Each region should have a number of towns depending on its size
+            // Start by adding stone, salt, and iron resource points as towns
+            for each (var region:Object in civ.regions) {
+                region.towns = {};
+                for each (var cell:Cell in region.cells) {
+                    if (cell.hasFeatureType(Geography.STONE)) {
+                        // Add stone quarry town
+                        civ.registerTown(cell, Civilization.townTypeStone);
+                    } else if (cell.hasFeatureType(Geography.SALT)) {
+                        // Add salt mining town
+                        civ.registerTown(cell, Civilization.townTypeSalt);
+                    } else if (cell.hasFeatureType(Geography.IRON)) {
+                        // Add iron mining town
+                        civ.registerTown(cell, Civilization.townTypeIron);
+                    }
+                }
+            }
+
+            // Each crossroad should have a trade town
+            var distanceToNearestTownOrCity:Number;
+            for each (var crossroad:Object in civ.crossroads) {
+                // Can't be too close to other towns and cities
+                distanceToNearestTownOrCity = Number.POSITIVE_INFINITY;
+                for each (var town:Town in civ.towns) {
+                    var d:Number = Util.getDistanceBetweenTwoPoints(town.cell.point, crossroad.cell.point);
+                    if (!distanceToNearestTownOrCity || d < distanceToNearestTownOrCity)
+                        distanceToNearestTownOrCity = d;
+                }
+
+                for each (var city:City in civ.cities) {
+                    d = Util.getDistanceBetweenTwoPoints(city.cell.point, crossroad.cell.point);
+                    if (d < distanceToNearestTownOrCity)
+                        distanceToNearestTownOrCity = d;
+                }
+
+                // Trading towns should be at least 30 pixels away from other towns or cities
+                if (distanceToNearestTownOrCity > 30)
+                    civ.registerTown(crossroad.cell, Civilization.townTypeTrade);
+            }
+
+            // For each region, calculate how many towns it contains and how many it "should" (based on size)
+            // If it's large, add a single town (either a Fishing town or a Logging town, whichever's more reasonable)
+            for each (var region:Object in civ.regions) {
+                var townCount:int = 0;
+                var optimalFishingTownSpots:Array = [];
+                var optimalLoggingTownSpots:Array = [];
+                for each (var cell:Cell in region.cells) {
+                    if (cell.town)
+                        townCount++;
+                    else if (!cell.city) {
+                        if (cell.hasFeatureType(Geography.HAVEN))
+                            optimalFishingTownSpots.push(cell);
+                        else if (cell.hasFeatureType(Biome.TUNDRA) || cell.hasFeatureType(Biome.GRASSLAND) || cell.hasFeatureType(Biome.SAVANNA)) {
+                            for each (var neighbor:Cell in cell.neighbors) {
+                                if (neighbor.hasFeatureType(Biome.BOREAL_FOREST) || neighbor.hasFeatureType(Biome.TEMPERATE_FOREST) || neighbor.hasFeatureType(Biome.RAIN_FOREST)) {
+                                    optimalLoggingTownSpots.push(cell);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (townCount < region.cells.length / 20) {
+                    // Add a town
+                    // Should it be a Fishing town or a Logging town?
+                    optimalFishingTownSpots.sort(Sort.sortByIndex);
+                    optimalLoggingTownSpots.sort(Sort.sortByIndex);
+                    if (optimalFishingTownSpots.length > 0)
+                        civ.registerTown(optimalFishingTownSpots[0], Civilization.townTypeFish);
+                    else if (optimalLoggingTownSpots.length > 0)
+                        civ.registerTown(optimalLoggingTownSpots[0], Civilization.townTypeWood);
+                }
+            }
+        }
+
+
+        private function determineSeaRoutes():void {
+
+        }
+
+        private function determineStaticCityDesirability():void {
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
                 for each (var cell:Cell in land.cells) {
                     cell.desirability = 1;
@@ -865,19 +1080,19 @@ package {
                 }
             }
 
-            determineDesirability();
+            determineCityDesirability();
         }
 
-        private function determineDesirability():void {
-            for each (var settlement:Settlement in civ.settlements) {
-                if (!settlement.used) {
+        private function determineCityDesirability():void {
+            for each (var city:City in civ.cities) {
+                if (!city.used) {
                     var queue:Array = [];
                     var undesirability:Number = 20;
                     var radius:Number = .8;
 
-                    settlement.cell.used = true;
-                    settlement.cell.desirability = 0;
-                    queue.push(settlement.cell);
+                    city.cell.used = true;
+                    city.cell.desirability = 0;
+                    queue.push(city.cell);
 
                     for (var i:int = 0; i < queue.length && undesirability > 0.01; i++) {
                         undesirability *= radius;
@@ -894,7 +1109,7 @@ package {
                     }
 
                     unuseCells();
-                    settlement.used = true;
+                    city.used = true;
                 }
             }
 
@@ -1070,12 +1285,11 @@ package {
             drawRiversLayer();
             drawForestsLayer();
             drawMountainsLayer();
-            drawSettlementsLayer();
-            drawRoadsLayer();
             drawRegionsLayer();
+            drawRoadsLayer();
+            drawCitiesLayer();
             drawElevationLayer();
             drawTemperatureLayer();
-            drawDesirabilityLayer();
             drawOutlinesLayer();
 
             // The show function toggles visibility on and off for specific layers
@@ -1177,7 +1391,10 @@ package {
              */
 
             var coastlineFeatureTypes:Array = [Geography.OCEAN, Geography.LAND, Geography.LAKE];
-            var coastlineColors:Object = {"land": Biome.colors.saltWater_stroke, "lake": Biome.colors.freshWater_stroke}
+            var coastlineColors:Object = {
+                "land": Biome.colors.saltWater_stroke,
+                "lake": Biome.colors.freshWater_stroke
+            }
             for each (var featureType:String in coastlineFeatureTypes) {
                 for (var key:String in geo.getFeaturesByType(featureType)) {
                     var feature:Object = geo.features[key];
@@ -1297,42 +1514,6 @@ package {
             // todo
         }
 
-        private function drawSettlementsLayer():void {
-            /**
-             * Draw Settlements
-             */
-
-            settlementsLayer.graphics.lineStyle(1, 0x000000);
-            for each (var settlement:Settlement in civ.settlements) {
-                settlementsLayer.graphics.beginFill(0xffffff);
-                settlementsLayer.graphics.drawCircle(settlement.point.x, settlement.point.y, 3);
-                settlementsLayer.graphics.endFill();
-            }
-        }
-
-        private function drawRoadsLayer():void {
-            /**
-             * Draw Roads
-             */
-
-            for each (var road:Object in civ.roads) {
-                roadsLayer.graphics.lineStyle(1, 0x000000);
-
-                var points:Array = [];
-                var thicknesses:Array = [];
-                for each (var cell:Cell in road.cells) {
-                    points.push(cell.point);
-                    thicknesses.push(1);
-                }
-
-
-                CubicBezier.curveThroughPoints(roadsLayer.graphics, points, thicknesses, 0x000000);
-//                roadsLayer.graphics.moveTo(road.cells[0].point.x, road.cells[0].point.y);
-//                for each (var cell:Cell in road.cells)
-//                    roadsLayer.graphics.lineTo(cell.point.x, cell.point.y);
-            }
-        }
-
         private function drawRegionsLayer():void {
             /**
              * Draw Regions
@@ -1344,6 +1525,46 @@ package {
                 var color:uint = 0xffffff * rand.next();
                 for each (var cell:Cell in region.cells)
                     fillCell(regionsLayer.graphics, cell, color);
+            }
+        }
+
+        private function drawCitiesLayer():void {
+            /**
+             * Draw Cities
+             */
+
+            citiesLayer.graphics.lineStyle(1, 0x000000);
+            for each (var city:City in civ.cities) {
+                citiesLayer.graphics.beginFill(0xffffff);
+                citiesLayer.graphics.drawCircle(city.point.x, city.point.y, 5);
+                citiesLayer.graphics.endFill();
+            }
+
+            for each (var town:Town in civ.towns) {
+                citiesLayer.graphics.beginFill(0xcccccc);
+                citiesLayer.graphics.drawCircle(town.point.x, town.point.y, 3);
+                citiesLayer.graphics.endFill();
+            }
+        }
+
+        private function drawRoadsLayer():void {
+            /**
+             * Draw Roads
+             */
+
+            for each (var road:Object in civ.roads) {
+                var roadSegments:Array = [[]];
+                var i:int = 0;
+                for each (var cell:Cell in road.cells) {
+                    roadSegments[i].push(cell.point);
+                    if (cell.crossroad) {
+                        roadSegments.push([cell.point]);
+                        i++;
+                    }
+                }
+
+                for each (var roadSegment:Array in roadSegments)
+                    CubicBezier.curveThroughPoints(roadsLayer.graphics, roadSegment, 0x000000);
             }
         }
 
@@ -1366,18 +1587,6 @@ package {
             for each (var cell:Cell in cells) {
                 if (cell.elevation > SEA_LEVEL)
                     fillCell(temperatureLayer.graphics, cell, getColorFromTemperature(cell.temperature));
-            }
-        }
-
-        private function drawDesirabilityLayer():void {
-            /**
-             * Draw Desirability
-             */
-
-            desirabilityLayer.graphics.lineStyle();
-            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                for each (var cell:Cell in land.cells)
-                    fillCell(desirabilityLayer.graphics, cell, Util.getColorBetweenColors(0x0000ff, 0xffff00, cell.desirability / 10));
             }
         }
 
@@ -1602,6 +1811,7 @@ package {
             // Reset Geography
             geo.reset();
             civ.reset();
+            names.reset();
 
             // Reset cells
             for each (var cell:Cell in cells)
@@ -1619,6 +1829,8 @@ package {
 
         private function humanReadableCell(cell:Cell):String {
             var str:String = "#" + cell.index;
+            if (cell.town)
+                str += "\n" + cell.town.name;
             for each (var feature:Object in cell.features) {
                 str += "\n > " + feature.type + " (" + feature.cells.length + ")";
                 if (feature.ecosystem) {
@@ -1675,12 +1887,11 @@ package {
             riversLayer.visible = drawRivers;
             forestsLayer.visible = drawForests;
             mountainsLayer.visible = drawMountains;
-            settlementsLayer.visible = drawSettlements;
+            citiesLayer.visible = drawCities;
             roadsLayer.visible = drawRoads;
             regionsLayer.visible = drawRegions;
             elevationLayer.visible = drawElevation;
             temperatureLayer.visible = drawTemperature;
-            desirabilityLayer.visible = drawDesirability;
             outlinesLayer.visible = drawOutlines;
         }
     }

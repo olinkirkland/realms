@@ -1,4 +1,12 @@
 package generation {
+    import generation.towns.FishingTown;
+    import generation.towns.IronMine;
+    import generation.towns.LoggingTown;
+    import generation.towns.SaltMine;
+    import generation.towns.StoneQuarry;
+    import generation.towns.Town;
+    import generation.towns.TradeTown;
+
     import graph.Cell;
 
     import mx.utils.UIDUtil;
@@ -7,10 +15,22 @@ package generation {
         private static var _instance:Civilization;
 
         // Generation
-        public var settlementsById:Object = {};
-        public var settlementsByCell:Object = {};
+        public var citiesById:Object = {};
+        public var citiesByCell:Object = {};
+        public var townsById:Object = {};
+        public var townsByCell:Object = {};
         public var regions:Object = {};
         public var roads:Object = {};
+        public var seaRoutes:Object = {};
+        public var crossroads:Object = {};
+
+        // Town Types
+        public static var townTypeIron:String = "iron";
+        public static var townTypeSalt:String = "salt";
+        public static var townTypeStone:String = "stone";
+        public static var townTypeTrade:String = "trade";
+        public static var townTypeWood:String = "wood";
+        public static var townTypeFish:String = "fish";
 
         public function Civilization() {
             if (_instance)
@@ -24,23 +44,69 @@ package generation {
             return _instance;
         }
 
-        public function get settlements():Object {
-            return settlementsById;
+        public function get cities():Object {
+            return citiesById;
+        }
+
+        public function get towns():Object {
+            return townsById;
         }
 
         public function reset():void {
             regions = {};
-            settlementsById = {};
-            settlementsByCell = {};
+
+            citiesById = {};
+            citiesByCell = {};
+            townsById = {};
+            townsByCell = {};
+
+            roads = {};
+            seaRoutes = {};
+            crossroads = {};
         }
 
-        public function registerSettlement(cell:Cell):String {
+        public function registerCity(cell:Cell):String {
             var id:String = UIDUtil.createUID();
-            var settlement:Settlement = new Settlement(cell, id);
-            cell.settlement = settlement;
+            var city:City = new City(cell, id);
+            cell.city = city;
 
-            settlementsById[id] = settlement;
-            settlementsByCell[cell] = settlement;
+            citiesById[id] = city;
+            citiesByCell[cell] = city;
+
+            return id;
+        }
+
+        public function registerTown(cell:Cell, type:String):String {
+            var id:String = UIDUtil.createUID();
+
+            var town:Town;
+            switch (type) {
+                case townTypeIron:
+                    town = new IronMine(cell, id);
+                    break;
+                case townTypeSalt:
+                    town = new SaltMine(cell, id);
+                    break;
+                case townTypeStone:
+                    town = new StoneQuarry(cell, id);
+                    break;
+                case townTypeTrade:
+                    town = new TradeTown(cell, id);
+                    break;
+                case townTypeWood:
+                    town = new LoggingTown(cell, id);
+                    break;
+                case townTypeFish:
+                    town = new FishingTown(cell, id);
+                    break;
+                default:
+                    break;
+            }
+
+            cell.town = town;
+
+            townsById[id] = town;
+            townsByCell[cell] = town;
 
             return id;
         }
@@ -65,24 +131,37 @@ package generation {
         }
 
 
-        public function registerRoad(startingSettlement:Settlement, endingSettlement:Settlement):String {
+        public function registerCrossroad(cell:Cell):String {
             var id:String = UIDUtil.createUID();
 
-            roads[id] = {id: id, startingSettlement: startingSettlement, endingSettlement: endingSettlement};
+            cell.crossroad = true;
+            crossroads[id] = {id: id, cell: cell};
 
             return id;
         }
 
-        public function roadExists(startingSettlement:Settlement, endingSettlement:Settlement):Boolean {
-            for each (var road:Object in roads)
-                if (road.endingSettlement.cell.index == startingSettlement.cell.index && road.startingSettlement.cell.index == endingSettlement.cell.index)
-                    return true;
+        public function registerRoad(startingCell:Cell, endingCell:Cell):String {
+            var id:String = UIDUtil.createUID();
 
-            return false;
+            roads[id] = {id: id, startingCell: startingCell, endingCell: endingCell};
+
+            return id;
         }
 
         public function addCellsToRoad(cells:Vector.<Cell>, road:String):void {
             roads[road].cells = cells;
+        }
+
+        public function registerSeaRoute(startingCell:Cell, endingCell:Cell):String {
+            var id:String = UIDUtil.createUID();
+
+            seaRoutes[id] = {id: id, startingCell: startingCell, endingCell: endingCell};
+
+            return id;
+        }
+
+        public function addCellsToSeaRoute(cells:Vector.<Cell>, seaRoute:String):void {
+            seaRoutes[seaRoute].cells = cells;
         }
     }
 }

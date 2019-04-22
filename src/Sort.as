@@ -66,8 +66,8 @@ package {
                 return 0;
         }
 
-        public static function sortBySettlementCellIndex(n1:Object, n2:Object):Number {
-            return sortByCellIndex(n1.settlement, n2.settlement);
+        public static function sortByCityCellIndex(n1:Object, n2:Object):Number {
+            return sortByCellIndex(n1.city, n2.city);
         }
 
         public static function sortByCellCountAndSettlementCellIndex(n1:Object, n2:Object):int {
@@ -76,7 +76,7 @@ package {
             else if (n1.cells.length > n2.cells.length)
                 return -1;
             else
-                return sortBySettlementCellIndex(n1, n2);
+                return sortByCityCellIndex(n1, n2);
         }
 
         public static function sortByCompareValueAndSettlementCellIndex(n1:Object, n2:Object):int {
@@ -85,7 +85,7 @@ package {
             else if (n1.compare > n2.compare)
                 return -1;
             else
-                return sortBySettlementCellIndex(n1.region, n2.region);
+                return sortByCityCellIndex(n1.region, n2.region);
         }
     }
 }
