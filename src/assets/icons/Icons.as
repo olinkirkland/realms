@@ -7,13 +7,13 @@ package assets.icons {
         [Embed(source="tradeTown.png")]
         public static const TradeTown:Class;
 
-        [Embed(source="loggingTown.png")]
+        [Embed(source="ironMine.png")]
         public static const IronMine:Class;
 
-        [Embed(source="loggingTown.png")]
+        [Embed(source="saltMine.png")]
         public static const SaltMine:Class;
 
-        [Embed(source="loggingTown.png")]
+        [Embed(source="stoneQuarry.png")]
         public static const StoneQuarry:Class;
 
         [Embed(source="loggingTown.png")]

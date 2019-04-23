@@ -8,6 +8,9 @@ package {
     import flash.display.Graphics;
     import flash.display.Shape;
     import flash.events.MouseEvent;
+    import flash.filters.BitmapFilter;
+    import flash.filters.BitmapFilterQuality;
+    import flash.filters.BlurFilter;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.Dictionary;
@@ -1384,6 +1387,9 @@ package {
             // Draw details for all cells
             for each (cell in cells)
                 addCellDetail(reliefLayer.graphics, cell);
+
+            var filter:BitmapFilter = new BlurFilter(5, 5, BitmapFilterQuality.HIGH);
+            terrainLayer.filters = [filter];
         }
 
         private function drawCoastlinesLayer():void {

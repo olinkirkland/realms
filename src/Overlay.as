@@ -58,7 +58,7 @@ package {
 
             // Draw new labels
             //labelLands();
-            labelRegions();
+            //labelRegions();
             labelCitiesAndTowns();
 
             // Position labels
