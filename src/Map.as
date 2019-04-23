@@ -14,11 +14,11 @@ package {
     import flash.utils.setTimeout;
 
     import generation.Biome;
+    import generation.City;
     import generation.Civilization;
     import generation.Ecosystem;
     import generation.Geography;
     import generation.Names;
-    import generation.City;
     import generation.towns.Town;
 
     import graph.Cell;
@@ -58,7 +58,6 @@ package {
         private var forestsLayer:Shape = new Shape();
         private var mountainsLayer:Shape = new Shape();
         private var reliefLayer:Shape = new Shape();
-        private var citiesLayer:Shape = new Shape();
         private var roadsLayer:Shape = new Shape();
         private var regionsLayer:Shape = new Shape();
         private var elevationLayer:Shape = new Shape();
@@ -101,7 +100,6 @@ package {
                 reliefLayer,
                 regionsLayer,
                 roadsLayer,
-                citiesLayer,
                 elevationLayer,
                 temperatureLayer,
                 outlinesLayer
@@ -974,13 +972,13 @@ package {
                 for each (var cell:Cell in region.cells) {
                     if (cell.hasFeatureType(Geography.STONE)) {
                         // Add stone quarry town
-                        civ.registerTown(cell, Civilization.townTypeStone);
+                        civ.registerTown(cell, Town.STONE);
                     } else if (cell.hasFeatureType(Geography.SALT)) {
                         // Add salt mining town
-                        civ.registerTown(cell, Civilization.townTypeSalt);
+                        civ.registerTown(cell, Town.SALT);
                     } else if (cell.hasFeatureType(Geography.IRON)) {
                         // Add iron mining town
-                        civ.registerTown(cell, Civilization.townTypeIron);
+                        civ.registerTown(cell, Town.IRON);
                     }
                 }
             }
@@ -1004,7 +1002,7 @@ package {
 
                 // Trading towns should be at least 30 pixels away from other towns or cities
                 if (distanceToNearestTownOrCity > 30)
-                    civ.registerTown(crossroad.cell, Civilization.townTypeTrade);
+                    civ.registerTown(crossroad.cell, Town.TRADE);
             }
 
             // For each region, calculate how many towns it contains and how many it "should" (based on size)
@@ -1035,10 +1033,14 @@ package {
                     // Should it be a Fishing town or a Logging town?
                     optimalFishingTownSpots.sort(Sort.sortByIndex);
                     optimalLoggingTownSpots.sort(Sort.sortByIndex);
-                    if (optimalFishingTownSpots.length > 0)
-                        civ.registerTown(optimalFishingTownSpots[0], Civilization.townTypeFish);
-                    else if (optimalLoggingTownSpots.length > 0)
-                        civ.registerTown(optimalLoggingTownSpots[0], Civilization.townTypeWood);
+                    if (optimalFishingTownSpots.length > 0) {
+                        //todo make sure towns are only registered if they're a reasonable distance from other towns or cities
+                        civ.registerTown(optimalFishingTownSpots[0], Town.FISH);
+
+                    } else if (optimalLoggingTownSpots.length > 0) {
+                        //todo make sure towns are only registered if they're a reasonable distance from other towns or cities
+                        civ.registerTown(optimalLoggingTownSpots[0], Town.WOOD);
+                    }
                 }
             }
         }
@@ -1287,7 +1289,6 @@ package {
             drawMountainsLayer();
             drawRegionsLayer();
             drawRoadsLayer();
-            drawCitiesLayer();
             drawElevationLayer();
             drawTemperatureLayer();
             drawOutlinesLayer();
@@ -1525,25 +1526,6 @@ package {
                 var color:uint = 0xffffff * rand.next();
                 for each (var cell:Cell in region.cells)
                     fillCell(regionsLayer.graphics, cell, color);
-            }
-        }
-
-        private function drawCitiesLayer():void {
-            /**
-             * Draw Cities
-             */
-
-            citiesLayer.graphics.lineStyle(1, 0x000000);
-            for each (var city:City in civ.cities) {
-                citiesLayer.graphics.beginFill(0xffffff);
-                citiesLayer.graphics.drawCircle(city.point.x, city.point.y, 5);
-                citiesLayer.graphics.endFill();
-            }
-
-            for each (var town:Town in civ.towns) {
-                citiesLayer.graphics.beginFill(0xcccccc);
-                citiesLayer.graphics.drawCircle(town.point.x, town.point.y, 3);
-                citiesLayer.graphics.endFill();
             }
         }
 
@@ -1887,7 +1869,6 @@ package {
             riversLayer.visible = drawRivers;
             forestsLayer.visible = drawForests;
             mountainsLayer.visible = drawMountains;
-            citiesLayer.visible = drawCities;
             roadsLayer.visible = drawRoads;
             regionsLayer.visible = drawRegions;
             elevationLayer.visible = drawElevation;

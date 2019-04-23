@@ -24,14 +24,6 @@ package generation {
         public var seaRoutes:Object = {};
         public var crossroads:Object = {};
 
-        // Town Types
-        public static var townTypeIron:String = "iron";
-        public static var townTypeSalt:String = "salt";
-        public static var townTypeStone:String = "stone";
-        public static var townTypeTrade:String = "trade";
-        public static var townTypeWood:String = "wood";
-        public static var townTypeFish:String = "fish";
-
         public function Civilization() {
             if (_instance)
                 throw new Error("Singleton; Use getInstance() instead");
@@ -81,22 +73,22 @@ package generation {
 
             var town:Town;
             switch (type) {
-                case townTypeIron:
+                case Town.IRON:
                     town = new IronMine(cell, id);
                     break;
-                case townTypeSalt:
+                case Town.SALT:
                     town = new SaltMine(cell, id);
                     break;
-                case townTypeStone:
+                case Town.STONE:
                     town = new StoneQuarry(cell, id);
                     break;
-                case townTypeTrade:
+                case Town.TRADE:
                     town = new TradeTown(cell, id);
                     break;
-                case townTypeWood:
+                case Town.WOOD:
                     town = new LoggingTown(cell, id);
                     break;
-                case townTypeFish:
+                case Town.FISH:
                     town = new FishingTown(cell, id);
                     break;
                 default:

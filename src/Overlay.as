@@ -1,11 +1,16 @@
 package {
+    import assets.icons.Icons;
+
     import flash.display.MovieClip;
     import flash.geom.Point;
     import flash.geom.Rectangle;
 
+    import generation.City;
     import generation.Civilization;
     import generation.Geography;
+    import generation.towns.Town;
 
+    import labels.IconLabel;
     import labels.LandLabel;
     import labels.MapLabel;
     import labels.RegionLabel;
@@ -15,7 +20,8 @@ package {
 
     public class Overlay extends UIComponent {
         public var map:Map;
-        public var overlay:MovieClip;
+        public var regionLabelsLayer:MovieClip;
+        public var citiesAndTownsLayer:MovieClip;
 
         private var geo:Geography;
         private var civ:Civilization;
@@ -28,8 +34,10 @@ package {
         }
 
         private function onCreationComplete(event:FlexEvent):void {
-            overlay = new MovieClip();
-            addChild(overlay);
+            regionLabelsLayer = new MovieClip();
+            addChild(regionLabelsLayer);
+            citiesAndTownsLayer = new MovieClip();
+            addChild(citiesAndTownsLayer);
         }
 
         public function validate():void {
@@ -39,13 +47,19 @@ package {
 
         public function drawLabels():void {
             // Clear old labels
-            overlay.graphics.clear();
-            while (overlay.numChildren > 0)
-                overlay.removeChildAt(0);
+            regionLabelsLayer.graphics.clear();
+            while (regionLabelsLayer.numChildren > 0)
+                regionLabelsLayer.removeChildAt(0);
+
+            // Clear old icons
+            citiesAndTownsLayer.graphics.clear();
+            while (citiesAndTownsLayer.numChildren > 0)
+                citiesAndTownsLayer.removeChildAt(0);
 
             // Draw new labels
             //labelLands();
             labelRegions();
+            labelCitiesAndTowns();
 
             // Position labels
             positionLabels(1);
@@ -53,21 +67,30 @@ package {
 
         public function positionLabels(scale:Number):void {
             // Position labels
-            for (var i:int = 0; i < overlay.numChildren; i++) {
-                var label:MapLabel = overlay.getChildAt(i) as MapLabel;
+            positionLayerChildren(scale, regionLabelsLayer);
+            positionLayerChildren(scale, citiesAndTownsLayer);
+
+            handleLabelIntersections();
+        }
+
+        public function positionLayerChildren(scale:Number, layer:MovieClip):void {
+            for (var i:int = 0; i < layer.numChildren; i++) {
+                var label:MapLabel = layer.getChildAt(i) as MapLabel;
                 label.x = label.point.x * scale;
                 label.y = label.point.y * scale;
             }
+        }
 
+        private function handleLabelIntersections():void {
             // Make sure labels aren't overlapping
             var intersections:int;
             do {
                 intersections = 0;
-                for (i = 0; i < overlay.numChildren; i++) {
-                    for (var j:int = 0; j < overlay.numChildren; j++) {
+                for (var i:int = 0; i < regionLabelsLayer.numChildren; i++) {
+                    for (var j:int = 0; j < regionLabelsLayer.numChildren; j++) {
                         if (i != j) {
-                            var label1:MapLabel = overlay.getChildAt(i) as MapLabel;
-                            var label2:MapLabel = overlay.getChildAt(j) as MapLabel;
+                            var label1:MapLabel = regionLabelsLayer.getChildAt(i) as MapLabel;
+                            var label2:MapLabel = regionLabelsLayer.getChildAt(j) as MapLabel;
                             if (label1.getBounds(this).intersects(label2.getBounds(this))) {
                                 while (label1.getBounds(this).intersects(label2.getBounds(this))) {
                                     var rect:Rectangle = label1.getBounds(this).intersection(label2.getBounds(this));
@@ -101,7 +124,7 @@ package {
             for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
                 var label:LandLabel = new LandLabel(land);
                 label.point = new Point(land.centroid.x, land.centroid.y);
-                overlay.addChild(label);
+                regionLabelsLayer.addChild(label);
             }
         }
 
@@ -123,7 +146,25 @@ package {
             });
 
             for each (label in regionLabels)
-                overlay.addChild(label);
+                regionLabelsLayer.addChild(label);
+        }
+
+        private function labelCitiesAndTowns():void {
+            var label:IconLabel;
+            for each (var city:City in civ.cities) {
+                label = new IconLabel(new Icons.City());
+                label.point = new Point(city.cell.point.x, city.cell.point.y);
+                label.x = label.point.x;
+                label.y = label.point.y;
+                citiesAndTownsLayer.addChild(label);
+            }
+            for each (var town:Town in civ.towns) {
+                label = new IconLabel(Icons.townIconFromType(town.townType));
+                label.point = new Point(town.cell.point.x, town.cell.point.y);
+                label.x = label.point.x;
+                label.y = label.point.y;
+                citiesAndTownsLayer.addChild(label);
+            }
         }
 
         public function toggle():void {
