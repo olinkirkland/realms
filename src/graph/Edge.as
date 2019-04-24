@@ -13,6 +13,9 @@ package graph {
         // Halfway between v0 and v1
         public var midpoint:Point;
 
+        // Noise to make this edge look less boring
+        public var noisyPoints:Array;
+
         // Directions
         public var delaunayAngle:Number;
         public var voronoiAngle:Number;

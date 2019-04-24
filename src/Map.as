@@ -6,11 +6,11 @@ package {
     import flash.display.Bitmap;
     import flash.display.BitmapData;
     import flash.display.Graphics;
-    import flash.display.Shape;
+    import flash.display.MovieClip;
+    import flash.display.Sprite;
     import flash.events.MouseEvent;
-    import flash.filters.BitmapFilter;
-    import flash.filters.BitmapFilterQuality;
     import flash.filters.BlurFilter;
+    import flash.filters.GlowFilter;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.Dictionary;
@@ -32,7 +32,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 24000;
+        public static var NUM_POINTS:int = 25000;
         public static var SEA_LEVEL:Number = .2;
         public static var MOUNTAIN_ELEVATION:Number = .9;
         public static var MOUNTAIN_ELEVATION_ADJACENT:Number = .85;
@@ -54,26 +54,26 @@ package {
         // Layers
         private var layers:Array;
 
-        private var oceanLayer:Shape = new Shape();
-        private var terrainLayer:Shape = new Shape();
-        private var coastlinesLayer:Shape = new Shape();
-        private var riversLayer:Shape = new Shape();
-        private var forestsLayer:Shape = new Shape();
-        private var mountainsLayer:Shape = new Shape();
-        private var reliefLayer:Shape = new Shape();
-        private var roadsLayer:Shape = new Shape();
-        private var regionsLayer:Shape = new Shape();
-        private var elevationLayer:Shape = new Shape();
-        private var temperatureLayer:Shape = new Shape();
-        private var outlinesLayer:Shape = new Shape();
+        private var oceanLayer:MovieClip = new MovieClip();
+        private var terrainLayer:MovieClip = new MovieClip();
+        private var coastlinesLayer:MovieClip = new MovieClip();
+        private var riversLayer:MovieClip = new MovieClip();
+        private var forestsLayer:MovieClip = new MovieClip();
+        private var mountainsLayer:MovieClip = new MovieClip();
+        private var reliefLayer:MovieClip = new MovieClip();
+        private var roadsLayer:MovieClip = new MovieClip();
+        private var regionsLayer:MovieClip = new MovieClip();
+        private var elevationLayer:MovieClip = new MovieClip();
+        private var temperatureLayer:MovieClip = new MovieClip();
+        private var outlinesLayer:MovieClip = new MovieClip();
 
         // Toggles
         public var drawOcean:Boolean = true;
         public var drawTerrain:Boolean = true;
-        public var drawCoastlines:Boolean = false;
-        public var drawRivers:Boolean = false;
-        public var drawForests:Boolean = false;
-        public var drawMountains:Boolean = false;
+        public var drawCoastlines:Boolean = true;
+        public var drawRivers:Boolean = true;
+        public var drawForests:Boolean = true;
+        public var drawMountains:Boolean = true;
         public var drawCities:Boolean = true;
         public var drawRoads:Boolean = true;
         public var drawRegions:Boolean = false;
@@ -125,8 +125,10 @@ package {
             staticMode = new Bitmap();
             addChild(staticMode);
 
-            for each (var layer:Shape in layers)
+            for each (var layer:MovieClip in layers) {
+                layer.cacheAsBitmap = true;
                 addChild(layer);
+            }
         }
 
         private function tryToLoadPoints():void {
@@ -157,7 +159,6 @@ package {
             relaxPoints();
             trace("Relaxing (3/3)");
             relaxPoints();
-            trace("Points generated!");
 
             if (Util.isAir()) {
                 AirOnlyUtil.savePointsToFile(points);
@@ -638,7 +639,7 @@ package {
             determineStaticCityDesirability();
 
             var i:int = 0;
-            for (var i:int = 0; i < 200; i++) {
+            for (var i:int = 0; i < 120; i++) {
                 determineCityDesirability();
 
                 civ.registerCity(cells[0]);
@@ -1031,18 +1032,63 @@ package {
                     }
                 }
 
-                if (townCount < region.cells.length / 20) {
+                if (townCount < region.cells.length / 10) {
                     // Add a town
                     // Should it be a Fishing town or a Logging town?
+                    var townAdded:Boolean = false;
                     optimalFishingTownSpots.sort(Sort.sortByIndex);
                     optimalLoggingTownSpots.sort(Sort.sortByIndex);
                     if (optimalFishingTownSpots.length > 0) {
-                        //todo make sure towns are only registered if they're a reasonable distance from other towns or cities
-                        civ.registerTown(optimalFishingTownSpots[0], Town.FISH);
+                        for each (var optimalFishingTownSpot:Cell in optimalFishingTownSpots) {
+                            // Can't be too close to other towns and cities
+                            distanceToNearestTownOrCity = Number.POSITIVE_INFINITY;
+                            for each (town in civ.towns) {
+                                var d:Number = Util.getDistanceBetweenTwoPoints(town.cell.point, optimalFishingTownSpot.point);
+                                if (!distanceToNearestTownOrCity || d < distanceToNearestTownOrCity)
+                                    distanceToNearestTownOrCity = d;
+                            }
 
-                    } else if (optimalLoggingTownSpots.length > 0) {
-                        //todo make sure towns are only registered if they're a reasonable distance from other towns or cities
-                        civ.registerTown(optimalLoggingTownSpots[0], Town.WOOD);
+                            for each (var city:City in civ.cities) {
+                                var d:Number = Util.getDistanceBetweenTwoPoints(city.cell.point, optimalFishingTownSpot.point);
+                                if (d < distanceToNearestTownOrCity)
+                                    distanceToNearestTownOrCity = d;
+                            }
+
+                            // Fishing towns should be at least 30 pixels away from other towns or cities
+                            if (distanceToNearestTownOrCity > 30) {
+                                civ.registerTown(optimalFishingTownSpot, Town.FISH);
+                                townAdded = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!townAdded && optimalLoggingTownSpots.length > 0) {
+                        for each (var optimalLoggingTownSpot:Cell in optimalLoggingTownSpots) {
+                            // Can't be too close to other towns and cities
+                            distanceToNearestTownOrCity = Number.POSITIVE_INFINITY;
+                            for each (town in civ.towns) {
+                                var d:Number = Util.getDistanceBetweenTwoPoints(town.cell.point, optimalLoggingTownSpot.point);
+                                if (!distanceToNearestTownOrCity || d < distanceToNearestTownOrCity)
+                                    distanceToNearestTownOrCity = d;
+                            }
+
+                            for each (var city:City in civ.cities) {
+                                var d:Number = Util.getDistanceBetweenTwoPoints(city.cell.point, optimalLoggingTownSpot.point);
+                                if (d < distanceToNearestTownOrCity)
+                                    distanceToNearestTownOrCity = d;
+                            }
+
+                            // Logging towns should be at least 30 pixels away from other towns or cities
+                            if (distanceToNearestTownOrCity > 30) {
+                                civ.registerTown(optimalLoggingTownSpot, Town.WOOD);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!townAdded) {
+                        // todo generic town type here?
                     }
                 }
             }
@@ -1280,8 +1326,11 @@ package {
              */
 
             // Clear all layers
-            for each (var layer:Shape in layers)
+            for each (var layer:MovieClip in layers) {
+                while (layer.numChildren > 0)
+                    layer.removeChildAt(0);
                 layer.graphics.clear();
+            }
 
             // Draw all the layers
             drawOceanLayer();
@@ -1388,8 +1437,8 @@ package {
             for each (cell in cells)
                 addCellDetail(reliefLayer.graphics, cell);
 
-            var filter:BitmapFilter = new BlurFilter(5, 5, BitmapFilterQuality.HIGH);
-            terrainLayer.filters = [filter];
+//            var filter:BitmapFilter = new BlurFilter(5, 5, BitmapFilterQuality.HIGH);
+//            terrainLayer.filters = [filter];
         }
 
         private function drawCoastlinesLayer():void {
@@ -1409,7 +1458,7 @@ package {
                         for each (var edge:Edge in cell.edges) {
                             if (edge.v0 && edge.v1 && edge.d0 && edge.d1) {
                                 if (!edge.d0.features[key] || !edge.d1.features[key]) {
-                                    var noisyPoints:Array = Util.generateNoisyPoints(edge.v0.point, edge.v1.point, 2);
+                                    var noisyPoints:Array = edge.noisyPoints;
 
                                     // Fill
                                     coastlinesLayer.graphics.lineStyle();
@@ -1526,12 +1575,73 @@ package {
              * Draw Regions
              */
 
-            var rand:Rand = new Rand(1);
-            regionsLayer.graphics.lineStyle();
             for each (var region:Object in civ.regions) {
-                var color:uint = 0xffffff * rand.next();
+                var regionBorderEdges:Array = [];
                 for each (var cell:Cell in region.cells)
-                    fillCell(regionsLayer.graphics, cell, color);
+                    for each (var edge:Edge in cell.edges)
+                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1)
+                            if (edge.d0.region != region.id || edge.d1.region != region.id)
+                                regionBorderEdges.push(edge);
+
+                var regionBorderPoints:Array = [];
+                var firstEdge:Edge = regionBorderEdges.shift();
+                regionBorderPoints.push.apply(this, firstEdge.noisyPoints);
+
+                while (regionBorderEdges.length > 0) {
+                    var current:Point = regionBorderPoints[regionBorderPoints.length - 1];
+                    for (var i:int = 0; i < regionBorderEdges.length; i++) {
+                        edge = regionBorderEdges[i];
+                        if (edge.v0.point.equals(current)) {
+                            //regionBorderPoints.push(edge.v0.point);
+                            regionBorderPoints.push.apply(this, edge.noisyPoints);
+                            regionBorderPoints.push(edge.v1.point);
+                            regionBorderEdges.removeAt(i);
+                            break;
+                        } else if (edge.v1.point.equals(current)) {
+                            //regionBorderPoints.push(edge.v1.point);
+                            regionBorderPoints.push.apply(this, edge.noisyPoints.reverse());
+                            regionBorderPoints.push(edge.v0.point);
+                            regionBorderEdges.removeAt(i);
+                            break;
+                        }
+                    }
+                }
+
+                var regionFill:MovieClip = new MovieClip();
+                regionFill.graphics.lineStyle();
+                regionFill.graphics.beginFill(0x000000);
+
+                var start:Point = regionBorderPoints.shift();
+                regionFill.graphics.moveTo(start.x, start.y);
+                for each (var p:Point in regionBorderPoints)
+                    regionFill.graphics.lineTo(p.x, p.y);
+
+                regionFill.graphics.endFill();
+
+                var filter:GlowFilter = new GlowFilter();
+                filter.quality = 10;
+                filter.blurX = 10;
+                filter.blurY = 10;
+                filter.strength = .8;
+                filter.inner = true;
+                filter.knockout = true;
+                filter.color = Util.randomColor();
+
+                regionFill.filters = [filter];
+                regionFill.cacheAsBitmap = true;
+
+                var regionOutline:MovieClip = new MovieClip();
+                regionOutline.graphics.copyFrom(regionFill.graphics);
+
+                filter.strength = 4;
+                filter.blurX = 2;
+                filter.blurY = 2;
+
+                regionOutline.filters = [filter];
+                regionOutline.cacheAsBitmap = true;
+
+                regionsLayer.addChild(regionFill);
+                regionsLayer.addChild(regionOutline);
             }
         }
 
@@ -1710,6 +1820,11 @@ package {
                 edge.d1 = cellDictionary[dEdge.p1];
 
                 setupEdge(edge);
+
+                if (edge.v0 && edge.v1)
+                    edge.noisyPoints = Util.generateNoisyPoints(edge.v0.point, edge.v1.point, 1);
+                else
+                    edge.noisyPoints = [];
             }
 
             /**
@@ -1863,7 +1978,7 @@ package {
         }
 
         public function hide():void {
-            for each (var layer:Shape in layers)
+            for each (var layer:MovieClip in layers)
                 layer.visible = false;
         }
 

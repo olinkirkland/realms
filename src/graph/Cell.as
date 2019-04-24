@@ -148,7 +148,7 @@ package graph {
             cost = 2;
             // Ocean
             if (hasFeatureType(Geography.OCEAN))
-                cost = 30;
+                cost = 100;
             // Lake
             if (hasFeatureType(Geography.LAKE))
                 cost = 10;

@@ -90,14 +90,17 @@ package {
             for (var i:int = 0; i < iterations; i++) {
                 var newArray:Array = [arr[0]];
 
+                var change:Number = 1.5;
+                var mod:Number = i + 1;
+
                 for (var j:int = 0; j < arr.length - 1; j++) {
                     var p:Point = pointBetweenPoints(arr[j],
                             arr[j + 1]);
 
-                    p.y += rand.between(-1,
-                            1);
-                    p.x += rand.between(-1,
-                            1);
+                    p.x += rand.between(-change / mod,
+                            change / mod);
+                    p.y += rand.between(-change / mod,
+                            change / mod);
 
                     newArray.push(p,
                             arr[j + 1]);
