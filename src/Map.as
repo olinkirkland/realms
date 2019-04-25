@@ -67,13 +67,13 @@ package {
 
         // Toggles
         public var drawOcean:Boolean = true;
-        public var drawTerrain:Boolean = true;
-        public var drawCoastlines:Boolean = true;
-        public var drawRivers:Boolean = true;
-        public var drawForests:Boolean = true;
-        public var drawMountains:Boolean = true;
-        public var drawCities:Boolean = true;
-        public var drawRoads:Boolean = true;
+        public var drawTerrain:Boolean = false;
+        public var drawCoastlines:Boolean = false;
+        public var drawRivers:Boolean = false;
+        public var drawForests:Boolean = false;
+        public var drawMountains:Boolean = false;
+        public var drawCities:Boolean = false;
+        public var drawRoads:Boolean = false;
         public var drawRegions:Boolean = false;
         public var drawElevation:Boolean = false;
         public var drawTemperature:Boolean = false;
@@ -1766,9 +1766,8 @@ package {
                 cellDictionary[point] = cell;
             }
 
-            for each (cell in cells) {
+            for each (cell in cells)
                 voronoi.region(cell.point);
-            }
 
             /**
              * Corners

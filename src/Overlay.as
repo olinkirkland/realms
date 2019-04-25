@@ -70,7 +70,7 @@ package {
             // Position labels
             regionLabelsLayer.scaleX = scale;
             regionLabelsLayer.scaleY = scale;
-            
+
             positionLayerChildren(scale, citiesAndTownsLayer);
         }
 
@@ -84,13 +84,12 @@ package {
 
         private function labelRegions():void {
             var regionLabels:Array = [];
-            var i:int = 0;
             for each (var region:Object in civ.regions) {
-                var label:RegionLabel = new RegionLabel(region);
-                regionLabels.push(label);
-                if (i > 3)
+                if (region.cells.length > 100) {
+                    var label:RegionLabel = new RegionLabel(region);
+                    regionLabels.push(label);
                     break;
-                i++;
+                }
             }
 
             for each (label in regionLabels)
