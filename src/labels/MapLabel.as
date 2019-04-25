@@ -3,7 +3,7 @@ package labels {
     import flash.geom.Point;
 
     public class MapLabel extends MovieClip {
-        public var point:Point;
+        public var point:Point = new Point(0, 0);
 
         public function MapLabel() {
             cacheAsBitmap = true;

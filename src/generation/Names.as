@@ -55,13 +55,13 @@ package generation {
          * Features
          */
 
-        [Embed(source="../assets/names/places/prefixesByContext.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/places/regions/prefixesByContext.json", mimeType="application/octet-stream")]
         private static const prefixesByContext_json:Class;
 
-        [Embed(source="../assets/names/places/suffixesByContext.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/places/regions/suffixesByContext.json", mimeType="application/octet-stream")]
         private static const suffixesByContext_json:Class;
 
-        [Embed(source="../assets/names/places/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/names/places/regions/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
         private static const suffixesByNamingGroup_json:Class;
 
         [Embed(source="../assets/names/places/compassDirections.json", mimeType="application/octet-stream")]
@@ -145,6 +145,9 @@ package generation {
                 analysis.land = true;
             }
 
+            if (cells.length > 120)
+                analysis.large = true;
+
             // Percent of river cells
             // Percent of lake cells
             // Percent of coastal cells
@@ -168,10 +171,10 @@ package generation {
                 averageTemperature += cell.temperature;
             }
 
-            if (riverCount > 2)
+            if (riverCount > 4 || riverCount / cells.length > .2)
                 analysis.highRiverRating = true;
 
-            if (lakeCount / cells.length > .05)
+            if (lakeCount > 4 || lakeCount / cells.length > .2)
                 analysis.highLakeRating = true;
 
             if (coastalCount / cells.length > .3)
@@ -335,15 +338,6 @@ package generation {
                 if (n.hasOwnProperty("nameBoundQualifier"))
                     region.name = n.nameBoundQualifier + " " + region.name;
             }
-
-            if (region.analysis.north)
-                region.name = "[N]";
-            if (region.analysis.east)
-                region.name = "[E]";
-            if (region.analysis.south)
-                region.name = "[S]";
-            if (region.analysis.west)
-                region.name = "[W]";
         }
 
         public function generateRegionPrefixAndSuffix(region:Object, rand:Rand):Object {
@@ -427,7 +421,6 @@ package generation {
 
             // Choose from possible combinations
             possibleCombinations = Util.removeDuplicatesFromArray(possibleCombinations);
-            possibleCombinations.sort(shuffleSort);
 
             var str:String = "Analysis: " + analysisKeys.join(",") + "\nCombinations: ";
             for each (var p:Object in possibleCombinations)
@@ -435,14 +428,22 @@ package generation {
             var choice:Object = {};
             do {
                 if (possibleCombinations.length > 0) {
-                    choice = possibleCombinations.shift();
+                    choice = possibleCombinations.removeAt(rand.between(0, possibleCombinations.length - 1));
                 } else {
+                    for each (var r:Object in civ.regions) {
+                        if (r.nameObject) {
+                            if (r.nameObject.prefix == choice.prefix && r.nameObject.suffix == choice.suffix) {
+                                if (r.cells.length > region.cells.length)
+                                    choice.prefix += "Little ";
+                                break;
+                            }
+                        }
+                    }
+
                     choice.prefix = "New " + choice.prefix;
                     break;
                 }
             } while (choice && existingNames.indexOf(choice.prefix + choice.suffix) > -1);
-
-            //trace("choice: " + choice.prefix + choice.suffix);
 
             prefix = choice.prefix;
             suffix = choice.suffix;
@@ -450,28 +451,19 @@ package generation {
             if (choice)
                 existingNames.push(choice.prefix + choice.suffix);
 
-            //trace(str);
-
             return {prefix: prefix, suffix: suffix};
+        }
 
-            function shuffleSort(n1:*, n2:*):int {
-                return (rand.next() > .5) ? 1 : -1;
+
+        public function nameCities(cities:Object):void {
+            for each (var city:City in cities) {
+                city.name = civ.regions[city.cell.region].name;
             }
         }
 
-        public function nameLands(lands:Object):void {
-            for each (var land:Object in lands) {
-                land.analysis = analyzeLand(land.cells);
-                // Name land
-                if (land.analysis["tinyIsland"])
-                    land.name = "Tiny Island";
-                if (land.analysis["smallIsland"])
-                    land.name = "Small Island";
-                if (land.analysis["largeIsland"])
-                    land.name = "Large Island";
-                if (land.analysis["continent"])
-                    land.name = "Continent";
-            }
+
+        public function nameTowns(towns:Object):void {
+
         }
 
         private function isValidPlaceName(prefix:String,

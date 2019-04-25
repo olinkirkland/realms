@@ -1,6 +1,9 @@
 package {
     import flash.geom.Point;
+    import flash.geom.Rectangle;
     import flash.system.Capabilities;
+
+    import spark.primitives.Rect;
 
     public class Util {
         public static function getColorBetweenColors(color1:uint = 0xFFFFFF, color2:uint = 0x000000, percent:Number = 0.5):uint {
@@ -49,6 +52,37 @@ package {
 
         public static function isAir():Boolean {
             return Capabilities.playerType == "Desktop";
+        }
+
+        public static function getIntersect(p1:Point, p2:Point, p3:Point, p4:Point):Point {
+            var v1:Point = new Point();
+            var v2:Point = new Point();
+            var d:Number;
+            var intersectPoint:Point = new Point();
+
+            v1.x = p2.x - p1.x;
+            v1.y = p2.y - p1.y;
+            v2.x = p4.x - p3.x;
+            v2.y = p4.y - p3.y;
+
+            d = v1.x * v2.y - v1.y * v2.x;
+            if (!d) {
+                // Points are collinear
+                return null;
+            }
+
+            var a:Number = p3.x - p1.x;
+            var b:Number = p3.y - p1.y;
+            var t:Number = (a * v2.y - b * v2.x) / d;
+            var s:Number = (b * v1.x - a * v1.y) / -d;
+            if (t < 0 || t > 1 || s < 0 || s > 1) {
+                // Line segments don't intersect
+                return null;
+            }
+
+            intersectPoint.x = p1.x + v1.x * t;
+            intersectPoint.y = p1.y + v1.y * t;
+            return intersectPoint;
         }
 
         public static function removeDuplicatesFromArray(arr:Array):Array {
@@ -152,6 +186,25 @@ package {
                 return directions[compassDirection];
             else
                 return "[" + compassDirection + "]";
+        }
+
+        public static function getBoundsFromPoints(points:Array):Rectangle {
+            // Sort
+            var topLeft:Point = new Point(points[0].x, points[0].y);
+            var bottomRight:Point = new Point(points[0].x, points[0].y);
+
+            for each (var point:Point in points) {
+                if (point.x < topLeft.x)
+                    topLeft.x = point.x;
+                if (point.y < topLeft.y)
+                    topLeft.y = point.y;
+                if (point.x > bottomRight.x)
+                    bottomRight.x = point.x;
+                if (point.y > bottomRight.y)
+                    bottomRight.y = point.y;
+            }
+
+            return new Rectangle(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
         }
     }
 }

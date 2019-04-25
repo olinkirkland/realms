@@ -7,9 +7,7 @@ package {
     import flash.display.BitmapData;
     import flash.display.Graphics;
     import flash.display.MovieClip;
-    import flash.display.Sprite;
     import flash.events.MouseEvent;
-    import flash.filters.BlurFilter;
     import flash.filters.GlowFilter;
     import flash.geom.Point;
     import flash.geom.Rectangle;
@@ -747,12 +745,50 @@ package {
 
                 // Lands contain a list of their contained regions
                 region.land.regions.push(region);
+
+                // Regions contain a list of their border points
+                var regionBorderEdges:Array = [];
+                for each (var cell:Cell in region.cells)
+                    for each (var edge:Edge in cell.edges)
+                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1)
+                            if (edge.d0.region != region.id || edge.d1.region != region.id)
+                                regionBorderEdges.push(edge);
+
+                var regionBorderPoints:Array = [];
+                var simpleBorderPoints:Array = [];
+                var firstEdge:Edge = regionBorderEdges.shift();
+                regionBorderPoints.push.apply(this, firstEdge.noisyPoints);
+                simpleBorderPoints.push.apply(this, [firstEdge.v0.point, firstEdge.v1.point]);
+
+                while (regionBorderEdges.length > 0) {
+                    var current:Point = regionBorderPoints[regionBorderPoints.length - 1];
+                    for (var i:int = 0; i < regionBorderEdges.length; i++) {
+                        edge = regionBorderEdges[i];
+                        if (edge.v0.point.equals(current)) {
+                            regionBorderPoints.push.apply(this, edge.noisyPoints);
+                            regionBorderPoints.push(edge.v1.point);
+                            simpleBorderPoints.push.apply(this, [edge.v0.point, edge.v1.point]);
+                            regionBorderEdges.removeAt(i);
+                            break;
+                        } else if (edge.v1.point.equals(current)) {
+                            regionBorderPoints.push.apply(this, edge.noisyPoints.reverse());
+                            regionBorderPoints.push(edge.v0.point);
+                            simpleBorderPoints.push.apply(this, [edge.v1.point, edge.v0.point]);
+                            regionBorderEdges.removeAt(i);
+                            break;
+                        }
+                    }
+                }
+
+                region.borderPoints = regionBorderPoints;
+                region.simpleBorderPoints = simpleBorderPoints;
             }
         }
 
         private function analyzeRegionsAndDetermineNames():void {
-            names.nameLands(geo.getFeaturesByType(Geography.LAND));
             names.nameRegions(civ.regions);
+            names.nameCities(civ.cities);
+            names.nameTowns(civ.towns);
         }
 
         private function determineResources():void {
@@ -1576,44 +1612,13 @@ package {
              */
 
             for each (var region:Object in civ.regions) {
-                var regionBorderEdges:Array = [];
-                for each (var cell:Cell in region.cells)
-                    for each (var edge:Edge in cell.edges)
-                        if (edge.v0 && edge.v1 && edge.d0 && edge.d1)
-                            if (edge.d0.region != region.id || edge.d1.region != region.id)
-                                regionBorderEdges.push(edge);
-
-                var regionBorderPoints:Array = [];
-                var firstEdge:Edge = regionBorderEdges.shift();
-                regionBorderPoints.push.apply(this, firstEdge.noisyPoints);
-
-                while (regionBorderEdges.length > 0) {
-                    var current:Point = regionBorderPoints[regionBorderPoints.length - 1];
-                    for (var i:int = 0; i < regionBorderEdges.length; i++) {
-                        edge = regionBorderEdges[i];
-                        if (edge.v0.point.equals(current)) {
-                            //regionBorderPoints.push(edge.v0.point);
-                            regionBorderPoints.push.apply(this, edge.noisyPoints);
-                            regionBorderPoints.push(edge.v1.point);
-                            regionBorderEdges.removeAt(i);
-                            break;
-                        } else if (edge.v1.point.equals(current)) {
-                            //regionBorderPoints.push(edge.v1.point);
-                            regionBorderPoints.push.apply(this, edge.noisyPoints.reverse());
-                            regionBorderPoints.push(edge.v0.point);
-                            regionBorderEdges.removeAt(i);
-                            break;
-                        }
-                    }
-                }
-
                 var regionFill:MovieClip = new MovieClip();
                 regionFill.graphics.lineStyle();
                 regionFill.graphics.beginFill(0x000000);
 
-                var start:Point = regionBorderPoints.shift();
+                var start:Point = region.borderPoints.shift();
                 regionFill.graphics.moveTo(start.x, start.y);
-                for each (var p:Point in regionBorderPoints)
+                for each (var p:Point in region.borderPoints)
                     regionFill.graphics.lineTo(p.x, p.y);
 
                 regionFill.graphics.endFill();
@@ -1661,6 +1666,7 @@ package {
                     }
                 }
 
+                roadsLayer.graphics.lineStyle(0x000000);
                 for each (var roadSegment:Array in roadSegments)
                     CubicBezier.curveThroughPoints(roadsLayer.graphics, roadSegment, 0x000000);
             }

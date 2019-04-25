@@ -10,6 +10,8 @@ package {
     import generation.Geography;
     import generation.towns.Town;
 
+    import labels.CityLabel;
+
     import labels.IconLabel;
     import labels.LandLabel;
     import labels.MapLabel;
@@ -34,10 +36,10 @@ package {
         }
 
         private function onCreationComplete(event:FlexEvent):void {
-            regionLabelsLayer = new MovieClip();
-            addChild(regionLabelsLayer);
             citiesAndTownsLayer = new MovieClip();
             addChild(citiesAndTownsLayer);
+            regionLabelsLayer = new MovieClip();
+            addChild(regionLabelsLayer);
         }
 
         public function validate():void {
@@ -57,8 +59,7 @@ package {
                 citiesAndTownsLayer.removeChildAt(0);
 
             // Draw new labels
-            //labelLands();
-            //labelRegions();
+            labelRegions();
             labelCitiesAndTowns();
 
             // Position labels
@@ -67,10 +68,10 @@ package {
 
         public function positionLabels(scale:Number):void {
             // Position labels
-            positionLayerChildren(scale, regionLabelsLayer);
+            regionLabelsLayer.scaleX = scale;
+            regionLabelsLayer.scaleY = scale;
+            
             positionLayerChildren(scale, citiesAndTownsLayer);
-
-            handleLabelIntersections();
         }
 
         public function positionLayerChildren(scale:Number, layer:MovieClip):void {
@@ -81,69 +82,16 @@ package {
             }
         }
 
-        private function handleLabelIntersections():void {
-            // Make sure labels aren't overlapping
-            var intersections:int;
-            do {
-                intersections = 0;
-                for (var i:int = 0; i < regionLabelsLayer.numChildren; i++) {
-                    for (var j:int = 0; j < regionLabelsLayer.numChildren; j++) {
-                        if (i != j) {
-                            var label1:MapLabel = regionLabelsLayer.getChildAt(i) as MapLabel;
-                            var label2:MapLabel = regionLabelsLayer.getChildAt(j) as MapLabel;
-                            if (label1.getBounds(this).intersects(label2.getBounds(this))) {
-                                while (label1.getBounds(this).intersects(label2.getBounds(this))) {
-                                    var rect:Rectangle = label1.getBounds(this).intersection(label2.getBounds(this));
-                                    if (rect.width < rect.height) {
-                                        if (label1.x > label2.x) {
-                                            label1.x++;
-                                            label2.x--;
-                                        } else {
-                                            label1.x--;
-                                            label2.x++;
-                                        }
-                                    } else {
-                                        if (label1.y > label2.y) {
-                                            label1.y++;
-                                            label2.y--;
-                                        } else {
-                                            label1.y--;
-                                            label2.y++;
-                                        }
-                                    }
-                                }
-                                intersections++;
-                            }
-                        }
-                    }
-                }
-            } while (intersections > 0);
-        }
-
-        private function labelLands():void {
-            for each (var land:Object in geo.getFeaturesByType(Geography.LAND)) {
-                var label:LandLabel = new LandLabel(land);
-                label.point = new Point(land.centroid.x, land.centroid.y);
-                regionLabelsLayer.addChild(label);
-            }
-        }
-
         private function labelRegions():void {
             var regionLabels:Array = [];
+            var i:int = 0;
             for each (var region:Object in civ.regions) {
                 var label:RegionLabel = new RegionLabel(region);
-                label.point = new Point(region.centroid.x, region.centroid.y);
                 regionLabels.push(label);
+                if (i > 3)
+                    break;
+                i++;
             }
-
-            regionLabels.sort(function (n1:Object, n2:Object):Number {
-                if (n1.point.x > n2.point.x)
-                    return 1;
-                else if (n1.point.x < n2.point.x)
-                    return -1;
-                else
-                    return 0;
-            });
 
             for each (label in regionLabels)
                 regionLabelsLayer.addChild(label);
@@ -151,16 +99,17 @@ package {
 
         private function labelCitiesAndTowns():void {
             var label:IconLabel;
-            for each (var city:City in civ.cities) {
-                label = new IconLabel(new Icons.City());
-                label.point = new Point(city.cell.point.x, city.cell.point.y);
+            for each (var town:Town in civ.towns) {
+                label = new IconLabel(Icons.townIconFromType(town.townType));
+                label.point = new Point(town.cell.point.x, town.cell.point.y);
                 label.x = label.point.x;
                 label.y = label.point.y;
                 citiesAndTownsLayer.addChild(label);
             }
-            for each (var town:Town in civ.towns) {
-                label = new IconLabel(Icons.townIconFromType(town.townType));
-                label.point = new Point(town.cell.point.x, town.cell.point.y);
+
+            for each (var city:City in civ.cities) {
+                label = new CityLabel(new Icons.City(), city.name);
+                label.point = new Point(city.cell.point.x, city.cell.point.y);
                 label.x = label.point.x;
                 label.y = label.point.y;
                 citiesAndTownsLayer.addChild(label);

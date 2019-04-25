@@ -1,19 +1,17 @@
 {
   "lowElevation": [
-    "don",
-    "den"
+    "don"
   ],
   "highElevation": [],
   "lowTemperature": [],
   "highTemperature": [],
   "highRiverRating": [
     "vale",
+    "den",
     "dale",
     "more",
     "mory",
     "combe",
-    "don",
-    "den",
     "glen",
     "hope"
   ],
@@ -46,17 +44,19 @@
     "sey",
     "sea",
     "by",
-    "oway"
+    "oway",
+    "way"
   ],
   "land": [
-    "set",
-    "sey",
-    "lands",
     "ia",
+    "tria",
     "ton",
     "ing",
-    "ham",
-    "stead"
+    "land",
+    "shire"
+  ],
+  "large": [
+    "lands"
   ],
   "highCoastalRating": [
     "ai"
