@@ -35,6 +35,10 @@ package {
             return value * Math.PI / 180
         }
 
+        public static function differenceBetweenTwoDegrees(d1:Number, d2:Number):Number {
+            return Math.abs((d1 + 180 - d2) % 360 - 180);
+        }
+
         public static function round(number:Number, decimals:int):Number {
             return int(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
         }
@@ -54,7 +58,7 @@ package {
             return Capabilities.playerType == "Desktop";
         }
 
-        public static function getIntersect(p1:Point, p2:Point, p3:Point, p4:Point):Point {
+        public static function getIntersectBetweenTwoLineSegments(p1:Point, p2:Point, p3:Point, p4:Point):Point {
             var v1:Point = new Point();
             var v2:Point = new Point();
             var d:Number;
@@ -83,6 +87,36 @@ package {
             intersectPoint.x = p1.x + v1.x * t;
             intersectPoint.y = p1.y + v1.y * t;
             return intersectPoint;
+        }
+
+        public static function getDistanceBetweenLineSegmentAndPoint(line1:Point, line2:Point, point:Point):Number {
+            return getHeightOfTriangle(line1, line2, point, point);
+        }
+
+        private static function getHeightOfTriangle(a:Point, b:Point, c:Point, v:Point):Number {
+            // a, b, and c are vertexes of the triangle
+            // v is the vertex of the triangle from which the height is to be calculated
+            var ab:Number = getDistanceBetweenTwoPoints(a, b);
+            var bc:Number = getDistanceBetweenTwoPoints(b, c);
+            var ca:Number = getDistanceBetweenTwoPoints(c, a);
+            var s:Number = (ab + bc + ca) / 2;
+            var area:Number = Math.sqrt(s * (s - ab) * (s - bc) * (s - ca));
+            var base:Number;
+            if (v == a)
+                base = bc;
+            if (v == b)
+                base = ca;
+            if (v == c)
+                base = ab;
+
+            return (2 * area) / base;
+        }
+
+        public static function quadraticBezierPoint(value:Number, anchor1:Point, anchor2:Point, control:Point):Point {
+            var uc:Number = 1 - value;
+            var x:Number = Math.pow(uc, 2) * anchor1.x + 2 * uc * value * control.x + Math.pow(value, 2) * anchor2.x;
+            var y:Number = Math.pow(uc, 2) * anchor1.y + 2 * uc * value * control.y + Math.pow(value, 2) * anchor2.y;
+            return new Point(x, y);
         }
 
         public static function removeDuplicatesFromArray(arr:Array):Array {

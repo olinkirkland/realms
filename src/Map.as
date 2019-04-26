@@ -636,7 +636,6 @@ package {
         private function determineCities():void {
             determineStaticCityDesirability();
 
-            var i:int = 0;
             for (var i:int = 0; i < 120; i++) {
                 determineCityDesirability();
 
@@ -701,7 +700,7 @@ package {
 
                     if (cell.regionInfluence > 0) {
                         for each (var neighbor:Cell in cell.neighbors) {
-                            // What's the cost of adding this cell to the region?
+                            // What's the costSoFar of adding this cell to the region?
                             var cost:int = 1;
                             if (neighbor.hasFeatureType(Geography.OCEAN))
                                 cost = 999;
@@ -748,7 +747,7 @@ package {
 
                 // Regions contain a list of their border points
                 var regionBorderEdges:Array = [];
-                for each (var cell:Cell in region.cells)
+                for each (cell in region.cells)
                     for each (var edge:Edge in cell.edges)
                         if (edge.v0 && edge.v1 && edge.d0 && edge.d1)
                             if (edge.d0.region != region.id || edge.d1.region != region.id)
@@ -1047,11 +1046,11 @@ package {
 
             // For each region, calculate how many towns it contains and how many it "should" (based on size)
             // If it's large, add a single town (either a Fishing town or a Logging town, whichever's more reasonable)
-            for each (var region:Object in civ.regions) {
+            for each (region in civ.regions) {
                 var townCount:int = 0;
                 var optimalFishingTownSpots:Array = [];
                 var optimalLoggingTownSpots:Array = [];
-                for each (var cell:Cell in region.cells) {
+                for each (cell in region.cells) {
                     if (cell.town)
                         townCount++;
                     else if (!cell.city) {
@@ -1079,7 +1078,7 @@ package {
                             // Can't be too close to other towns and cities
                             distanceToNearestTownOrCity = Number.POSITIVE_INFINITY;
                             for each (town in civ.towns) {
-                                var d:Number = Util.getDistanceBetweenTwoPoints(town.cell.point, optimalFishingTownSpot.point);
+                                d = Util.getDistanceBetweenTwoPoints(town.cell.point, optimalFishingTownSpot.point);
                                 if (!distanceToNearestTownOrCity || d < distanceToNearestTownOrCity)
                                     distanceToNearestTownOrCity = d;
                             }
@@ -1104,13 +1103,13 @@ package {
                             // Can't be too close to other towns and cities
                             distanceToNearestTownOrCity = Number.POSITIVE_INFINITY;
                             for each (town in civ.towns) {
-                                var d:Number = Util.getDistanceBetweenTwoPoints(town.cell.point, optimalLoggingTownSpot.point);
+                                d = Util.getDistanceBetweenTwoPoints(town.cell.point, optimalLoggingTownSpot.point);
                                 if (!distanceToNearestTownOrCity || d < distanceToNearestTownOrCity)
                                     distanceToNearestTownOrCity = d;
                             }
 
                             for each (var city:City in civ.cities) {
-                                var d:Number = Util.getDistanceBetweenTwoPoints(city.cell.point, optimalLoggingTownSpot.point);
+                                d = Util.getDistanceBetweenTwoPoints(city.cell.point, optimalLoggingTownSpot.point);
                                 if (d < distanceToNearestTownOrCity)
                                     distanceToNearestTownOrCity = d;
                             }

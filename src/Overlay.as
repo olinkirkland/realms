@@ -60,7 +60,7 @@ package {
 
             // Draw new labels
             labelRegions();
-            labelCitiesAndTowns();
+            //labelCitiesAndTowns();
 
             // Position labels
             positionLabels(1);
@@ -85,11 +85,8 @@ package {
         private function labelRegions():void {
             var regionLabels:Array = [];
             for each (var region:Object in civ.regions) {
-                if (region.cells.length > 100) {
-                    var label:RegionLabel = new RegionLabel(region);
-                    regionLabels.push(label);
-                    break;
-                }
+                var label:RegionLabel = new RegionLabel(region);
+                regionLabels.push(label);
             }
 
             for each (label in regionLabels)

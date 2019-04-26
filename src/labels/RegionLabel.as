@@ -1,25 +1,37 @@
 package labels {
     import com.nodename.Delaunay.Voronoi;
+    import com.nodename.geom.LineSegment;
+
+    import flash.display.Sprite;
 
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.text.TextField;
+    import flash.text.TextFieldAutoSize;
+    import flash.text.TextFormat;
     import flash.utils.Dictionary;
-    import flash.utils.setTimeout;
+
+    import graph.Cell;
+    import graph.Corner;
+    import graph.Edge;
 
     public class RegionLabel extends MapLabel {
-        private var voronoi:Voronoi;
+        private var points:Vector.<Point>;
+        private var rect:Rectangle;
+
+        private var cells:Vector.<Cell>;
+        private var edges:Vector.<Edge>;
+        private var corners:Vector.<Corner>;
 
         public function RegionLabel(region:Object) {
             super();
 
             var borderPoints:Array = Util.removeDuplicatesFromArray(region.simpleBorderPoints);
-            var rect:Rectangle = Util.getBoundsFromPoints(borderPoints);
-            var i:int;
+            rect = Util.getBoundsFromPoints(borderPoints);
 
-            trace(borderPoints.length + " ->");
+            // Simplify border points by only picking every 5th one
             var simpleBorderPoints:Array = [];
-            i = 0;
+            var i:int = 0;
             for each(var borderPoint:Point in borderPoints) {
                 i++;
                 if (i % 5 == 0)
@@ -27,156 +39,375 @@ package labels {
             }
 
             borderPoints = simpleBorderPoints;
-            trace("-> " + borderPoints.length);
 
             rect.x -= 5;
             rect.y -= 5;
             rect.width += 10;
             rect.height += 10;
 
-            // Draw bounds
-            graphics.lineStyle(.1, 0xff0000);
-            graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
-
             // Draw the region borders
-            graphics.moveTo(borderPoints[0].x, borderPoints[0].y);
+            graphics.lineStyle(.1, 0xff0000);
+            //graphics.moveTo(borderPoints[0].x, borderPoints[0].y);
             for each (var borderPoint:Point in borderPoints) {
-                graphics.lineTo(borderPoint.x, borderPoint.y);
-                graphics.drawCircle(borderPoint.x, borderPoint.y, 2);
-                graphics.moveTo(borderPoint.x, borderPoint.y);
+                //graphics.lineTo(borderPoint.x, borderPoint.y);
             }
-            graphics.lineTo(borderPoints[0].x, borderPoints[0].y);
+            //graphics.lineTo(borderPoints[0].x, borderPoints[0].y);
 
-            // Create voronoi graph
-            voronoi = new Voronoi(Vector.<Point>(borderPoints), null, rect);
-            for each (var p:Point in borderPoints)
-                voronoi.region(p);
+            /**
+             * Build
+             */
+            points = Vector.<Point>(borderPoints);
+            build();
 
-            // Create a graph of the voronoi edge points
-            var pointsDictionary:Dictionary = new Dictionary();
-            var libEdges:Vector.<com.nodename.Delaunay.Edge> = voronoi.edges();
-            for each (var libEdge:com.nodename.Delaunay.Edge in libEdges) {
-                var p0:Point = libEdge.voronoiEdge().p0;
-                var p1:Point = libEdge.voronoiEdge().p1;
-
-                if (p0 && !pointsDictionary[p0.toString()])
-                    pointsDictionary[p0.toString()] = {point: p0, neighbors: getNeighboringEdgePoints(p0)};
-                if (p1 && !pointsDictionary[p1.toString()])
-                    pointsDictionary[p1.toString()] = {point: p1, neighbors: getNeighboringEdgePoints(p1)};
-            }
-
-            // Draw background lines
-            var arr:Array = new Array();
-            for each (t in pointsDictionary)
-                arr.push(t);
-
-            setTimeout(drawPointAndNeighborsAtIndex, 1000);
-
-            function drawPointAndNeighborsAtIndex(m:int = 0):void {
-                var t:Object = arr[m];
-                var color:uint = Util.randomColor();
-                graphics.lineStyle(1, color);
-                graphics.drawCircle(t.point.x, t.point.y, 3);
-                for each (var u:Point in t.neighbors) {
-                    var v:Object = pointsDictionary[u.toString()];
-                    graphics.moveTo(t.point.x, t.point.y);
-                    graphics.lineTo(v.point.x, v.point.y);
-                }
-
-                setTimeout(drawPointAndNeighborsAtIndex, 1000, [m + 1]);
-            }
-
-            for each (t in pointsDictionary) {
-                graphics.lineStyle(.1, 0x000000, .1);
-                graphics.drawCircle(t.point.x, t.point.y, 2);
-                graphics.moveTo(t.point.x, t.point.y);
-                for each (var u:Point in t.neighbors) {
-                    var v:Object = pointsDictionary[u.toString()];
-                    graphics.lineTo(v.point.x, v.point.y);
-                }
-            }
-
-            // Add points on the border rectangle to queue
-            // they are guaranteed not to lie within the region's outline
+            // Find corners touching the edge
             var queue:Array = [];
-            for each (var t:Object in pointsDictionary)
-                if (t.point.x == rect.x || t.point.x == rect.x + rect.width || t.point.y == rect.y || t.point.y == rect.y + rect.height)
-                    queue.push(t);
+            for each (var corner:Corner in corners) {
+                if (corner.border)
+                    queue.push(corner);
+            }
 
-            // Loop through queue
-            graphics.lineStyle(0x000000);
-            var usedCombinations:Object = {};
-
+            graphics.lineStyle();
             while (queue.length > 0) {
-                var current:Object = queue.shift();
-                var n:int = 0;
+                var current:Corner = queue.shift();
+                for each (var protrude:Edge in current.protrudes) {
+                    if (!protrude.used) {
+                        protrude.used = true;
+                        protrude.outer = true;
 
-                var txt:TextField = new TextField();
-                txt.text = "" + current.neighbors.length;
-                txt.x = current.point.x;
-                txt.y = current.point.y;
-                addChild(txt);
-
-                for each (var neighbor:Point in current.neighbors) {
-                    n++;
-                    var combinationKey:String = generateCombinationKey(current.point, neighbor);
-                    if (usedCombinations[combinationKey]) {
-                        // Combination was previously used
-                        graphics.lineStyle(.1, 0x0000ff);
-                        graphics.moveTo(current.point.x, current.point.y);
-                        graphics.lineTo(neighbor.x, neighbor.y);
-                    } else {
-                        // Combination is not used yet
-                        // Mark the combination as used
-                        usedCombinations[combinationKey] = true;
-                        queue.push(pointsDictionary[neighbor.toString()]);
-                        graphics.lineStyle(.1, 0x000000);
-                        graphics.drawCircle(current.point.x, current.point.y, 2);
-                        graphics.moveTo(current.point.x, current.point.y);
-                        graphics.lineTo(neighbor.x, neighbor.y);
-
-                        // If the combination crosses a region boundary mark it
+                        // Find if it intersects the region borders
                         var intersect:Point;
                         for (i = 1; i < borderPoints.length; i++) {
-                            intersect = Util.getIntersect(borderPoints[i - 1], borderPoints[i], current.point, neighbor);
-                            if (intersect) break;
+                            intersect = Util.getIntersectBetweenTwoLineSegments(protrude.v0.point, protrude.v1.point, borderPoints[i], borderPoints[i - 1]);
+                            if (intersect)
+                                break;
                         }
-                        if (!intersect)
-                            intersect = Util.getIntersect(borderPoints[i - 1], borderPoints[0], current.point, neighbor);
 
-                        if (intersect) {
-                            graphics.lineStyle();
-                            graphics.beginFill(0x0000ff);
-                            graphics.drawCircle(intersect.x, intersect.y, 2);
-                            graphics.endFill();
+                        if (!intersect)
+                            intersect = Util.getIntersectBetweenTwoLineSegments(protrude.v0.point, protrude.v1.point, borderPoints[0], borderPoints[i - 1]);
+
+                        if (!intersect)
+                            queue.push(protrude.v0 == current ? protrude.v1 : protrude.v0);
+                    }
+                }
+            }
+
+            var perimeter:Array = [];
+            for each (var edge:Edge in edges) {
+                if (edge.v0 && edge.v1 && !edge.outer) {
+                    // Prep the edge for Dijkstra
+                    edge.voronoiDistance = Util.getDistanceBetweenTwoPoints(edge.v0.point, edge.v1.point);
+                    edge.used = false;
+
+                    graphics.lineStyle(.1, 0x000000);
+                    //graphics.moveTo(edge.v0.point.x, edge.v0.point.y);
+                    //graphics.lineTo(edge.v1.point.x, edge.v1.point.y);
+
+                    // Determine if the corners are perimeters
+                    if (isCornerPerimeter(edge.v0))
+                        perimeter.push(edge.v0);
+                    if (isCornerPerimeter(edge.v1))
+                        perimeter.push(edge.v1);
+                }
+            }
+
+            function isCornerPerimeter(corner:Corner):Boolean {
+                var count:int = 0;
+                for each (protrude in corner.protrudes)
+                    if (!protrude.outer)
+                        count++;
+                return count <= 1;
+            }
+
+            // Dijkstra
+            // For each perimeter node, calculate the shortest distance to each other perimeter node
+            var bestPath:Object;
+            for each (var start:Corner in perimeter) {
+                // Soft reset corners
+                for each (corner in corners) {
+                    corner.used = false;
+                    corner.cameFrom = null;
+                    corner.priority = 0;
+                    corner.costSoFar = 0;
+                }
+
+                var queue:Array = [start];
+                start.costSoFar = 0;
+
+                // Loop through queue
+                while (queue.length > 0) {
+                    var current:Corner = queue.shift();
+
+                    for each (edge in current.protrudes) {
+                        if (!edge.outer) {
+                            var next:Corner = current == edge.v0 ? edge.v1 : edge.v0;
+                            var nextCost = edge.voronoiDistance;
+                            var newCost:Number = current.costSoFar + nextCost;
+                            if (!next.used || newCost < next.costSoFar) {
+                                next.used = true;
+                                next.costSoFar = newCost;
+                                next.cameFrom = current;
+                                next.priority = newCost;
+
+                                // Place 'next' in the queue
+                                var queueLength:int = queue.length;
+                                if (queueLength > 0) {
+                                    for (var i:int = 0; i < queueLength; i++)
+                                        if (queue[i].priority > next.priority)
+                                            break;
+                                    queue.insertAt(i, next);
+                                } else {
+                                    // Just add it
+                                    queue.push(next);
+                                }
+                            }
                         }
+                    }
+                }
+
+                for each (var stop:Corner in perimeter) {
+                    if (stop != start) {
+                        var sinuosity:Number = stop.costSoFar / Util.getDistanceBetweenTwoPoints(start.point, stop.point);
+                        var fitness:Number = stop.costSoFar / Math.pow(sinuosity, 4);
+                        if (!bestPath || (fitness > bestPath.fitness)) {
+                            // Get the shortest route between start and stop
+                            var corner:Corner = stop;
+                            var path:Array = [stop];
+                            while (corner != start && corner.cameFrom) {
+                                path.push(corner.cameFrom);
+                                corner = corner.cameFrom;
+                            }
+
+                            bestPath = {};
+                            bestPath.fitness = fitness;
+                            bestPath.distance = Util.getDistanceBetweenTwoPoints(start.point, stop.point);
+                            bestPath.nodes = path.reverse();
+                            bestPath.size = stop.costSoFar;
+                        }
+                    }
+                }
+            }
+
+            // Draw the longest path
+            if (bestPath) {
+                graphics.lineStyle(.1, 0x000000);
+                var arr:Array = [];
+                graphics.moveTo(bestPath.nodes[0].point.x, bestPath.nodes[0].point.y);
+                for (i = 0; i < bestPath.nodes.length; i++) {
+                    arr.push(bestPath.nodes[i].point);
+                }
+
+                if (arr.length > 2) {
+                    var first:Point = arr[0];
+                    var last:Point = arr[arr.length - 1];
+
+                    // Pick the point in arr for which a line drawn perpendicular to the slope of the average is longest
+                    var furthestPoint:Point;
+                    var furthestDistance:Number = 0;
+                    for (i = 1; i < arr.length - 1; i++) {
+                        var dist:Number = Util.getDistanceBetweenLineSegmentAndPoint(first, last, arr[i]);
+                        if (!furthestPoint || dist > furthestDistance) {
+                            furthestPoint = arr[i];
+                            furthestDistance = dist;
+                        }
+                    }
+
+                    graphics.lineStyle(1, 0xff0000);
+                    graphics.moveTo(first.x, first.y);
+                    graphics.curveTo(furthestPoint.x, furthestPoint.y, last.x, last.y);
+
+                    // Draw some circles along the bezier
+                    var spread:Number = 20;
+                    var numPoints:int = Util.getDistanceBetweenTwoPoints(first,last) / spread;
+                    var textPoints:Array = [first];
+                    for (i = 0; i < numPoints; i++) {
+                        var val:Number = i / numPoints;
+                        if (val > 0 && val < 1) {
+                            var p:Point = Util.quadraticBezierPoint(val, first, last, furthestPoint);
+//                            if (Util.getDistanceBetweenTwoPoints(p, textPoints[textPoints.length - 1]) > 10)
+                                textPoints.push(p);
+                        }
+                    }
+
+                    var j:int = 0;
+                    graphics.lineStyle(.1, 0x0000ff);
+
+                    var i:int = (textPoints.length - region.name.length - 1) / 2;
+
+                    if (i < 0)
+                        return;
+
+                    for (i; i < textPoints.length - 1; i++) {
+                        var textPoint:Point = textPoints[i];
+
+                        var txt:TextField = new TextField();
+                        var format:TextFormat = new TextFormat(Fonts.regular, 20, 0x000000);
+                        txt.embedFonts = true;
+                        txt.defaultTextFormat = format;
+                        txt.selectable = false;
+                        txt.text = region.name.charAt(j);
+                        txt.autoSize = TextFieldAutoSize.LEFT;
+                        txt.width = txt.textWidth;
+                        var spr:Sprite = new Sprite();
+                        spr.addChild(txt);
+                        addChild(spr);
+                        spr.x = textPoint.x;
+                        spr.y = textPoint.y;
+                        txt.x = -spr.width / 2;
+                        txt.y = -spr.height / 2;
+
+                        var angle:Number = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i + 1]);
+                        spr.rotation = angle;
+
+                        j++;
+                        if (j == region.name.length)
+                            break;
                     }
                 }
             }
         }
 
-        private function generateCombinationKey(p1:Point, p2:Point):String {
-            return (p1.x > p2.x) ? p1.toString() + p2.toString() : p2.toString() + p1.toString();
+        public function build():void {
+            // Setup
+            var voronoi:Voronoi = new Voronoi(points, null, rect);
+            cells = new Vector.<Cell>();
+            corners = new Vector.<Corner>();
+            edges = new Vector.<Edge>();
+
+            /**
+             * Cells
+             */
+
+            var cellDictionary:Dictionary = new Dictionary();
+            for each (var point:Point in points) {
+                var cell:Cell = new Cell();
+                cell.index = cells.length;
+                cell.point = point;
+                cells.push(cell);
+                cellDictionary[point] = cell;
+            }
+
+            for each (cell in cells)
+                voronoi.region(cell.point);
+
+            /**
+             * Corners
+             */
+
+            var _cornerMap:Array = [];
+
+            function makeCorner(point:Point):Corner {
+                var corner:Corner;
+
+                if (point == null) return null;
+                for (var bucket:int = int(point.x) - 1; bucket <= int(point.x) + 1; bucket++) {
+                    for each (corner in _cornerMap[bucket]) {
+                        var dx:Number = point.x - corner.point.x;
+                        var dy:Number = point.y - corner.point.y;
+                        if (dx * dx + dy * dy < 1e-6) {
+                            return corner;
+                        }
+                    }
+                }
+
+                bucket = int(point.x);
+
+                if (!_cornerMap[bucket]) _cornerMap[bucket] = [];
+
+                corner = new Corner();
+                corner.index = corners.length;
+                corners.push(corner);
+
+                corner.point = point;
+                corner.border = corner.point.x == rect.x || corner.point.x == rect.x + rect.width || corner.point.y == rect.y || corner.point.y == rect.y + rect.height;
+
+                _cornerMap[bucket].push(corner);
+                return corner;
+            }
+
+            /**
+             * Edges
+             */
+
+            var libEdges:Vector.<com.nodename.Delaunay.Edge> = voronoi.edges();
+            for each (var libEdge:com.nodename.Delaunay.Edge in libEdges) {
+                var dEdge:LineSegment = libEdge.delaunayLine();
+                var vEdge:LineSegment = libEdge.voronoiEdge();
+
+                var edge:Edge = new Edge();
+                edge.index = edges.length;
+                edges.push(edge);
+                edge.midpoint = vEdge.p0 && vEdge.p1 && Point.interpolate(vEdge.p0, vEdge.p1, 0.5);
+
+                edge.v0 = makeCorner(vEdge.p0);
+                edge.v1 = makeCorner(vEdge.p1);
+                edge.d0 = cellDictionary[dEdge.p0];
+                edge.d1 = cellDictionary[dEdge.p1];
+
+                setupEdge(edge);
+            }
         }
 
-        private function getNeighboringEdgePoints(p:Point):Array {
-            var neighbors:Array = [];
-            var lib:Vector.<com.nodename.Delaunay.Edge> = voronoi.edges();
+        private function setupEdge(edge:Edge):void {
+            if (edge.d0 != null)
+                edge.d0.edges.push(edge);
 
-            for each (var edge:com.nodename.Delaunay.Edge in lib) {
-                var p0:Point = edge.voronoiEdge().p0;
-                var p1:Point = edge.voronoiEdge().p1;
+            if (edge.d1 != null)
+                edge.d1.edges.push(edge);
 
-                if (p0 && p1) {
-                    if (p.equals(p0))
-                        neighbors.push(p1);
-                    if (p.equals(p1))
-                        neighbors.push(p0);
+            if (edge.v0 != null)
+                edge.v0.protrudes.push(edge);
+
+            if (edge.v1 != null)
+                edge.v1.protrudes.push(edge);
+
+            if (edge.d0 != null && edge.d1 != null) {
+                addToCellList(edge.d0.neighbors, edge.d1);
+                addToCellList(edge.d1.neighbors, edge.d0);
+            }
+
+            if (edge.v0 != null && edge.v1 != null) {
+                addToCornerList(edge.v0.adjacent, edge.v1);
+                addToCornerList(edge.v1.adjacent, edge.v0);
+            }
+
+            if (edge.d0 != null) {
+                addToCornerList(edge.d0.corners, edge.v0);
+                addToCornerList(edge.d0.corners, edge.v1);
+            }
+
+            if (edge.d1 != null) {
+                addToCornerList(edge.d1.corners, edge.v0);
+                addToCornerList(edge.d1.corners, edge.v1);
+            }
+
+            if (edge.v0 != null) {
+                addToCellList(edge.v0.touches, edge.d0);
+                addToCellList(edge.v0.touches, edge.d1);
+            }
+
+            if (edge.v1 != null) {
+                addToCellList(edge.v1.touches, edge.d0);
+                addToCellList(edge.v1.touches, edge.d1);
+            }
+
+            // Calculate Angles
+            if (edge.d0 && edge.d1)
+                edge.delaunayAngle = Util.getAngleBetweenTwoPoints(edge.d0.point, edge.d1.point);
+
+            if (edge.v0 && edge.v1)
+                edge.voronoiAngle = Util.getAngleBetweenTwoPoints(edge.v0.point, edge.v1.point);
+
+            function addToCornerList(v:Vector.<Corner>, x:Corner):void {
+                if (x != null && v.indexOf(x) < 0) {
+                    v.push(x);
                 }
             }
 
-            trace(neighbors.length);
-            return neighbors;
+            function addToCellList(v:Vector.<Cell>, x:Cell):void {
+                if (x != null && v.indexOf(x) < 0) {
+                    v.push(x);
+                }
+            }
         }
     }
 }

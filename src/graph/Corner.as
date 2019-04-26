@@ -4,6 +4,12 @@ package graph {
     public class Corner {
         public var index:int;
 
+        // Centerline Labeling (and other uses)
+        public var used:Boolean;
+        public var costSoFar:Number;
+        public var cameFrom:Corner;
+        public var priority:Number;
+
         // Location
         public var point:Point;
 
