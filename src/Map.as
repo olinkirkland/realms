@@ -67,14 +67,14 @@ package {
 
         // Toggles
         public var drawOcean:Boolean = true;
-        public var drawTerrain:Boolean = false;
-        public var drawCoastlines:Boolean = false;
-        public var drawRivers:Boolean = false;
-        public var drawForests:Boolean = false;
+        public var drawTerrain:Boolean = true;
+        public var drawCoastlines:Boolean = true;
+        public var drawRivers:Boolean = true;
+        public var drawForests:Boolean = true;
         public var drawMountains:Boolean = false;
         public var drawCities:Boolean = false;
         public var drawRoads:Boolean = false;
-        public var drawRegions:Boolean = false;
+        public var drawRegions:Boolean = true;
         public var drawElevation:Boolean = false;
         public var drawTemperature:Boolean = false;
         public var drawOutlines:Boolean = false;
@@ -110,7 +110,7 @@ package {
         }
 
         private function onCreationComplete(event:FlexEvent):void {
-            progress(0, "Preparing points");
+            progress(-1, "Preparing points");
 
             setTimeout(tryToLoadPoints, 500);
 
@@ -761,6 +761,7 @@ package {
 
                 while (regionBorderEdges.length > 0) {
                     var current:Point = regionBorderPoints[regionBorderPoints.length - 1];
+                    var found:Boolean = false;
                     for (var i:int = 0; i < regionBorderEdges.length; i++) {
                         edge = regionBorderEdges[i];
                         if (edge.v0.point.equals(current)) {
@@ -768,15 +769,19 @@ package {
                             regionBorderPoints.push(edge.v1.point);
                             simpleBorderPoints.push.apply(this, [edge.v0.point, edge.v1.point]);
                             regionBorderEdges.removeAt(i);
+                            found = true;
                             break;
                         } else if (edge.v1.point.equals(current)) {
                             regionBorderPoints.push.apply(this, edge.noisyPoints.reverse());
                             regionBorderPoints.push(edge.v0.point);
                             simpleBorderPoints.push.apply(this, [edge.v1.point, edge.v0.point]);
                             regionBorderEdges.removeAt(i);
+                            found = true;
                             break;
                         }
                     }
+                    if (!found)
+                        break;
                 }
 
                 region.borderPoints = regionBorderPoints;
@@ -1611,16 +1616,27 @@ package {
              */
 
             for each (var region:Object in civ.regions) {
+                region.color = Util.randomColor();
+
                 var regionFill:MovieClip = new MovieClip();
                 regionFill.graphics.lineStyle();
-                regionFill.graphics.beginFill(0x000000);
+                regionFill.graphics.beginFill(region.color, .2);
+
+                var regionGlow:MovieClip = new MovieClip();
+                regionGlow.graphics.lineStyle();
+                regionGlow.graphics.beginFill(0x000000);
 
                 var start:Point = region.borderPoints.shift();
                 regionFill.graphics.moveTo(start.x, start.y);
-                for each (var p:Point in region.borderPoints)
+                regionGlow.graphics.moveTo(start.x, start.y);
+                for each (var p:Point in region.borderPoints) {
                     regionFill.graphics.lineTo(p.x, p.y);
-
+                    regionGlow.graphics.lineTo(p.x, p.y);
+                }
                 regionFill.graphics.endFill();
+                regionGlow.graphics.endFill();
+                regionFill.cacheAsBitmap = true;
+                regionGlow.cacheAsBitmap = true;
 
                 var filter:GlowFilter = new GlowFilter();
                 filter.quality = 10;
@@ -1629,13 +1645,11 @@ package {
                 filter.strength = .8;
                 filter.inner = true;
                 filter.knockout = true;
-                filter.color = Util.randomColor();
-
-                regionFill.filters = [filter];
-                regionFill.cacheAsBitmap = true;
+                filter.color = region.color;
+                regionGlow.filters = [filter];
 
                 var regionOutline:MovieClip = new MovieClip();
-                regionOutline.graphics.copyFrom(regionFill.graphics);
+                regionOutline.graphics.copyFrom(regionGlow.graphics);
 
                 filter.strength = 4;
                 filter.blurX = 2;
@@ -1645,6 +1659,7 @@ package {
                 regionOutline.cacheAsBitmap = true;
 
                 regionsLayer.addChild(regionFill);
+                regionsLayer.addChild(regionGlow);
                 regionsLayer.addChild(regionOutline);
             }
         }

@@ -28,6 +28,9 @@ package {
         private var geo:Geography;
         private var civ:Civilization;
 
+        private var _regionLabelsVisible:Boolean = true;
+        private var _locationLabelsVisible:Boolean = true;
+
         public function Overlay() {
             geo = Geography.getInstance();
             civ = Civilization.getInstance();
@@ -59,8 +62,8 @@ package {
                 citiesAndTownsLayer.removeChildAt(0);
 
             // Draw new labels
+            labelCitiesAndTowns();
             labelRegions();
-            //labelCitiesAndTowns();
 
             // Position labels
             positionLabels(1);
@@ -84,6 +87,7 @@ package {
 
         private function labelRegions():void {
             var regionLabels:Array = [];
+
             for each (var region:Object in civ.regions) {
                 var label:RegionLabel = new RegionLabel(region);
                 regionLabels.push(label);
@@ -104,7 +108,7 @@ package {
             }
 
             for each (var city:City in civ.cities) {
-                label = new CityLabel(new Icons.City(), city.name);
+                label = new CityLabel(new Icons.City());
                 label.point = new Point(city.cell.point.x, city.cell.point.y);
                 label.x = label.point.x;
                 label.y = label.point.y;
@@ -112,9 +116,27 @@ package {
             }
         }
 
-        public function toggle():void {
-            for (var i:int = 0; i < numChildren; i++)
-                getChildAt(i).visible = !getChildAt(i).visible;
+        public function set regionLabelsVisible(b:Boolean):void {
+            toggle(regionLabelsLayer, b);
+            _regionLabelsVisible = b;
+        }
+
+        public function get regionLabelsVisible():Boolean {
+            return _regionLabelsVisible;
+        }
+
+        public function set locationLabelsVisible(b:Boolean):void {
+            toggle(citiesAndTownsLayer, b);
+            _locationLabelsVisible = b;
+        }
+
+        public function get locationLabelsVisible():Boolean {
+            return _locationLabelsVisible;
+        }
+
+        public function toggle(layer:MovieClip, b:Boolean):void {
+            for (var i:int = 0; i < layer.numChildren; i++)
+                layer.getChildAt(i).visible = b;
         }
     }
 }

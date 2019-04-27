@@ -3,6 +3,7 @@ package labels {
     import com.nodename.geom.LineSegment;
 
     import flash.display.Sprite;
+    import flash.filters.GlowFilter;
 
     import flash.geom.Point;
     import flash.geom.Rectangle;
@@ -159,7 +160,7 @@ package labels {
                 for each (var stop:Corner in perimeter) {
                     if (stop != start) {
                         var sinuosity:Number = stop.costSoFar / Util.getDistanceBetweenTwoPoints(start.point, stop.point);
-                        var fitness:Number = stop.costSoFar / Math.pow(sinuosity, 4);
+                        var fitness:Number = stop.costSoFar / Math.pow(sinuosity, 2);
                         if (!bestPath || (fitness > bestPath.fitness)) {
                             // Get the shortest route between start and stop
                             var corner:Corner = stop;
@@ -217,8 +218,20 @@ package labels {
                         controlPoint.y = midPoint.y + (Math.sin(Util.degreesToRadians(angle + 90)) * furthestDistance);
                     }
 
-                    var spread:Number = 12;
-                    var numPoints:int = Util.getDistanceBetweenTwoPoints(first, last) / spread;
+                    var dist:Number = Util.getDistanceBetweenTwoPoints(first, last);
+                    var letterCount:int = region.name.length;
+
+                    // Determine spread
+                    var spread:Number = 30;
+                    var numPoints:int = dist / spread;
+
+                    do {
+                        spread--;
+                        numPoints = dist / spread;
+                    }
+                    while (letterCount > numPoints) ;
+
+
                     var textPoints:Array = [first];
                     for (i = 0; i < numPoints; i++) {
                         var val:Number = i / numPoints;
@@ -241,10 +254,11 @@ package labels {
                     if (flip)
                         letters = letters.reverse();
 
+                    graphics.lineStyle(.1, 0xff0000);
+                    graphics.moveTo(textPoints[0].x, textPoints[0].y)
                     for (var n:int = 0; n < textPoints.length; n++) {
                         p = textPoints[n];
-                        graphics.lineStyle(.1, Util.getColorBetweenColors(0xff0000, 0x0000ff, n / textPoints.length));
-                        graphics.drawCircle(p.x, p.y, 5);
+                        //graphics.lineTo(p.x, p.y);
                     }
 
                     var j:int = letters.length - 1;
@@ -252,12 +266,12 @@ package labels {
                         var textPoint:Point = textPoints[i];
 
                         var txt:TextField = new TextField();
-                        var format:TextFormat = new TextFormat(Fonts.regular, 20, 0x000000);
+                        var format:TextFormat = new TextFormat(Fonts.regular, spread, 0x000000);
                         txt.defaultTextFormat = format;
                         txt.embedFonts = true;
                         txt.selectable = false;
 
-                        txt.text = letters[j];
+                        txt.text = letters[j].toUpperCase();
                         txt.autoSize = TextFieldAutoSize.LEFT;
                         txt.width = txt.textWidth;
 
@@ -275,12 +289,13 @@ package labels {
                             angle = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i + 1]);
                         } else if (i == textPoints.length - 1) {
                             // Last element, take angle of angleBefore
-                            angle = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i - 1]);
+                            angle = Util.getAngleBetweenTwoPoints(textPoints[i - 1], textPoint);
                         } else {
                             // Any other element, take the average of angleBefore and angleAfter
-                            var angleBefore:Number = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i - 1]);
+                            var angleBefore:Number = Util.getAngleBetweenTwoPoints(textPoints[i - 1], textPoint);
                             var angleAfter:Number = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i + 1]);
                             angle = (angleBefore + angleAfter) / 2;
+                            angle = angleBefore;
                         }
 
                         spr.rotation = angle;
