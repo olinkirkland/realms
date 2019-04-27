@@ -8,17 +8,17 @@
   "plants": [
     "moss",
     "shrub",
-    "lingonberry",
-    "cloudberry",
+    "lingon",
+    "cloud",
     "heath",
-    "blackberry",
-    "crowberry"
+    "black"
   ],
   "smallAnimals": [
     "fox",
     "hare",
     "lemming",
-    "goose"
+    "goose",
+    "crow"
   ],
   "bigAnimals": [
     "muskox",

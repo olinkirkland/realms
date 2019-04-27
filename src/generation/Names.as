@@ -430,17 +430,18 @@ package generation {
                 if (possibleCombinations.length > 0) {
                     choice = possibleCombinations.removeAt(rand.between(0, possibleCombinations.length - 1));
                 } else {
+                    var prePrefix:String = "New ";
                     for each (var r:Object in civ.regions) {
                         if (r.nameObject) {
                             if (r.nameObject.prefix == choice.prefix && r.nameObject.suffix == choice.suffix) {
                                 if (r.cells.length > region.cells.length)
-                                    choice.prefix += "Little ";
+                                    prePrefix = "Little ";
                                 break;
                             }
                         }
                     }
 
-                    choice.prefix = "New " + choice.prefix;
+                    choice.prefix = prePrefix + choice.prefix;
                     break;
                 }
             } while (choice && existingNames.indexOf(choice.prefix + choice.suffix) > -1);

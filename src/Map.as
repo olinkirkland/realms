@@ -236,9 +236,9 @@ package {
 
             // Add some island clusters
             for (i = 0; i < 3; i++) {
-                var centroid:Point = cellFromDistribution(.3).point;
+                var centroid:Point = cellFromDistribution(.35).point;
                 for (var j:int = 0; j < rand.between(5, 7); j++) {
-                    var radius:Number = rand.between(0, 200);
+                    var radius:Number = rand.between(0, 20);
                     var angle:Number = rand.next() * Math.PI * 2;
                     var point:Point = new Point(centroid.x + Math.cos(angle) * radius, centroid.y + Math.sin(angle) * radius);
                     placeHill(getCellClosestToPoint(point), rand.between(.25, .4), rand.between(.6, .9), rand.between(.1, .2));
@@ -780,6 +780,7 @@ package {
                             break;
                         }
                     }
+
                     if (!found)
                         break;
                 }

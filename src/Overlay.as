@@ -3,7 +3,6 @@ package {
 
     import flash.display.MovieClip;
     import flash.geom.Point;
-    import flash.geom.Rectangle;
 
     import generation.City;
     import generation.Civilization;
@@ -11,9 +10,7 @@ package {
     import generation.towns.Town;
 
     import labels.CityLabel;
-
     import labels.IconLabel;
-    import labels.LandLabel;
     import labels.MapLabel;
     import labels.RegionLabel;
 

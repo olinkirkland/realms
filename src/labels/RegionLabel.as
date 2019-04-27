@@ -229,8 +229,7 @@ package labels {
                         spread--;
                         numPoints = dist / spread;
                     }
-                    while (letterCount > numPoints) ;
-
+                    while (letterCount > numPoints && spread > 1);
 
                     var textPoints:Array = [first];
                     for (i = 0; i < numPoints; i++) {

@@ -131,6 +131,7 @@
 
             seedMessage.text = "Seed " + map.masterSeed;
             seedMessage.includeInLayout = seedMessage.visible = percent >= 0;
+            labelSeed.text = "#" + map.masterSeed;
 
             progressMessage.text = percent >= 0 ? message + " (" + int(percent * 100) + "%)" : message;
         }
