@@ -3,8 +3,6 @@ package {
     import flash.geom.Rectangle;
     import flash.system.Capabilities;
 
-    import spark.primitives.Rect;
-
     public class Util {
         public static function getColorBetweenColors(color1:uint = 0xFFFFFF, color2:uint = 0x000000, percent:Number = 0.5):uint {
             if (percent < 0)

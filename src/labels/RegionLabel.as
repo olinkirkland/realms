@@ -45,14 +45,6 @@ package labels {
             rect.width += 10;
             rect.height += 10;
 
-            // Draw the region borders
-            graphics.lineStyle(.1, 0xff0000);
-            //graphics.moveTo(borderPoints[0].x, borderPoints[0].y);
-            for each (var borderPoint:Point in borderPoints) {
-                //graphics.lineTo(borderPoint.x, borderPoint.y);
-            }
-            //graphics.lineTo(borderPoints[0].x, borderPoints[0].y);
-
             /**
              * Build
              */
@@ -211,55 +203,93 @@ package labels {
                         }
                     }
 
-                    graphics.lineStyle(1, 0xff0000);
-                    graphics.moveTo(first.x, first.y);
-                    graphics.curveTo(furthestPoint.x, furthestPoint.y, last.x, last.y);
+                    // Make the control point happen halfway through with the same distance
+                    var midPoint:Point = new Point((first.x + last.x) / 2, (first.y + last.y) / 2);
+                    var angle:Number = Util.getAngleBetweenTwoPoints(first, last);
 
-                    // Draw some circles along the bezier
-                    var spread:Number = 20;
-                    var numPoints:int = Util.getDistanceBetweenTwoPoints(first,last) / spread;
+                    var controlPoint:Point = new Point();
+                    controlPoint.x = midPoint.x + (Math.cos(Util.degreesToRadians(angle - 90)) * furthestDistance);
+                    controlPoint.y = midPoint.y + (Math.sin(Util.degreesToRadians(angle - 90)) * furthestDistance);
+
+                    // If a line from the furthest point to the control point crosses the line between first and last, translate the control point over the line
+                    if (Util.getIntersectBetweenTwoLineSegments(controlPoint, furthestPoint, first, last)) {
+                        controlPoint.x = midPoint.x + (Math.cos(Util.degreesToRadians(angle + 90)) * furthestDistance);
+                        controlPoint.y = midPoint.y + (Math.sin(Util.degreesToRadians(angle + 90)) * furthestDistance);
+                    }
+
+                    var spread:Number = 12;
+                    var numPoints:int = Util.getDistanceBetweenTwoPoints(first, last) / spread;
                     var textPoints:Array = [first];
                     for (i = 0; i < numPoints; i++) {
                         var val:Number = i / numPoints;
                         if (val > 0 && val < 1) {
-                            var p:Point = Util.quadraticBezierPoint(val, first, last, furthestPoint);
-//                            if (Util.getDistanceBetweenTwoPoints(p, textPoints[textPoints.length - 1]) > 10)
-                                textPoints.push(p);
+                            var p:Point = Util.quadraticBezierPoint(val, first, last, controlPoint);
+                            textPoints.push(p);
                         }
                     }
 
-                    var j:int = 0;
-                    graphics.lineStyle(.1, 0x0000ff);
+                    var flip:Boolean = angle < -90 || angle > 90;
 
-                    var i:int = (textPoints.length - region.name.length - 1) / 2;
+                    var i:int = (textPoints.length - (region.name.length));
 
                     if (i < 0)
                         return;
 
-                    for (i; i < textPoints.length - 1; i++) {
+                    i /= 2;
+
+                    var letters:Array = region.name.split('');
+                    if (flip)
+                        letters = letters.reverse();
+
+                    for (var n:int = 0; n < textPoints.length; n++) {
+                        p = textPoints[n];
+                        graphics.lineStyle(.1, Util.getColorBetweenColors(0xff0000, 0x0000ff, n / textPoints.length));
+                        graphics.drawCircle(p.x, p.y, 5);
+                    }
+
+                    var j:int = letters.length - 1;
+                    for (i; i < textPoints.length; i++) {
                         var textPoint:Point = textPoints[i];
 
                         var txt:TextField = new TextField();
                         var format:TextFormat = new TextFormat(Fonts.regular, 20, 0x000000);
-                        txt.embedFonts = true;
                         txt.defaultTextFormat = format;
+                        txt.embedFonts = true;
                         txt.selectable = false;
-                        txt.text = region.name.charAt(j);
+
+                        txt.text = letters[j];
                         txt.autoSize = TextFieldAutoSize.LEFT;
                         txt.width = txt.textWidth;
+
                         var spr:Sprite = new Sprite();
                         spr.addChild(txt);
                         addChild(spr);
+
                         spr.x = textPoint.x;
                         spr.y = textPoint.y;
                         txt.x = -spr.width / 2;
                         txt.y = -spr.height / 2;
 
-                        var angle:Number = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i + 1]);
-                        spr.rotation = angle;
+                        if (i == 0) {
+                            // First element, take angle of angleAfter
+                            angle = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i + 1]);
+                        } else if (i == textPoints.length - 1) {
+                            // Last element, take angle of angleBefore
+                            angle = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i - 1]);
+                        } else {
+                            // Any other element, take the average of angleBefore and angleAfter
+                            var angleBefore:Number = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i - 1]);
+                            var angleAfter:Number = Util.getAngleBetweenTwoPoints(textPoint, textPoints[i + 1]);
+                            angle = (angleBefore + angleAfter) / 2;
+                        }
 
-                        j++;
-                        if (j == region.name.length)
+                        spr.rotation = angle;
+                        if (flip)
+                            spr.rotation += 180;
+
+                        // Iterate the letter index
+                        j--;
+                        if (j < 0)
                             break;
                     }
                 }
