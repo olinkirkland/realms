@@ -1,5 +1,7 @@
 # Realms
 
+[![](https://i.imgur.com/OocdrtT.png)](https://i.imgur.com/OocdrtT.png)
+
 View the [Game Design](game-design)  
 Visit the [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms) where I organize my tasks
 
@@ -14,15 +16,3 @@ Requires (Included)
 - [Greensock](https://greensock.com/tweenlite-as)
 - [Andy Woodruff's Continuous Curves](http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/)
 - Flash.swc
-
-Terrain
-[![](https://i.imgur.com/bhQAk2U.png)](https://i.imgur.com/bhQAk2U.png)
-
-Cities and Towns
-[![](https://i.imgur.com/8E2PJyE.png)](https://i.imgur.com/8E2PJyE.png)
-
-Regions
-[![](https://i.imgur.com/cSK6nF2.png)](https://i.imgur.com/cSK6nF2.png)
-
-Curved Region Labels
-[![](https://i.imgur.com/IzoHhkt.png)](https://i.imgur.com/IzoHhkt.png)
