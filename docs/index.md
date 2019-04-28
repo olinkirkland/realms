@@ -15,23 +15,14 @@ Requires (Included)
 - [Andy Woodruff's Continuous Curves](http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/)
 - Flash.swc
 
-Coastlines w/ voronoi cells
-[![](https://i.imgur.com/jPxSztJ.jpg)](https://i.imgur.com/jPxSztJ.jpg)
+Terrain
+[![](https://i.imgur.com/bhQAk2U.png)](https://i.imgur.com/bhQAk2U.png)
 
-Height Map
-[![](https://i.imgur.com/PefyZbt.png)](https://i.imgur.com/PefyZbt.png)
+Cities and Towns
+[![](https://i.imgur.com/8E2PJyE.png)](https://i.imgur.com/8E2PJyE.png)
 
-Temperature Map
-[![](https://i.imgur.com/0KNspF5.png)](https://i.imgur.com/0KNspF5.png)
+Regions
+[![](https://i.imgur.com/cSK6nF2.png)](https://i.imgur.com/cSK6nF2.png)
 
-Biomes and rivers
-[![](https://i.imgur.com/v4HgjpC.png)]()
-
-Stylized forests
-[![](https://i.imgur.com/1jd39Zq.png)](https://i.imgur.com/1jd39Zq.png)
-
-Optimally placed settlements
-[![](https://i.imgur.com/JprMnnU.png)](https://i.imgur.com/JprMnnU.png)
-
-Settlement regions (area of influence)
-[![](https://i.imgur.com/tpllVEv.png)](https://i.imgur.com/tpllVEv.png)
+Curved Region Labels
+[![](https://i.imgur.com/IzoHhkt.png)](https://i.imgur.com/IzoHhkt.png)
