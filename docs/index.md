@@ -1,5 +1,3 @@
-# Realms
-
 [![](https://i.imgur.com/OocdrtT.png)](https://i.imgur.com/OocdrtT.png)
 
 View the [Game Design](game-design)  
