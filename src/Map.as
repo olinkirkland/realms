@@ -1089,8 +1089,8 @@ package {
                                     distanceToNearestTownOrCity = d;
                             }
 
-                            for each (var city:City in civ.cities) {
-                                var d:Number = Util.getDistanceBetweenTwoPoints(city.cell.point, optimalFishingTownSpot.point);
+                            for each (city in civ.cities) {
+                                d = Util.getDistanceBetweenTwoPoints(city.cell.point, optimalFishingTownSpot.point);
                                 if (d < distanceToNearestTownOrCity)
                                     distanceToNearestTownOrCity = d;
                             }
@@ -1114,7 +1114,7 @@ package {
                                     distanceToNearestTownOrCity = d;
                             }
 
-                            for each (var city:City in civ.cities) {
+                            for each (city in civ.cities) {
                                 d = Util.getDistanceBetweenTwoPoints(city.cell.point, optimalLoggingTownSpot.point);
                                 if (d < distanceToNearestTownOrCity)
                                     distanceToNearestTownOrCity = d;

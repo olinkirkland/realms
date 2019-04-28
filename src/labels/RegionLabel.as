@@ -123,17 +123,17 @@ package labels {
                     corner.costSoFar = 0;
                 }
 
-                var queue:Array = [start];
+                queue = [start];
                 start.costSoFar = 0;
 
                 // Loop through queue
                 while (queue.length > 0) {
-                    var current:Corner = queue.shift();
+                    current = queue.shift();
 
                     for each (edge in current.protrudes) {
                         if (!edge.outer) {
                             var next:Corner = current == edge.v0 ? edge.v1 : edge.v0;
-                            var nextCost = edge.voronoiDistance;
+                            var nextCost:Number = edge.voronoiDistance;
                             var newCost:Number = current.costSoFar + nextCost;
                             if (!next.used || newCost < next.costSoFar) {
                                 next.used = true;
@@ -144,7 +144,7 @@ package labels {
                                 // Place 'next' in the queue
                                 var queueLength:int = queue.length;
                                 if (queueLength > 0) {
-                                    for (var i:int = 0; i < queueLength; i++)
+                                    for (i = 0; i < queueLength; i++)
                                         if (queue[i].priority > next.priority)
                                             break;
                                     queue.insertAt(i, next);
@@ -163,7 +163,7 @@ package labels {
                         var fitness:Number = stop.costSoFar / Math.pow(sinuosity, 2);
                         if (!bestPath || (fitness > bestPath.fitness)) {
                             // Get the shortest route between start and stop
-                            var corner:Corner = stop;
+                            corner = stop;
                             var path:Array = [stop];
                             while (corner != start && corner.cameFrom) {
                                 path.push(corner.cameFrom);
@@ -197,7 +197,7 @@ package labels {
                     var furthestPoint:Point;
                     var furthestDistance:Number = 0;
                     for (i = 1; i < arr.length - 1; i++) {
-                        var dist:Number = Util.getDistanceBetweenLineSegmentAndPoint(first, last, arr[i]);
+                        dist = Util.getDistanceBetweenLineSegmentAndPoint(first, last, arr[i]);
                         if (!furthestPoint || dist > furthestDistance) {
                             furthestPoint = arr[i];
                             furthestDistance = dist;
@@ -242,7 +242,7 @@ package labels {
 
                     var flip:Boolean = angle < -90 || angle > 90;
 
-                    var i:int = (textPoints.length - (region.name.length));
+                    i = (textPoints.length - (region.name.length));
 
                     if (i < 0)
                         return;
