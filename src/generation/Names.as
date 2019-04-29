@@ -55,22 +55,34 @@ package generation {
          * Features
          */
 
+                // Regions
         [Embed(source="../assets/names/places/regions/prefixesByContext.json", mimeType="application/octet-stream")]
-        private static const prefixesByContext_json:Class;
+        private static const regions_prefixesByContext_json:Class;
 
         [Embed(source="../assets/names/places/regions/suffixesByContext.json", mimeType="application/octet-stream")]
-        private static const suffixesByContext_json:Class;
+        private static const regions_suffixesByContext_json:Class;
 
         [Embed(source="../assets/names/places/regions/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
-        private static const suffixesByNamingGroup_json:Class;
+        private static const regions_suffixesByNamingGroup_json:Class;
 
+        // Cities and towns
+        [Embed(source="../assets/names/places/citiesAndTowns/prefixesByContext.json", mimeType="application/octet-stream")]
+        private static const citiesAndTowns_prefixesByContext_json:Class;
+
+        [Embed(source="../assets/names/places/citiesAndTowns/suffixesByContext.json", mimeType="application/octet-stream")]
+        private static const citiesAndTowns_suffixesByContext_json:Class;
+
+        [Embed(source="../assets/names/places/citiesAndTowns/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
+        private static const citiesAndTowns_suffixesByNamingGroup_json:Class;
+
+        // Directions
         [Embed(source="../assets/names/places/compassDirections.json", mimeType="application/octet-stream")]
         private static const compassDirections_json:Class;
 
-        public var prefixesByContext:Object;
-        public var suffixesByContext:Object;
-        public var suffixesByNamingGroup:Object;
         public var compassDirections:Object;
+
+        public var regionsNamingDictionary:Object;
+        public var citiesAndTownsNamingDictionary:Object;
 
         private var existingNames:Array = [];
 
@@ -101,9 +113,18 @@ package generation {
             saltWater = JSON.parse(new saltWater_json());
 
             // Places
-            prefixesByContext = JSON.parse(new prefixesByContext_json());
-            suffixesByContext = JSON.parse(new suffixesByContext_json());
-            suffixesByNamingGroup = JSON.parse(new suffixesByNamingGroup_json());
+            regionsNamingDictionary = {
+                prefixes: JSON.parse(new regions_prefixesByContext_json()),
+                suffixesByContext: JSON.parse(new regions_suffixesByContext_json()),
+                suffixesByNamingGroup: JSON.parse(new regions_suffixesByNamingGroup_json())
+            };
+
+            citiesAndTownsNamingDictionary = {
+                prefixes: JSON.parse(new citiesAndTowns_prefixesByContext_json()),
+                suffixesByContext: JSON.parse(new citiesAndTowns_suffixesByContext_json()),
+                suffixesByNamingGroup: JSON.parse(new citiesAndTowns_suffixesByNamingGroup_json())
+            };
+
             compassDirections = JSON.parse(new compassDirections_json());
         }
 
@@ -341,7 +362,13 @@ package generation {
         }
 
         public function generateRegionPrefixAndSuffix(region:Object, rand:Rand):Object {
-            var analysis:Object = region.analysis;
+            return generatePrefixAndSuffix(region.analysis, rand, regionsNamingDictionary);
+        }
+
+        public function generatePrefixAndSuffix(analysis:Object, rand:Rand, namingDictionary:Object):Object {
+            var prefixesByContext:Object = namingDictionary.prefixes;
+            var suffixesByContext:Object = namingDictionary.suffixesByContext;
+            var suffixesByNamingGroup:Array = namingDictionary.suffixesByNamingGroup;
 
             var prefix:String;
             var suffix:String;
@@ -397,7 +424,7 @@ package generation {
 
                         for each (var vettedSuffix:String in vettedSuffixesForPrefix) {
                             if (possiblePrefix.name == "[trees]" || possiblePrefix.name == "[plants]" || possiblePrefix.name == "[smallAnimals]") {
-                                var biome:Object = region.analysis[possiblePrefix.context];
+                                var biome:Object = analysis[possiblePrefix.context];
                                 // Remove the brackets
                                 var category:String = possiblePrefix.name.substr(1, possiblePrefix.name.length - 2);
                                 for each (var detail:String in biome.ecosystem[category]) {
@@ -431,16 +458,6 @@ package generation {
                     choice = possibleCombinations.removeAt(rand.between(0, possibleCombinations.length - 1));
                 } else {
                     var prePrefix:String = "New ";
-                    for each (var r:Object in civ.regions) {
-                        if (r.nameObject) {
-                            if (r.nameObject.prefix == choice.prefix && r.nameObject.suffix == choice.suffix) {
-                                if (r.cells.length > region.cells.length)
-                                    prePrefix = "Little ";
-                                break;
-                            }
-                        }
-                    }
-
                     choice.prefix = prePrefix + choice.prefix;
                     break;
                 }
