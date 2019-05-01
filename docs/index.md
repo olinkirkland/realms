@@ -1,6 +1,7 @@
 [![](https://i.imgur.com/OocdrtT.png)](https://i.imgur.com/OocdrtT.png)
 
 View the [Game Design](game-design)  
+View the [Demo](Demo.html)  
 Visit the [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms) where I organize my tasks
 
 Inspired by the works of Azgaar's Fantasy Maps, Amit Patel's Polygonal Map Generation, Scott Turner's Dragons Abound, and Martin O'Leary's Map Generation.  
