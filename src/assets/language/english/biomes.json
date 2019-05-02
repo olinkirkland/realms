@@ -1,0 +1,342 @@
+{
+  "mountain": {
+    "diversity": {
+      "treeDiversity": 0,
+      "plantDiversity": 3,
+      "smallAnimalDiversity": 3,
+      "bigAnimalDiversity": 2
+    },
+    "trees": [],
+    "plants": [
+      "yarrow",
+      "sticklewort",
+      "bell",
+      "star",
+      "orchid",
+      "lily"
+    ],
+    "smallAnimals": [
+      "grouse",
+      "goat",
+      "eagle",
+      "salamander"
+    ],
+    "bigAnimals": [
+      "goat",
+      "lynx",
+      "bear",
+      "wolf",
+      "deer",
+      "sheep"
+    ]
+  },
+  "tundra": {
+    "diversity": {
+      "treeDiversity": 0,
+      "plantDiversity": 2,
+      "smallAnimalDiversity": 2,
+      "bigAnimalDiversity": 1
+    },
+    "trees": [],
+    "plants": [
+      "moss",
+      "shrub",
+      "lingon",
+      "cloud",
+      "heath",
+      "black"
+    ],
+    "smallAnimals": [
+      "fox",
+      "hare",
+      "lemming",
+      "goose",
+      "crow"
+    ],
+    "bigAnimals": [
+      "muskox",
+      "icebear",
+      "seal",
+      "reindeer",
+      "swan"
+    ]
+  },
+  "borealForest": {
+    "trees": [
+      "larch",
+      "spruce",
+      "fir",
+      "pine",
+      "willow"
+    ],
+    "plants": [
+      "moss",
+      "berry",
+      "strawberry",
+      "lingon",
+      "cloudberry",
+      "bilberry"
+    ],
+    "smallAnimals": [
+      "weasel",
+      "otter",
+      "mink",
+      "fox",
+      "vole",
+      "mouse",
+      "hare",
+      "adder",
+      "thrush",
+      "sparrow",
+      "warbler",
+      "eagle",
+      "raven",
+      "grouse",
+      "falcon",
+      "hawk"
+    ],
+    "bigAnimals": [
+      "lynx",
+      "wolf",
+      "bear",
+      "badger"
+    ],
+    "diversity": {
+      "treeDiversity": 3,
+      "plantDiversity": 3,
+      "smallAnimalDiversity": 3,
+      "bigAnimalDiversity": 1
+    }
+  },
+  "grassland": {
+    "diversity": {
+      "treeDiversity": 1,
+      "plantDiversity": 3,
+      "smallAnimalDiversity": 4,
+      "bigAnimalDiversity": 2
+    },
+    "trees": [
+      "oak",
+      "willow"
+    ],
+    "plants": [
+      "grass",
+      "foxtail",
+      "aster",
+      "brush",
+      "clover"
+    ],
+    "smallAnimals": [
+      "mouse",
+      "fox",
+      "badger",
+      "quail",
+      "sparrow",
+      "hawk",
+      "snake",
+      "swan"
+    ],
+    "bigAnimals": [
+      "deer",
+      "wolf",
+      "horse",
+      "lynx"
+    ]
+  },
+  "temperateForest": {
+    "diversity": {
+      "treeDiversity": 2,
+      "plantDiversity": 3,
+      "smallAnimalDiversity": 3,
+      "bigAnimalDiversity": 2
+    },
+    "trees": [
+      "oak",
+      "maple",
+      "beech",
+      "elm",
+      "cedar",
+      "fir",
+      "pine",
+      "yew",
+      "chestnut",
+      "willow"
+    ],
+    "plants": [
+      "moss",
+      "ferns",
+      "rose",
+      "holly",
+      "ivy",
+      "truffle"
+    ],
+    "smallAnimals": [
+      "fox",
+      "eagle",
+      "rabbit",
+      "rat",
+      "turtle",
+      "adder",
+      "falcon",
+      "hawk",
+      "badger",
+      "marten",
+      "wildcat",
+      "boar",
+      "beaver",
+      "bat",
+      "grouse"
+    ],
+    "bigAnimals": [
+      "deer",
+      "wolf",
+      "bear",
+      "elk",
+      "lynx"
+    ]
+  },
+  "savanna": {
+    "diversity": {
+      "treeDiversity": 1,
+      "plantDiversity": 2,
+      "smallAnimalDiversity": 4,
+      "bigAnimalDiversity": 2
+    },
+    "trees": [
+      "acacia"
+    ],
+    "plants": [
+      "grass",
+      "stargrass",
+      "lemongrass",
+      "sickle bush",
+      "raisin",
+      "thorn"
+    ],
+    "smallAnimals": [
+      "mole",
+      "jackal",
+      "owl",
+      "stork",
+      "heron",
+      "bat",
+      "fox"
+    ],
+    "bigAnimals": [
+      "elephant",
+      "zebra",
+      "lion",
+      "gazelle",
+      "giraffe",
+      "leopard",
+      "antelope",
+      "rhinoceros"
+    ]
+  },
+  "rainForest": {
+    "diversity": {
+      "treeDiversity": 3,
+      "plantDiversity": 3,
+      "smallAnimalDiversity": 3,
+      "bigAnimalDiversity": 2
+    },
+    "trees": [
+      "rubber",
+      "banana",
+      "cedar",
+      "ficus",
+      "cacao"
+    ],
+    "plants": [
+      "orchid",
+      "pitcher",
+      "liana",
+      "brush",
+      "vine"
+    ],
+    "smallAnimals": [
+      "toucan",
+      "frog",
+      "monkey",
+      "snake",
+      "bat",
+      "parrot",
+      "sloth",
+      "iguana",
+      "turtle",
+      "tarantula",
+      "beetle"
+    ],
+    "bigAnimals": [
+      "gorilla",
+      "jaguar",
+      "orangutan",
+      "anaconda"
+    ]
+  },
+  "desert": {
+    "diversity": {
+      "treeDiversity": 1,
+      "plantDiversity": 1,
+      "smallAnimalDiversity": 2,
+      "bigAnimalDiversity": 1
+    },
+    "trees": [
+      "palm",
+      "olive"
+    ],
+    "plants": [
+      "cactus"
+    ],
+    "smallAnimals": [
+      "scorpion",
+      "viper",
+      "lizard"
+    ],
+    "bigAnimals": [
+      "camel",
+      "vulture"
+    ]
+  },
+  "freshWater": {
+    "diversity": {
+      "treeDiversity": 0,
+      "plantDiversity": 0,
+      "smallAnimalDiversity": 2,
+      "bigAnimalDiversity": 0
+    },
+    "trees": [],
+    "plants": [],
+    "smallAnimals": [
+      "pike",
+      "minnow",
+      "perch",
+      "pollock",
+      "sturgeon"
+    ],
+    "bigAnimals": []
+  },
+  "saltWater": {
+    "diversity": {
+      "treeDiversity": 0,
+      "plantDiversity": 0,
+      "smallAnimalDiversity": 4,
+      "bigAnimalDiversity": 2
+    },
+    "trees": [],
+    "plants": [],
+    "smallAnimals": [
+      "trout",
+      "cod",
+      "salmon",
+      "lamprey",
+      "flounder",
+      "longfin"
+    ],
+    "bigAnimals": [
+      "stingray",
+      "shark",
+      "whale"
+    ]
+  }
+}

@@ -37,6 +37,9 @@ package {
 
         public var masterSeed:int;
 
+        [Embed(source="assets/points.json", mimeType="application/octet-stream")]
+        private static const points_json:Class;
+
         // Map Storage
         public var points:Vector.<Point>;
         public var cells:Vector.<Cell>;
@@ -130,19 +133,20 @@ package {
         }
 
         private function tryToLoadPoints():void {
-            // Does the points file exist?
-            if (Util.isAir()) {
-                points = AirOnlyUtil.loadPointsFromFile();
+            // Points cache
+            var pointsData:Object = JSON.parse(new points_json());
+            points = new Vector.<Point>();
+            for each (var pointData:Object in pointsData)
+                points.push(new Point(pointData.x, pointData.y));
+            build();
+            start();
+            return;
 
-                if (!points)
-                    generatePoints();
+            /**
+             * Old; Only use the following if all points need to be regenerated
+             */
 
-                build();
-            } else {
-                // Running in web
-                generatePoints();
-            }
-
+            generatePoints();
             start();
         }
 
@@ -157,10 +161,6 @@ package {
             relaxPoints();
             trace("Relaxing (3/3)");
             relaxPoints();
-
-            if (Util.isAir()) {
-                AirOnlyUtil.savePointsToFile(points);
-            }
         }
 
         private function progress(percent:Number, message:String):void {
@@ -636,7 +636,7 @@ package {
         private function determineCities():void {
             determineStaticCityDesirability();
 
-            for (var i:int = 0; i < 120; i++) {
+            for (var i:int = 0; i < 160; i++) {
                 determineCityDesirability();
 
                 civ.registerCity(cells[0]);
@@ -1338,7 +1338,8 @@ package {
                 centroid.x /= cell.corners.length;
                 centroid.y /= cell.corners.length;
 
-                points.push(Point.interpolate(cell.point, centroid, 0.5));
+                var p:Point = Point.interpolate(cell.point, centroid, 0.5);
+                points.push(new Point(Math.floor(p.x), Math.floor(p.y)));
             }
 
             // Rebuild graph

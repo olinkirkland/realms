@@ -1,0 +1,369 @@
+{
+  "standalone": {
+    "river": [
+      "Avon",
+      "Axe",
+      "Exe",
+      "Usk",
+      "Hope",
+      "Strath"
+    ],
+    "tributary": [
+      "Bourne",
+      "Foss"
+    ],
+    "highElevation": [
+      "Howe",
+      "Knock"
+    ],
+    "lowElevation": [
+      "Low"
+    ],
+    "coast": [
+      "Hythe",
+      "Erithe",
+      "Porth"
+    ],
+    "temperateOrBorealForest": [
+      "Pant",
+      "Shaw"
+    ],
+    "lake": [
+      "Lynn"
+    ],
+    "savanna": [
+      "Keld"
+    ],
+    "mountain": [
+      "Craig",
+      "Ghyll"
+    ],
+    "castle": [
+      "Chester"
+    ],
+    "town": [
+      "Stoke"
+    ],
+    "building-logging": [
+      "Leigh"
+    ],
+    "building-church": [
+      "Minster"
+    ]
+  },
+  "descriptions": {
+    "estuary": [
+      "Mouth of #",
+      "Firth of #"
+    ],
+    "river": [
+      "# River",
+      "The River #"
+    ],
+    "tributary": [
+      "# Stream",
+      "# Creek",
+      "# Brook"
+    ],
+    "building-harbor": [
+      "# Harbor"
+    ],
+    "building-castle": [
+      "Caer #",
+      "# Castle"
+    ]
+  },
+  "prefixes": {
+    "estuary": [
+      "Aber",
+      "Inver",
+      "Inner"
+    ],
+    "river": [
+      "Avon",
+      "Beck",
+      "Beckin",
+      "Brad",
+      "Glen",
+      "Hope",
+      "Strath",
+      "Nan",
+      "Nans"
+    ],
+    "tributary": [
+      "Bourne",
+      "Nant"
+    ],
+    "highElevation": [
+      "Ar",
+      "Ard",
+      "Blen",
+      "Blaen",
+      "Bre",
+      "Brigh",
+      "Bryn",
+      "Druim",
+      "Knock",
+      "Stan",
+      "Stam",
+      "Pen",
+      "High"
+    ],
+    "lowElevation": [
+      "Cul",
+      "Dal",
+      "Dol",
+      "Low"
+    ],
+    "coast": [
+      "Hyth",
+      "Erith",
+      "Lang",
+      "Long",
+      "Porth"
+    ],
+    "north": [
+      "Nor",
+      "North"
+    ],
+    "east": [
+      "Ast",
+      "Auchter"
+    ],
+    "south": [
+      "Sud",
+      "Sut",
+      "Suss"
+    ],
+    "west": [
+      "Wess",
+      "Wester"
+    ],
+    "grasslandOrTundra": [
+      "Auch",
+      "Auchen",
+      "Auchin",
+      "Ach",
+      "Car",
+      "Carden",
+      "Gar",
+      "Gart"
+    ],
+    "temperateOrBorealForest": [
+      "Wood",
+      "Herst",
+      "Pant",
+      "Shaw"
+    ],
+    "lake": [
+      "Moss",
+      "Pol"
+    ],
+    "savanna": [
+      "Keld"
+    ],
+    "mountain": [
+      "Bannock",
+      "Craig",
+      "Gill",
+      "Ghyll"
+    ],
+    "island": [
+      "Holm"
+    ],
+    "building-castle": [
+      "Castle",
+      "Car",
+      "Dum",
+      "Dun",
+      "Doune",
+      "Din"
+    ],
+    "building-church": [
+      "Kirk",
+      "Fin",
+      "Stow"
+    ],
+    "building-market": [
+      "Chipping",
+      "Chep",
+      "Cross"
+    ],
+    "building-logging": [],
+    "townOrCity": [
+      "Bal",
+      "Ball",
+      "Glynd",
+      "Glind",
+      "Corn"
+    ],
+    "town": [
+      "Thorpe",
+      "Swin",
+      "Shep"
+    ],
+    "generic": [
+      "King",
+      "Kil",
+      "Cil",
+      "Kin",
+      "Lan",
+      "Tre",
+      "Tra",
+      "Win"
+    ],
+    "elements": [
+      "Mat",
+      "Bar",
+      "Far",
+      "Black",
+      "Dub",
+      "Ban",
+      "Oir",
+      "Sel",
+      "Fal",
+      "Moner",
+      "Yar",
+      "Umb",
+      "Ruth",
+      "Rut",
+      "Rain"
+    ]
+  },
+  "suffixes": {
+    "estuary": [
+      "firth",
+      "mouth"
+    ],
+    "river": [
+      "avon",
+      "afon",
+      "combe",
+      "coombe",
+      "ford",
+      "forth",
+      "glen",
+      "op",
+      "hope",
+      "bridge"
+    ],
+    "tributary": [
+      "beck",
+      "bourne",
+      "burn",
+      "foss",
+      "fos",
+      "ffos"
+    ],
+    "highElevation": [
+      "berg",
+      "berry",
+      "howe"
+    ],
+    "lowElevation": [
+      "dal",
+      "don",
+      "den",
+      "low"
+    ],
+    "coast": [
+      "hithe",
+      "ness",
+      "port",
+      "harbour",
+      "pool"
+    ],
+    "grasslandOrTundra": [
+      "carden",
+      "cardine",
+      "field"
+    ],
+    "temperateOrBorealForest": [
+      "firth",
+      "wood",
+      "hurst",
+      "keth",
+      "cheth",
+      "shaw",
+      "shawe",
+      "wold",
+      "weald"
+    ],
+    "lake": [
+      "mere",
+      "moss",
+      "lin",
+      "lyn",
+      "lynn"
+    ],
+    "savanna": [
+      "keld"
+    ],
+    "mountain": [
+      "craig",
+      "gill",
+      "law",
+      "rock",
+      "stone"
+    ],
+    "island": [
+      "ay",
+      "way",
+      "oway",
+      "y",
+      "ey",
+      "holme"
+    ],
+    "building-castle": [
+      "bury",
+      "borough",
+      "brough",
+      "burgh",
+      "caster",
+      "cester",
+      "chester",
+      "wall"
+    ],
+    "building-church": [
+      "minster",
+      "kirk",
+      "stow"
+    ],
+    "building-market": [
+      "gate"
+    ],
+    "building-logging": [
+      "leigh",
+      "ley"
+    ],
+    "townOrCity": [
+      "by",
+      "bie",
+      "cot",
+      "cott",
+      "garth",
+      "ham",
+      "hay",
+      "hays",
+      "hayes",
+      "ing",
+      "ling",
+      "tun",
+      "ton",
+      "ter",
+      "wick",
+      "wich",
+      "worth",
+      "wardine"
+    ],
+    "town": [
+      "thorpe",
+      "stoke",
+      "ster",
+      "toft"
+    ],
+    "generic": [
+      "more"
+    ]
+  }
+}

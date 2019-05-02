@@ -97,7 +97,7 @@ package {
         private function labelCitiesAndTowns():void {
             var label:IconLabel;
             for each (var town:Town in civ.towns) {
-                label = new IconLabel(Icons.townIconFromType(town.townType));
+                label = new CityLabel(Icons.townIconFromType(town.townType), town.name);
                 label.point = new Point(town.cell.point.x, town.cell.point.y);
                 label.x = label.point.x;
                 label.y = label.point.y;
@@ -105,7 +105,7 @@ package {
             }
 
             for each (var city:City in civ.cities) {
-                label = new CityLabel(new Icons.City());
+                label = new CityLabel(new Icons.City(), city.name);
                 label.point = new Point(city.cell.point.x, city.cell.point.y);
                 label.x = label.point.x;
                 label.y = label.point.y;

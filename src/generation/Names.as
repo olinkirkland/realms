@@ -6,39 +6,31 @@ package generation {
         private var geo:Geography;
         private var civ:Civilization;
 
-        /**
-         * Biomes
-         */
+        [Embed(source="../assets/language/english/biomes.json", mimeType="application/octet-stream")]
+        private static const biomes_json:Class;
 
-        [Embed(source="../assets/names/biomes/tundra.json", mimeType="application/octet-stream")]
-        private static const tundra_json:Class;
+        [Embed(source="../assets/language/english/regions/prefixesByContext.json", mimeType="application/octet-stream")]
+        private static const regions_prefixesByContext_json:Class;
 
-        [Embed(source="../assets/names/biomes/borealForest.json", mimeType="application/octet-stream")]
-        private static const borealForest_json:Class;
+        [Embed(source="../assets/language/english/regions/suffixesByContext.json", mimeType="application/octet-stream")]
+        private static const regions_suffixesByContext_json:Class;
 
-        [Embed(source="../assets/names/biomes/grassland.json", mimeType="application/octet-stream")]
-        private static const grassland_json:Class;
+        [Embed(source="../assets/language/english/regions/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
+        private static const regions_suffixesByNamingGroup_json:Class;
 
-        [Embed(source="../assets/names/biomes/temperateForest.json", mimeType="application/octet-stream")]
-        private static const temperateForest_json:Class;
+        [Embed(source="../assets/language/english/namePartsByContext.json", mimeType="application/octet-stream")]
+        private static const citiesAndTowns_namePartsByContext_json:Class;
 
-        [Embed(source="../assets/names/biomes/savanna.json", mimeType="application/octet-stream")]
-        private static const savanna_json:Class;
+        // Directions
+        [Embed(source="../assets/language/english/compassDirections.json", mimeType="application/octet-stream")]
+        private static const compassDirections_json:Class;
 
-        [Embed(source="../assets/names/biomes/rainForest.json", mimeType="application/octet-stream")]
-        private static const rainForest_json:Class;
+        public var compassDirections:Object;
 
-        [Embed(source="../assets/names/biomes/mountain.json", mimeType="application/octet-stream")]
-        private static const mountain_json:Class;
+        public var regionsNamingDictionary:Object;
+        public var citiesAndTownsNamingDictionary:Object;
 
-        [Embed(source="../assets/names/biomes/desert.json", mimeType="application/octet-stream")]
-        private static const desert_json:Class;
-
-        [Embed(source="../assets/names/biomes/saltWater.json", mimeType="application/octet-stream")]
-        private static const saltWater_json:Class;
-
-        [Embed(source="../assets/names/biomes/freshWater.json", mimeType="application/octet-stream")]
-        private static const freshWater_json:Class;
+        private var existingNames:Array = [];
 
         public var tundra:Object;
         public var borealForest:Object;
@@ -50,41 +42,6 @@ package generation {
         public var desert:Object;
         public var freshWater:Object;
         public var saltWater:Object;
-
-        /**
-         * Features
-         */
-
-                // Regions
-        [Embed(source="../assets/names/places/regions/prefixesByContext.json", mimeType="application/octet-stream")]
-        private static const regions_prefixesByContext_json:Class;
-
-        [Embed(source="../assets/names/places/regions/suffixesByContext.json", mimeType="application/octet-stream")]
-        private static const regions_suffixesByContext_json:Class;
-
-        [Embed(source="../assets/names/places/regions/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
-        private static const regions_suffixesByNamingGroup_json:Class;
-
-        // Cities and towns
-        [Embed(source="../assets/names/places/citiesAndTowns/prefixesByContext.json", mimeType="application/octet-stream")]
-        private static const citiesAndTowns_prefixesByContext_json:Class;
-
-        [Embed(source="../assets/names/places/citiesAndTowns/suffixesByContext.json", mimeType="application/octet-stream")]
-        private static const citiesAndTowns_suffixesByContext_json:Class;
-
-        [Embed(source="../assets/names/places/citiesAndTowns/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
-        private static const citiesAndTowns_suffixesByNamingGroup_json:Class;
-
-        // Directions
-        [Embed(source="../assets/names/places/compassDirections.json", mimeType="application/octet-stream")]
-        private static const compassDirections_json:Class;
-
-        public var compassDirections:Object;
-
-        public var regionsNamingDictionary:Object;
-        public var citiesAndTownsNamingDictionary:Object;
-
-        private var existingNames:Array = [];
 
         public static function getInstance():Names {
             if (!_instance)
@@ -101,16 +58,17 @@ package generation {
             civ = Civilization.getInstance();
 
             // Biomes
-            tundra = JSON.parse(new tundra_json());
-            borealForest = JSON.parse(new borealForest_json());
-            grassland = JSON.parse(new grassland_json());
-            temperateForest = JSON.parse(new temperateForest_json());
-            savanna = JSON.parse(new savanna_json());
-            rainForest = JSON.parse(new rainForest_json());
-            mountain = JSON.parse(new mountain_json());
-            desert = JSON.parse(new desert_json());
-            freshWater = JSON.parse(new freshWater_json());
-            saltWater = JSON.parse(new saltWater_json());
+            var biomes:Object = JSON.parse(new biomes_json());
+            tundra = biomes.tundra;
+            borealForest = biomes.borealForest;
+            grassland = biomes.grassland;
+            temperateForest = biomes.temperateForest;
+            savanna = biomes.savanna;
+            rainForest = biomes.rainForest;
+            mountain = biomes.mountain;
+            desert = biomes.desert;
+            freshWater = biomes.freshWater;
+            saltWater = biomes.saltWater;
 
             // Places
             regionsNamingDictionary = {
@@ -119,10 +77,12 @@ package generation {
                 suffixesByNamingGroup: JSON.parse(new regions_suffixesByNamingGroup_json())
             };
 
+            var namePartsByContext:Object = JSON.parse(new citiesAndTowns_namePartsByContext_json());
             citiesAndTownsNamingDictionary = {
-                prefixes: JSON.parse(new citiesAndTowns_prefixesByContext_json()),
-                suffixesByContext: JSON.parse(new citiesAndTowns_suffixesByContext_json()),
-                suffixesByNamingGroup: JSON.parse(new citiesAndTowns_suffixesByNamingGroup_json())
+                prefixes: namePartsByContext.prefixes,
+                suffixes: namePartsByContext.suffixes,
+                descriptions: namePartsByContext.descriptions,
+                standalone: namePartsByContext.standalone
             };
 
             compassDirections = JSON.parse(new compassDirections_json());
@@ -481,7 +441,8 @@ package generation {
 
 
         public function nameTowns(towns:Object):void {
-
+            // Just use the nameCities function since towns extend cities
+            nameCities(towns);
         }
 
         private function isValidPlaceName(prefix:String,
