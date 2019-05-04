@@ -106,7 +106,7 @@ package generation {
         public function registerRegion():String {
             var id:String = UIDUtil.createUID();
 
-            regions[id] = {id: id, cells: new Vector.<Cell>()};
+            regions[id] = new Region(id, new Vector.<Cell>());
 
             return id;
         }

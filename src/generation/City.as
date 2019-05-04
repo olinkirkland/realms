@@ -14,6 +14,8 @@ package generation {
         public var name:String;
         public var neighbors:Array;
 
+        public var analysis:Object;
+
         public function City(cell:Cell, id:String) {
             this.cell = cell;
             this.id = id;
@@ -25,6 +27,11 @@ package generation {
             neighbors = [];
 
             determineName();
+        }
+
+        public function analyze():void {
+            analysis = {};
+
         }
 
         public function determineName():void {
