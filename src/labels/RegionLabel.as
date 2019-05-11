@@ -12,6 +12,8 @@ package labels {
     import flash.text.TextFormat;
     import flash.utils.Dictionary;
 
+    import generation.Region;
+
     import graph.Cell;
     import graph.Corner;
     import graph.Edge;
@@ -24,7 +26,7 @@ package labels {
         private var edges:Vector.<Edge>;
         private var corners:Vector.<Corner>;
 
-        public function RegionLabel(region:Object) {
+        public function RegionLabel(region:Region) {
             super();
 
             var borderPoints:Array = Util.removeDuplicatesFromArray(region.simpleBorderPoints);

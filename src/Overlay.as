@@ -7,12 +7,14 @@ package {
     import generation.City;
     import generation.Civilization;
     import generation.Geography;
+    import generation.Region;
     import generation.towns.Town;
 
     import labels.CityLabel;
     import labels.IconLabel;
     import labels.MapLabel;
     import labels.RegionLabel;
+    import labels.TownLabel;
 
     import mx.core.UIComponent;
     import mx.events.FlexEvent;
@@ -85,7 +87,7 @@ package {
         private function labelRegions():void {
             var regionLabels:Array = [];
 
-            for each (var region:Object in civ.regions) {
+            for each (var region:Region in civ.regions) {
                 var label:RegionLabel = new RegionLabel(region);
                 regionLabels.push(label);
             }
@@ -97,7 +99,7 @@ package {
         private function labelCitiesAndTowns():void {
             var label:IconLabel;
             for each (var town:Town in civ.towns) {
-                label = new CityLabel(Icons.townIconFromType(town.townType), town.name);
+                label = new TownLabel(Icons.townIconFromType(town.townType), town.name);
                 label.point = new Point(town.cell.point.x, town.cell.point.y);
                 label.x = label.point.x;
                 label.y = label.point.y;

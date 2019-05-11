@@ -19,7 +19,8 @@ package {
     import generation.Civilization;
     import generation.Ecosystem;
     import generation.Geography;
-    import generation.Names;
+    import generation.NameController;
+    import generation.Region;
     import generation.towns.Town;
 
     import graph.Cell;
@@ -50,7 +51,7 @@ package {
         // Managers
         private var geo:Geography;
         private var civ:Civilization;
-        private var names:Names;
+        private var names:NameController;
 
         // Layers
         private var layers:Array;
@@ -91,7 +92,7 @@ package {
             // Initialize Singletons
             geo = Geography.getInstance();
             civ = Civilization.getInstance();
-            names = Names.getInstance();
+            names = NameController.getInstance();
 
             // Add layers
             layers = [
@@ -730,7 +731,7 @@ package {
                 unuseCells();
             }
 
-            for each (var region:Object in civ.regions) {
+            for each (var region:Region in civ.regions) {
                 // Determine the center point of the region
                 var avgX:Number = 0;
                 var avgY:Number = 0;
@@ -1532,16 +1533,14 @@ package {
              * Draw Rivers
              */
 
-            var seaColor:uint = Biome.colors[Biome.FRESH_WATER];
+            var color:uint = Biome.colors[Biome.FRESH_WATER];
             for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
                 // Create an array of river points
-                riversLayer.graphics.moveTo(river.cells[0].point.x, river.cells[0].point.y);
-                var i:int = 0;
-                for each (var cell:Cell in river.cells) {
-                    i++;
-                    riversLayer.graphics.lineStyle(1 + ((i / river.cells.length) * river.cells.length) / 5, seaColor);
-                    riversLayer.graphics.lineTo(cell.point.x, cell.point.y);
-                }
+                var riverPoints:Array = [];
+                for each (var cell:Cell in river.cells)
+                    riverPoints.push(cell.point);
+                riversLayer.graphics.lineStyle(Math.sqrt(river.cells[river.cells.length - 1].flux / 15), color);
+                CubicBezier.curveThroughPoints(riversLayer.graphics, riverPoints, color);
             }
         }
 
@@ -1682,7 +1681,7 @@ package {
                     }
                 }
 
-                roadsLayer.graphics.lineStyle(0x000000);
+                roadsLayer.graphics.lineStyle(2);
                 for each (var roadSegment:Array in roadSegments)
                     CubicBezier.curveThroughPoints(roadsLayer.graphics, roadSegment, 0x000000);
             }

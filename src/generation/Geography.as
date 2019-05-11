@@ -7,7 +7,7 @@ package generation {
         private static var _instance:Geography;
 
         // Generation
-        private var names:Names;
+        private var names:NameController;
         public var features:Object = {};
         public var colors:Object = {};
 
@@ -32,7 +32,7 @@ package generation {
             _instance = this;
 
             // Setup
-            names = Names.getInstance();
+            names = NameController.getInstance();
 
             colors[OCEAN] = 0x4890B1;
             colors[LAND] = 0x387089;

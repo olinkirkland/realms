@@ -1,10 +1,10 @@
 package generation {
-    import graph.*;
 
-    public class Names {
-        private static var _instance:Names;
+    public class NameController {
+        private static var _instance:NameController;
         private var geo:Geography;
         private var civ:Civilization;
+        private var rand:Rand;
 
         [Embed(source="../assets/language/english/biomes.json", mimeType="application/octet-stream")]
         private static const biomes_json:Class;
@@ -43,19 +43,20 @@ package generation {
         public var freshWater:Object;
         public var saltWater:Object;
 
-        public static function getInstance():Names {
+        public static function getInstance():NameController {
             if (!_instance)
-                new Names();
+                new NameController();
             return _instance;
         }
 
-        public function Names() {
+        public function NameController() {
             if (_instance)
                 throw new Error("Singleton; Use getInstance() instead");
             _instance = this;
 
             geo = Geography.getInstance();
             civ = Civilization.getInstance();
+            rand = new Rand(1);
 
             // Biomes
             var biomes:Object = JSON.parse(new biomes_json());
@@ -89,9 +90,9 @@ package generation {
         }
 
         public function nameRegions(regions:Object):void {
-            var rand:Rand = new Rand(1);
+            // Turn the regions object into an array so it can be sorted
             var regionsArray:Array = [];
-            for each (var region:Object in regions)
+            for each (var region:Region in regions)
                 regionsArray.push(region);
             regionsArray.sort(Sort.sortByCellCountAndSettlementCellIndex);
 

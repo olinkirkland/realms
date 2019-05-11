@@ -6,8 +6,8 @@ package labels {
     import flash.text.TextFieldAutoSize;
     import flash.text.TextFormat;
 
-    public class CityLabel extends IconLabel {
-        public function CityLabel(bitmap:Bitmap, text:String = null) {
+    public class TownLabel extends IconLabel {
+        public function TownLabel(bitmap:Bitmap, text:String = null) {
             var background:Sprite = new Sprite();
             addChild(background);
 
@@ -16,7 +16,7 @@ package labels {
             if (!text)
                 return;
 
-            var format:TextFormat = new TextFormat(Fonts.regular, 10, 0xffffff);
+            var format:TextFormat = new TextFormat(Fonts.regular, 10, 0x000000);
             var txt:TextField = new TextField();
             txt.embedFonts = true;
             txt.defaultTextFormat = format;
@@ -31,8 +31,8 @@ package labels {
 
             var hPadding:int = 3;
             var vPadding:int = 1;
-            background.graphics.lineStyle(2, 0xffffff);
-            background.graphics.beginFill(0x000000);
+            background.graphics.lineStyle(2, 0x000000);
+            background.graphics.beginFill(0xffffff);
             background.graphics.drawRoundRect(txt.x - hPadding, txt.y - vPadding, txt.width + 2 * hPadding, txt.height + 2 * vPadding, 25, 25);
             background.graphics.endFill();
             background.cacheAsBitmap = true;

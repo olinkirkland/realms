@@ -9,11 +9,11 @@ package generation {
 
         public var size:String;
 
-        private var names:Names;
+        private var names:NameController;
 
         public function Ecosystem(biome:Object) {
             this.biome = biome;
-            names = Names.getInstance();
+            names = NameController.getInstance();
             var content:Object = names[biome.type] ? names[biome.type] : null;
 
             if (content) {
