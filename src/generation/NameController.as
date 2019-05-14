@@ -9,16 +9,16 @@ package generation {
         [Embed(source="../assets/language/english/biomes.json", mimeType="application/octet-stream")]
         private static const biomes_json:Class;
 
-        [Embed(source="../assets/language/english/regions/prefixesByContext.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/language/english/regions/prefixes.json", mimeType="application/octet-stream")]
         private static const regions_prefixesByContext_json:Class;
 
-        [Embed(source="../assets/language/english/regions/suffixesByContext.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/language/english/regions/suffixes.json", mimeType="application/octet-stream")]
         private static const regions_suffixesByContext_json:Class;
 
         [Embed(source="../assets/language/english/regions/suffixesByNamingGroup.json", mimeType="application/octet-stream")]
         private static const regions_suffixesByNamingGroup_json:Class;
 
-        [Embed(source="../assets/language/english/namePartsByContext.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/language/english/cityNameParts.json", mimeType="application/octet-stream")]
         private static const citiesAndTowns_namePartsByContext_json:Class;
 
         // Directions
@@ -215,6 +215,10 @@ package generation {
             var str:String = "Analysis: " + analysisKeys.join(",") + "\nCombinations: ";
             for each (var p:Object in possibleCombinations)
                 str += p.prefix + p.suffix + ",";
+
+            trace("================");
+            trace(str);
+
             var choice:Object = {};
             do {
                 if (possibleCombinations.length > 0) {
@@ -225,6 +229,7 @@ package generation {
                     break;
                 }
             } while (choice && existingNames.indexOf(choice.prefix + choice.suffix) > -1);
+            trace("Choice: " + choice.prefix + choice.suffix);
 
             prefix = choice.prefix;
             suffix = choice.suffix;

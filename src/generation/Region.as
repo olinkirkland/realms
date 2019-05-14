@@ -151,10 +151,9 @@ package generation {
 
             regionalBiomes.sortOn("count");
 
-            // If a biome covers more than 40% of the region, add so that:
-            // analysis.temperateForest == someTemperateForestId
-            if (regionalBiomes[0].percent > .4)
-                analysis[regionalBiomes[0].type] = regionalBiomes[0].biome;
+            // Add most common biome
+            // analysis.temperateForest is someTemperateForestId
+            analysis[regionalBiomes[0].type] = regionalBiomes[0].biome;
         }
 
         public function analyzeContext():void {

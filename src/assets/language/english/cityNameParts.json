@@ -94,7 +94,7 @@
       "Bourne",
       "Nant"
     ],
-    "highElevation": [
+    "high": [
       "Ar",
       "Ard",
       "Blen",
@@ -109,7 +109,7 @@
       "Pen",
       "High"
     ],
-    "lowElevation": [
+    "low": [
       "Cul",
       "Dal",
       "Dol",

@@ -233,6 +233,10 @@ package labels {
                     }
                     while (letterCount > numPoints && spread > 1);
 
+                    // Don't show unconventionally tiny labels
+                    if (spread < 8)
+                        return;
+
                     var textPoints:Array = [first];
                     for (i = 0; i < numPoints; i++) {
                         var val:Number = i / numPoints;

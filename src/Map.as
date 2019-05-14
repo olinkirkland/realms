@@ -1947,7 +1947,9 @@ package {
 
         private function onClick(event:MouseEvent):void {
             var cell:Cell = getCellClosestToPoint(mouse);
-            trace(humanReadableCell(cell));
+            if (cell.region)
+                for (var str:String in civ.regions[cell.region].analysis)
+                    trace(str);
         }
 
         private function humanReadableCell(cell:Cell):String {

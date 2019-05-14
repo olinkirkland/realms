@@ -1,11 +1,11 @@
 {
-  "lowElevation": [
+  "low": [
     "don"
   ],
-  "highElevation": [],
-  "lowTemperature": [],
-  "highTemperature": [],
-  "highRiverRating": [
+  "high": [],
+  "cold": [],
+  "hot": [],
+  "river": [
     "vale",
     "den",
     "dale",
@@ -15,7 +15,7 @@
     "glen",
     "hope"
   ],
-  "highLakeRating": [
+  "lake": [
     "moss",
     "mere",
     "pool"
@@ -57,7 +57,7 @@
   "large": [
     "lands"
   ],
-  "highCoastalRating": [
+  "coast": [
     "ai"
   ]
 }
