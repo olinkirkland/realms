@@ -1,18 +1,18 @@
-Name | Description
------------- | -------------
-F Food | 
-W Wealth | 
-G Growth | 
-D Defense | 
-I Siege Holdout | 
-H Happiness | 
-R Repression | 
-A Garrison Troops | 
-C Culture | 
-S Sanitation | 
-E Research | 
-X Tax Rate | 
-M Movement | 
+Abbreviation | Name | Description
+------------ | ------------ | -------------
+F | Food | 
+W | Wealth | 
+G | Growth | 
+D | Defense | 
+I | Siege Holdout | 
+H | Happiness | 
+R | Repression | 
+A | Garrison Troops | 
+C | Culture | 
+S | Sanitation | 
+E | Research | 
+X | Tax Rate | 
+M | Movement | 
 
 ### ADMINISTRATION
 Governor's Residence
