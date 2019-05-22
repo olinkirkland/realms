@@ -35,7 +35,7 @@ Wind Mill [Non-River Only]
 +F +W
 
 ### DEFENSE
-Hill Fort
+```Hill Fort
 +D +I +R +A
 -F -W
   Motte
@@ -46,10 +46,10 @@ Hill Fort
 	-F -W
 	  Castle
 	  +D +I +R +A
-	  -F -W
+	  -F -W```
 	
 ### RELIGION
-Holy Ground
+```Holy Ground
 +H +C
 -F
   Chapel
@@ -60,8 +60,8 @@ Holy Ground
 	-F
       Cathedral
 	  +H +C
-	  -F
-Monastery
+	  -F```
+```Monastery
 +H +C
   Monastic Brewery
   +H +C +G
@@ -72,7 +72,7 @@ Monastery
   -F
     Monastic Institute
 	+H +C +E
-	-F
+	-F```
 
 ### INDUSTRY
 Crafter's Cottage
