@@ -15,6 +15,7 @@ X | Tax Rate |
 M | Movement | 
 
 ### ADMINISTRATION
+```
 Governor's Residence
 +R +X +W
 -F
@@ -22,20 +23,24 @@ Governor's Residence
   +R +X +W
   -F
     Governor's Palace
-	+R +X +W
+    +R +X +W
     -F
 	  Royal Court [Capital Only]
 	  +R +X +W +A
 	  -F
+```
 
 ### AGRICULTURE
+```
 Water Mill [River Only]
 +F +W
 Wind Mill [Non-River Only]
 +F +W
+```
 
 ### DEFENSE
-```Hill Fort
+```
+Hill Fort
 +D +I +R +A
 -F -W
   Motte
@@ -46,10 +51,12 @@ Wind Mill [Non-River Only]
 	-F -W
 	  Castle
 	  +D +I +R +A
-	  -F -W```
+	  -F -W
+	  ```
 	
 ### RELIGION
-```Holy Ground
+```
+Holy Ground
 +H +C
 -F
   Chapel
@@ -60,8 +67,10 @@ Wind Mill [Non-River Only]
 	-F
       Cathedral
 	  +H +C
-	  -F```
-```Monastery
+	  -F
+	  ```
+```
+Monastery
 +H +C
   Monastic Brewery
   +H +C +G
@@ -72,9 +81,11 @@ Wind Mill [Non-River Only]
   -F
     Monastic Institute
 	+H +C +E
-	-F```
+	-F
+	```
 
 ### INDUSTRY
+```
 Crafter's Cottage
 +W +G
   Blacksmith's Cottage
@@ -95,6 +106,7 @@ Crafter's Cottage
 	+W +G
 	  Society of Weavers
 	  +W +G +C
+	  ```
 
 ### CITY CENTER
 Banking House
