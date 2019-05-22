@@ -14,8 +14,8 @@ E | Research |
 X | Tax Rate | 
 M | Movement | 
 
-### ADMINISTRATION
-```
+# ADMINISTRATION
+
 Governor's Residence
 +R +X +W
 -F
@@ -28,18 +28,16 @@ Governor's Residence
 	  Royal Court [Capital Only]
 	  +R +X +W +A
 	  -F
-```
 
-### AGRICULTURE
-```
+# AGRICULTURE
+
 Water Mill [River Only]
 +F +W
 Wind Mill [Non-River Only]
 +F +W
-```
 
-### DEFENSE
-```
+# DEFENSE
+
 Hill Fort
 +D +I +R +A
 -F -W
@@ -52,10 +50,9 @@ Hill Fort
 	  Castle
 	  +D +I +R +A
 	  -F -W
-```
-	
+
 ### RELIGION
-```
+
 Holy Ground
 +H +C
 -F
@@ -68,8 +65,7 @@ Holy Ground
       Cathedral
 	  +H +C
 	  -F
-```
-```
+
 Monastery
 +H +C
   Monastic Brewery
@@ -82,10 +78,9 @@ Monastery
     Monastic Institute
 	+H +C +E
 	-F
-```
 
-### INDUSTRY
-```
+# INDUSTRY
+
 Crafter's Cottage
 +W +G
   Blacksmith's Cottage
@@ -106,18 +101,16 @@ Crafter's Cottage
 	+W +G
 	  Society of Weavers
 	  +W +G +C
-```
 
-### CITY CENTER
-```
+# CITY CENTER
+
 Banking House
 +W
   Mint
   +W
     Treasury
 	+W +X
-```
-```
+
 Grain Exchange
 +W +G
 -F
@@ -127,19 +120,16 @@ Grain Exchange
     Merchant Guild
 	+W +G
     -F
-```
-```
+	
 Brewery
 +G +H
   Large Brewery
   +G +H
     Brewing Company
 	+G +H
-```
-  
-  
-### EDUCATION
-```
+
+# EDUCATION
+
 School
 +E
 -F
@@ -152,9 +142,8 @@ School
     University
 	+E
 	-H -F
-```
 
-### SANITATION
+# SANITATION
 Well
 +S +H
 -F -W
@@ -177,16 +166,14 @@ Well
 	+S +H
     -F -W
 	
-### CITY RECRUITMENT
-```
+# CITY RECRUITMENT
+
 Drill Square
 [Unlocks Recruitment]
   Barracks
   [Unlocks Recruitment]
     Armory
 	[Unlocks Recruitment]
-```
-```
 Bowyer
 [Unlocks Recruitment]
   Archery Range
@@ -199,82 +186,71 @@ Siege Engineer
   [Unlocks Recruitment]
     Siege Works
 	[Unlocks Recruitment]
-```
 
-CITY DEFENSE
-```
+# CITY DEFENSE
+
 Fortress [upgraded from Castle]
 +D +I +R +A [Unlocks Recruitment]
 -F -W
   Citadel
   +D +I +R +A [Unlocks Recruitment]
   -F -W
-```
 
-### REGION INFRASTRUCTURE
-```
+# REGION INFRASTRUCTURE
+
 Roads
 +M +G
   Cobbled Roads
   +M +G  
     Metalled Roads
 	+M +G
-```
-```
+
 Peasant Farms
 [+20% F]
   Tenant Farms
   [+20% F]
     Great Estates
 	[+20% F]
-```
 
-### TOWN DEFENSE
-```
+# TOWN DEFENSE
+
 Town Watch
 +D +A
   Tower House
   +D +A
-```
 
-### SALT DEPOSIT
-```
+# SALT DEPOSIT
+
 Salt Works
 +S +W +G
 -H
-```
-```
+
 Salt Trader
 +W +G
 -H -S
-```
 
-### IRON VEIN
-```
+# IRON VEIN
+
 Iron Mine
 +W [-10% UNIT COST in Region]
 -H -S
-```
-```
+
 Iron Trader
 +W +G
 -H
-```
 
-### QUARRY
-```
+# QUARRY
+
 Quarry
 +W [-10% CONSTRUCTION COST in Region]
 -H -S
-```
-```
+
 Stone Trader
 +W +G
 -H -S
-```
 
-### MARKET TOWN
-```
+# MARKET TOWN
+
 Grain Exchange
 +W +G
 -F
@@ -284,8 +260,7 @@ Grain Exchange
     Merchant Guild
 	+W +G
 	-F
-```
-```
+
 Rest Stop
 +H +W +G
 -F -S
@@ -295,10 +270,9 @@ Rest Stop
     Coaching Inn
 	+H +W +G
     -F -S
-```
 
-### HARBOR TOWN
-```
+# HARBOR TOWN
+
 Fishing Jetty
 +F +G
 -H -S
@@ -308,8 +282,7 @@ Fishing Jetty
     Fishing Port
 	+F +G
 	-H -S
-```
-```
+
 Military Jetty
 [Unlocks Recruitment] +A
 -H -S
@@ -319,8 +292,8 @@ Military Jetty
     Military Port
 	[Unlocks Recruitment] +A
 	-H -S
-```
-```
+
+
 Trading Jetty
 +F +G
 -H -S
@@ -330,22 +303,21 @@ Trading Jetty
     Trading Port
 	+F +G
 	-H -S
-```
 
-### FOREST BORDER TOWN
-```
+
+# FOREST BORDER TOWN
+
 Hunting Cabin
 +F +W +H
   Hunting Lodge
   +F +W +H
     Country Mansion
 	+F +W +H
-```
-```
+
 Woodcutter's Cabin
 [-10% Construction Cost in Region]
   Logging Camp
   [-15% Construction Cost in Region]
     Lumber Camp
 	[-20% Construction Cost in Region]
-```
+
