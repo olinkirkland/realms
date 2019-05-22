@@ -4,7 +4,7 @@ Realms is a single and multi-player turn-based grand-strategy game taking place 
 
 The game generates a map with continents and islands to explore, numerous procedurally generated nations, and hundreds of regions containing cities and towns. Controlled regions can be improved and customized with buildings and decrees to guide them towards economic, cultural, or military specializations.
 
-- View the [Buildings](buildings)  
+- View the [Buildings Overview](buildings)  
 
 ### World Generation Scope
 
