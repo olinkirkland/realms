@@ -1,4 +1,8 @@
-```
+Abbreviation | Name | Description
+------------ | ------------- | -------------
+Content from cell 1 | Content from cell 2 | Foo
+Content in the first column | Content in the second column | #3
+
 F Food
 W Wealth
 G Growth
@@ -12,7 +16,6 @@ S Sanitation
 E Research
 X Tax Rate
 M Movement
-```
 
 ### ADMINISTRATION
 Governor's Residence
