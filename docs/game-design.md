@@ -6,6 +6,8 @@ The game generates a map with continents and islands to explore, numerous proced
 
 - View the [Buildings Overview](buildings)  
 
+The following is outdated game design that has since been altered. It will be replaced soon.
+
 ### World Generation Scope
 
 Initially, the game is limited to a map mimicing 0° to 90° real-world latitude and climate reflecting Western Europe. Temperate forests, grasslands, boreal forests, and tundras dominate, but to the south large tracks of savannas and some spots of desert can be found. Factions are designated a culture that defines different faction traits including diplomatic attitude, industrial productivity, and language (which is used to determine initial settlement toponyms).
