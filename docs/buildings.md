@@ -1,11 +1,11 @@
 Abbreviation | Name | Description
 ------------ | ------------ | -------------
-F | Food | 
-W | Wealth | 
-G | Growth | 
-D | Defense | 
-I | Siege Holdout | 
-H | Happiness | 
+F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 10% of the surplus Food. Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a massive penalty to Growth and Happiness.
+W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn.
+G | Growth | This value is added to the Region's Wealth every turn.
+D | Defense | Structures or fortifications designed to impede attackers.
+I | Siege Holdout | How long a City can last under siege.
+H | Happiness | The general happ
 R | Repression | 
 A | Garrison Troops | 
 C | Culture | 
