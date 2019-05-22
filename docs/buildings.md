@@ -1,4 +1,4 @@
-F Food
+```F Food
 W Wealth
 G Growth
 D Defense
@@ -10,7 +10,7 @@ C Culture
 S Sanitation
 E Research
 X Tax Rate
-M Movement
+M Movement```
 
 ADMINISTRATION
 Governor's Residence
