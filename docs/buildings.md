@@ -5,13 +5,13 @@ W | Wealth | The value of the Region in cold, hard cash. This value is taxed at 
 G | Growth | This value is added to the Region's Wealth every turn.
 D | Defense | Structures or fortifications designed to impede attackers.
 I | Siege Holdout | How long a City can last under siege.
-H | Happiness | The Region's population's happiness. Together with 
-R | Repression | 
-A | Garrison Troops | 
-C | Culture | 
-S | Sanitation | 
-E | Research | 
-X | Tax Rate | 
+H | Happiness | Together with Repression, this value reflects the Region's Public Order. If Public Order drops below zero, a rebellion is more likely to occur in the Region.
+R | Repression | Together with Happiness, this value reflects the Region's Public Order. During a rebellion, the strength of rebel forces is determined by a Public Order that relies heavily on Repression.
+A | Garrison Troops | A Garrison is composed of troops that defend a City or Town when attacked, but cannot be mustered to march with an Army. They can, however, reinforce Armies within their influence radius, but return to their City or Town when the battle is complete.
+C | Culture | The Region can have multiple Cultures present, and most do. Regions receive a bonus to Happiness from the presence of the Regeion's Realm's Culture.
+S | Sanitation | The cleanliness of the Region is crucial to keeping out disease. Regions with negative Sanitation have a high chance of disease breaking out. Disease brings with it massive penalties to Growth and Public Order.
+E | Research Speed | The speed at which technologies in the Tech Tree are researched is affected by this value.
+X | Tax Rate | The percent of the Region's Wealth 
 M | Movement | 
 
 ## ADMINISTRATION
