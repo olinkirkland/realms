@@ -14,9 +14,9 @@ E | Research |
 X | Tax Rate | 
 M | Movement | 
 
-# ADMINISTRATION
+## ADMINISTRATION
 
-Governor's Residence
+**Governor's Residence**
 +R +X +W
 -F
   Governor's Estate
@@ -29,14 +29,14 @@ Governor's Residence
 	  +R +X +W +A
 	  -F
 
-# AGRICULTURE
+## AGRICULTURE
 
 Water Mill [River Only]
 +F +W
 Wind Mill [Non-River Only]
 +F +W
 
-# DEFENSE
+## DEFENSE
 
 Hill Fort
 +D +I +R +A
@@ -51,7 +51,7 @@ Hill Fort
 	  +D +I +R +A
 	  -F -W
 
-### RELIGION
+## RELIGION
 
 Holy Ground
 +H +C
@@ -79,7 +79,7 @@ Monastery
 	+H +C +E
 	-F
 
-# INDUSTRY
+## INDUSTRY
 
 Crafter's Cottage
 +W +G
@@ -102,7 +102,7 @@ Crafter's Cottage
 	  Society of Weavers
 	  +W +G +C
 
-# CITY CENTER
+## CITY CENTER
 
 Banking House
 +W
@@ -128,7 +128,7 @@ Brewery
     Brewing Company
 	+G +H
 
-# EDUCATION
+## EDUCATION
 
 School
 +E
@@ -143,7 +143,7 @@ School
 	+E
 	-H -F
 
-# SANITATION
+## SANITATION
 Well
 +S +H
 -F -W
@@ -166,7 +166,7 @@ Well
 	+S +H
     -F -W
 	
-# CITY RECRUITMENT
+## CITY RECRUITMENT
 
 Drill Square
 [Unlocks Recruitment]
@@ -187,7 +187,7 @@ Siege Engineer
     Siege Works
 	[Unlocks Recruitment]
 
-# CITY DEFENSE
+## CITY DEFENSE
 
 Fortress [upgraded from Castle]
 +D +I +R +A [Unlocks Recruitment]
@@ -196,7 +196,7 @@ Fortress [upgraded from Castle]
   +D +I +R +A [Unlocks Recruitment]
   -F -W
 
-# REGION INFRASTRUCTURE
+## REGION INFRASTRUCTURE
 
 Roads
 +M +G
@@ -212,14 +212,14 @@ Peasant Farms
     Great Estates
 	[+20% F]
 
-# TOWN DEFENSE
+## TOWN DEFENSE
 
 Town Watch
 +D +A
   Tower House
   +D +A
 
-# SALT DEPOSIT
+## SALT DEPOSIT
 
 Salt Works
 +S +W +G
@@ -229,7 +229,7 @@ Salt Trader
 +W +G
 -H -S
 
-# IRON VEIN
+## IRON VEIN
 
 Iron Mine
 +W [-10% UNIT COST in Region]
@@ -239,7 +239,7 @@ Iron Trader
 +W +G
 -H
 
-# QUARRY
+## QUARRY
 
 Quarry
 +W [-10% CONSTRUCTION COST in Region]
@@ -249,7 +249,7 @@ Stone Trader
 +W +G
 -H -S
 
-# MARKET TOWN
+## MARKET TOWN
 
 Grain Exchange
 +W +G
@@ -271,7 +271,7 @@ Rest Stop
 	+H +W +G
     -F -S
 
-# HARBOR TOWN
+## HARBOR TOWN
 
 Fishing Jetty
 +F +G
@@ -305,7 +305,7 @@ Trading Jetty
 	-H -S
 
 
-# FOREST BORDER TOWN
+## FOREST BORDER TOWN
 
 Hunting Cabin
 +F +W +H
