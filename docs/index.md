@@ -1,6 +1,6 @@
 [![](https://i.imgur.com/OocdrtT.png)](https://i.imgur.com/OocdrtT.png)
 
-# Navigation
+## Navigation
 - [Demo](demo.html)  
 - [Game Design](game-design)  
 - [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms)
