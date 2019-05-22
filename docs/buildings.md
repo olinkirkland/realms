@@ -1,21 +1,18 @@
-Abbreviation | Name | Description
------------- | ------------- | -------------
-Content from cell 1 | Content from cell 2 | # Foo
-Content in the first column | Content in the second column | # 3
-
-F Food
-W Wealth
-G Growth
-D Defense
-I Siege Holdout
-H Happiness
-R Repression
-A Garrison Troops
-C Culture
-S Sanitation
-E Research
-X Tax Rate
-M Movement
+Name | Description
+------------ | -------------
+F Food | 
+W Wealth | 
+G Growth | 
+D Defense | 
+I Siege Holdout | 
+H Happiness | 
+R Repression | 
+A Garrison Troops | 
+C Culture | 
+S Sanitation | 
+E Research | 
+X Tax Rate | 
+M Movement | 
 
 ### ADMINISTRATION
 Governor's Residence
