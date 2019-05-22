@@ -6,7 +6,9 @@ The game generates a map with continents and islands to explore, numerous proced
 
 - View the [Buildings Overview](buildings)  
 
-```The following is outdated game design that has since been altered. It will be replaced soon.```
+```
+The following is outdated game design that has since been altered. It will be replaced soon.
+```
 
 ### World Generation Scope
 
