@@ -18,26 +18,26 @@ M | Movement | A bonus to the movement speed of all armies present in the Region
 
 Name | Effects | Description
 ------------ | ------------- | -------------
-Level 1 **Governor's Residence** | +R +X +W -F | 
-Level 2 **Governor's Estate** | +R +X +W -F | 
-Level 3 **Governor's Palace** | +R +X +W -F | 
-Level 4 **Royal Court [Capital Only]** | +R +X +W +A -F | 
+1 **Governor's Residence** | +R +X +W -F | 
+2 **Governor's Estate** | +R +X +W -F | 
+3 **Governor's Palace** | +R +X +W -F | 
+4 **Royal Court [Capital Only]** | +R +X +W +A -F | 
 
 ## AGRICULTURE
 
 Name | Effects | Description
 ------------ | ------------- | -------------
-Level 1 **Water Mill [River Only]** | +F +W | 
-Level 2 **Wind Mill [Non-River Only]** | +F +W | 
+1 **Water Mill [River Only]** | +F +W | 
+2 **Wind Mill [Non-River Only]** | +F +W | 
 
 ## DEFENSE
 
 Name | Effects | Description
 ------------ | ------------- | -------------
-Level 1 **Hill Fort** | +D +I +R +A -F -W | 
-Level 2 **Motte and Bailey** | +D +I +R +A -F -W | 
-Level 3 **Wooden Castle** | +D +I +R +A -F -W |
-Level 4 **Castle** | +D +I +R +A -F -W | 
+1 **Hill Fort** | +D +I +R +A -F -W | 
+2 **Motte and Bailey** | +D +I +R +A -F -W | 
+3 **Wooden Castle** | +D +I +R +A -F -W |
+4 **Castle** | +D +I +R +A -F -W | 
 
 ## RELIGION
 
