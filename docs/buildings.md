@@ -57,26 +57,16 @@ Name | Tier | Effects | Description
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Crafter's Cottage**
-+W +G
-  **Blacksmith's Cottage**
-  +W +G
-    **Blacksmithing Guild**
-	+W +G
-	  **Society of Blacksmiths**
-	  +W +G +C
-  **Potter's Cottage**
-  +W +G
-    **Pottery Guild**
-	+W +G
-	  **Society of Potters**
-	  +W +G +C
-  **Weaver's Cottage**
-  +W +G
-    **Weaving Guild**
-	+W +G
-	  **Society of Weavers**
-	  +W +G +C
+**Crafter's Cottage** | 1 | +W +G | 
+**Blacksmith's Cottage** | 2 | +W +G | 
+**Blacksmithing Guild** | 3 | +W +G | 
+**Society of Blacksmiths** | 4 | +W +G +C |
+**Potter's Cottage** | 2 | +W +G | 
+**Pottery Guild** | 3 | +W +G
+**Society of Potters** | 4 | +W +G +C
+**Weaver's Cottage** | 2 | +W +G
+**Weaving Guild** | 3 | W +G
+**Society of Weavers** | 4 | +W +G +C
 
 ## CITY CENTER
 
