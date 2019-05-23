@@ -16,12 +16,12 @@ M | Movement | A bonus to the movement speed of all armies present in the Region
 
 ## ADMINISTRATION
 
-Name | Description | Effects
------------- | ------------ | -------------
-**Governor's Residence** |  | +R +X +W -F
-**Governor's Estate** |  | +R +X +W -F
-**Governor's Palace** |  | +R +X +W -F
-**Royal Court [Capital Only]** |  | +R +X +W +A -F
+Name | Effects
+------------ | -------------
+**Governor's Residence** | +R +X +W -F
+**Governor's Estate** | +R +X +W -F
+**Governor's Palace** | +R +X +W -F
+**Royal Court [Capital Only]** | +R +X +W +A -F
 
 ## AGRICULTURE
 
