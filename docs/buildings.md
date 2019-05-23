@@ -18,10 +18,10 @@ M | Movement | A bonus to the movement speed of all armies present in the Region
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-1 **Governor's Residence** | 1 | +R +X +W -F | 
-2 **Governor's Estate** | 2 | +R +X +W -F | 
-3 **Governor's Palace** | 3 | +R +X +W -F | 
-4 **Royal Court [Capital Only]** | 4 | +R +X +W +A -F | 
+**Governor's Residence** | 1 | +R +X +W -F | 
+**Governor's Estate** | 2 | +R +X +W -F | 
+**Governor's Palace** | 3 | +R +X +W -F | 
+**Royal Court [Capital Only]** | 4 | +R +X +W +A -F | 
 
 ## AGRICULTURE
 
