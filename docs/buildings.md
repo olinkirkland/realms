@@ -170,7 +170,6 @@ Name | Tier | Effects | Description
 **Grain Exchange** | 1 | +W +G -F | 
 **Marketplace** | 2 | +W +G -F | 
 **Merchant Guild** | 3 | +W +G -F | 
-
 **Rest Stop** | 1 | +H +W +G -F -S | 
 **Country Pub** | 2 | +H +W +G -F -S | 
 **Coaching Inn** | 3 | +H +W +G -F -S | 
