@@ -39,6 +39,20 @@ Name | Tier | Effects | Description
 **Wooden Castle** | 3 | +D +I +R +A -F -W |
 **Castle** | 4 | +D +I +R +A -F -W | 
 
+## TOWN DEFENSE
+
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Town Watch** | 1 | +D +A | 
+**Tower House** | 2 | +D +A | 
+
+## CITY DEFENSE
+
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Fortress [upgraded from Castle]** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
+**Citadel** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
+
 ## RELIGION
 
 Name | Tier | Effects | Description
@@ -117,13 +131,6 @@ Name | Tier | Effects | Description
 **Siege Workshop** | 2 | [Unlocks Recruitment] | 
 **Siege Works** | 3 | [Unlocks Recruitment] | 
 
-## CITY DEFENSE
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Fortress [upgraded from Castle]** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
-**Citadel** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
-
 ## REGION INFRASTRUCTURE
 
 Name | Tier | Effects | Description
@@ -134,13 +141,6 @@ Name | Tier | Effects | Description
 **Peasant Farms** | 1 | [+20% F] | 
 **Tenant Farms** | 2 | [+25% F] | 
 **Great Estates** | 3 | [+30% F] | 
-
-## TOWN DEFENSE
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Town Watch** | 1 | +D +A | 
-**Tower House** | 2 | +D +A | 
 
 ## SALT DEPOSIT
 
