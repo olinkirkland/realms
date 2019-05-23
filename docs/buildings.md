@@ -41,271 +41,252 @@ Name | Tier | Effects | Description
 
 ## RELIGION
 
-Holy Ground
-+H +C
--F
-  Chapel
-  +H +C
-  -F
-    Church
-	+H +C
-	-F
-      Cathedral
-	  +H +C
-	  -F
-
-Monastery
-+H +C
-  Monastic Brewery
-  +H +C +G
-    Monastic Compound
-	+H +C +G
-  Monastic Library
-  +H +C +E
-  -F
-    Monastic Institute
-	+H +C +E
-	-F
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Holy Ground** | 1 | +H +C -F | 
+**Chapel** | 2 | +H +C -F |
+**Church** | 3 | +H +C -F |
+**Cathedral** | 4 | +H +C -F |
+**Monastery** | 1 | +H +C | 
+**Monastic Brewery** | 2 | +H +C +G |
+**Monastic Compound** | 3 | +H +C +G | 
+**Monastic Library** | 2 | +H +C +E -F | 
+**Monastic Institute** | 3 | +H +C +E -F |
 
 ## INDUSTRY
 
-Crafter's Cottage
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Crafter's Cottage**
 +W +G
-  Blacksmith's Cottage
+  **Blacksmith's Cottage**
   +W +G
-    Blacksmithing Guild
+    **Blacksmithing Guild**
 	+W +G
-	  Society of Blacksmiths
+	  **Society of Blacksmiths**
 	  +W +G +C
-  Potter's Cottage
+  **Potter's Cottage**
   +W +G
-    Pottery Guild
+    **Pottery Guild**
 	+W +G
-	  Society of Potters
+	  **Society of Potters**
 	  +W +G +C
-  Weaver's Cottage
+  **Weaver's Cottage**
   +W +G
-    Weaving Guild
+    **Weaving Guild**
 	+W +G
-	  Society of Weavers
+	  **Society of Weavers**
 	  +W +G +C
 
 ## CITY CENTER
 
-Banking House
+**Banking House**
 +W
-  Mint
+  **Mint**
   +W
-    Treasury
+    **Treasury**
 	+W +X
 
-Grain Exchange
+**Grain Exchange**
 +W +G
 -F
-  Marketplace
+  **Marketplace**
   +W +G
   -F
-    Merchant Guild
+    **Merchant Guild**
 	+W +G
     -F
 	
-Brewery
+**Brewery**
 +G +H
-  Large Brewery
+  **Large Brewery**
   +G +H
-    Brewing Company
+    **Brewing Company**
 	+G +H
 
 ## EDUCATION
 
-School
+**School**
 +E
 -F
-  College
+  **College**
   +E
   -F
-    Trade School
+    **Trade School**
 	+E +G +H
 	-F
-    University
+    **University**
 	+E
 	-H -F
 
 ## SANITATION
-Well
+**Well**
 +S +H
 -F -W
-  Troughs
+  **Troughs**
   +S +H
   -F -W
-    Canals
+    **Canals**
 	+S +H
     -F -W
-  Latrines
+  **Latrines**
   +S +H
   -F -W
-    Sewers
+    **Sewers**
 	+S
     -F -W
-  Public Bath
+  **Public Bath**
   +S +H
   -F -W
-    Spa Complex
+    **Spa Complex**
 	+S +H
     -F -W
 	
 ## CITY RECRUITMENT
 
-Drill Square
+**Drill Square**
 [Unlocks Recruitment]
-  Barracks
+  **Barracks**
   [Unlocks Recruitment]
-    Armory
+    **Armory**
 	[Unlocks Recruitment]
-Bowyer
+**Bowyer**
 [Unlocks Recruitment]
-  Archery Range
+  **Archery Range**
   [Unlocks Recruitment]
-    Marksman Range
+    **Marksman Range**
 	[Unlocks Recruitment]
-Siege Engineer
+**Siege Engineer**
 [Unlocks Recruitment]
-  Siege Workshop
+  **Siege Workshop**
   [Unlocks Recruitment]
-    Siege Works
+    **Siege Works**
 	[Unlocks Recruitment]
 
 ## CITY DEFENSE
 
-Fortress [upgraded from Castle]
+**Fortress [upgraded from Castle]**
 +D +I +R +A [Unlocks Recruitment]
 -F -W
-  Citadel
+  **Citadel**
   +D +I +R +A [Unlocks Recruitment]
   -F -W
 
 ## REGION INFRASTRUCTURE
 
-Roads
+**Roads**
 +M +G
-  Cobbled Roads
+  **Cobbled Roads**
   +M +G  
-    Metalled Roads
+    **Metalled Roads**
 	+M +G
 
-Peasant Farms
+**Peasant Farms**
 [+20% F]
-  Tenant Farms
-  [+20% F]
-    Great Estates
-	[+20% F]
+  **Tenant Farms**
+  [+25% F]
+    **Great Estates**
+	[+30% F]
 
 ## TOWN DEFENSE
 
-Town Watch
+**Town Watch**
 +D +A
-  Tower House
+  **Tower House**
   +D +A
 
 ## SALT DEPOSIT
 
-Salt Works
+**Salt Works**
 +S +W +G
 -H
-
-Salt Trader
+**Salt Trader**
 +W +G
 -H -S
 
 ## IRON VEIN
 
-Iron Mine
+**Iron Mine**
 +W [-10% UNIT COST in Region]
 -H -S
-
-Iron Trader
+**Iron Trader**
 +W +G
 -H
 
 ## QUARRY
 
-Quarry
+**Quarry**
 +W [-10% CONSTRUCTION COST in Region]
 -H -S
-
-Stone Trader
+**Stone Trader**
 +W +G
 -H -S
 
 ## MARKET TOWN
 
-Grain Exchange
+**Grain Exchange**
 +W +G
 -F
-  Marketplace
+  **Marketplace**
   +W +G
   -F
-    Merchant Guild
+    **Merchant Guild**
 	+W +G
 	-F
 
-Rest Stop
+**Rest Stop**
 +H +W +G
 -F -S
-  Country Pub
+  **Country Pub**
   +H +W +G
   -F -S
-    Coaching Inn
+    **Coaching Inn**
 	+H +W +G
     -F -S
 
 ## HARBOR TOWN
 
-Fishing Jetty
+**Fishing Jetty**
 +F +G
 -H -S
-  Fishing Wharf
+  **Fishing Wharf**
   +F +G
   -H -S
-    Fishing Port
+    **Fishing Port**
 	+F +G
 	-H -S
-
-Military Jetty
+**Military Jetty**
 [Unlocks Recruitment] +A
 -H -S
-  Military Wharf
+  **Military Wharf**
   [Unlocks Recruitment] +A
   -H -S
-    Military Port
+    **Military Port**
 	[Unlocks Recruitment] +A
 	-H -S
-
-
-Trading Jetty
+**Trading Jetty**
 +F +G
 -H -S
-  Trading Wharf
+  **Trading Wharf**
   +F +G
   -H -S
-    Trading Port
+    **Trading Port**
 	+F +G
 	-H -S
 
 
 ## FOREST BORDER TOWN
 
-Hunting Cabin
+**Hunting Cabin**
 +F +W +H
-  Hunting Lodge
+  **Hunting Lodge**
   +F +W +H
-    Country Mansion
+    **Country Mansion**
 	+F +W +H
 
-Woodcutter's Cabin
+**Woodcutter's Cabin**
 [-10% Construction Cost in Region]
-  Logging Camp
+  **Logging Camp**
   [-15% Construction Cost in Region]
-    Lumber Camp
+    **Lumber Camp**
 	[-20% Construction Cost in Region]
-
