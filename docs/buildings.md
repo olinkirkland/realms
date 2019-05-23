@@ -16,34 +16,28 @@ M | Movement | A bonus to the movement speed of all armies present in the Region
 
 ## ADMINISTRATION
 
-Name | Effects
------------- | -------------
-**Governor's Residence** | +R +X +W -F
-**Governor's Estate** | +R +X +W -F
-**Governor's Palace** | +R +X +W -F
-**Royal Court [Capital Only]** | +R +X +W +A -F
+Name | Effects | Description
+------------ | ------------- | -------------
+**Governor's Residence** | +R +X +W -F | 
+**Governor's Estate** | +R +X +W -F | 
+**Governor's Palace** | +R +X +W -F | 
+**Royal Court [Capital Only]** | +R +X +W +A -F | 
 
 ## AGRICULTURE
 
-Water Mill [River Only]
-+F +W
-Wind Mill [Non-River Only]
-+F +W
+Name | Effects | Description
+------------ | ------------- | -------------
+Water Mill [River Only] | +F +W | 
+Wind Mill [Non-River Only] | +F +W | 
 
 ## DEFENSE
 
-Hill Fort
-+D +I +R +A
--F -W
-  Motte
-  +D +I +R +A
-  -F -W
-    Wooden Castle
-	+D +I +R +A
-	-F -W
-	  Castle
-	  +D +I +R +A
-	  -F -W
+Name | Effects | Description
+------------ | ------------- | -------------
+Hill Fort | +D +I +R +A -F -W | 
+Motte | +D +I +R +A -F -W | 
+Wooden Castle | +D +I +R +A -F -W |
+Castle | +D +I +R +A -F -W | 
 
 ## RELIGION
 
