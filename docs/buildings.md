@@ -119,6 +119,8 @@ Name | Tier | Effects | Description
 
 ## CITY DEFENSE
 
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
 **Fortress [upgraded from Castle]** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
 **Citadel** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
 
