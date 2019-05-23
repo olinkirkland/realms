@@ -16,28 +16,28 @@ M | Movement | A bonus to the movement speed of all armies present in the Region
 
 ## ADMINISTRATION
 
-Name | Effects | Description
------------- | ------------- | -------------
-1 **Governor's Residence** | +R +X +W -F | 
-2 **Governor's Estate** | +R +X +W -F | 
-3 **Governor's Palace** | +R +X +W -F | 
-4 **Royal Court [Capital Only]** | +R +X +W +A -F | 
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+1 **Governor's Residence** | 1 | +R +X +W -F | 
+2 **Governor's Estate** | 2 | +R +X +W -F | 
+3 **Governor's Palace** | 3 | +R +X +W -F | 
+4 **Royal Court [Capital Only]** | 4 | +R +X +W +A -F | 
 
 ## AGRICULTURE
 
-Name | Effects | Description
------------- | ------------- | -------------
-1 **Water Mill [River Only]** | +F +W | 
-2 **Wind Mill [Non-River Only]** | +F +W | 
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Water Mill [River Only]** | 1 | +F +W | 
+**Wind Mill [Non-River Only]** | 1 | +F +W | 
 
 ## DEFENSE
 
-Name | Effects | Description
------------- | ------------- | -------------
-1 **Hill Fort** | +D +I +R +A -F -W | 
-2 **Motte and Bailey** | +D +I +R +A -F -W | 
-3 **Wooden Castle** | +D +I +R +A -F -W |
-4 **Castle** | +D +I +R +A -F -W | 
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Hill Fort** | 1 | +D +I +R +A -F -W | 
+**Motte and Bailey** | 2 | +D +I +R +A -F -W | 
+**Wooden Castle** | 3 | +D +I +R +A -F -W |
+**Castle** | 4 | +D +I +R +A -F -W | 
 
 ## RELIGION
 
