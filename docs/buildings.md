@@ -62,11 +62,11 @@ Name | Tier | Effects | Description
 **Blacksmithing Guild** | 3 | +W +G | 
 **Society of Blacksmiths** | 4 | +W +G +C |
 **Potter's Cottage** | 2 | +W +G | 
-**Pottery Guild** | 3 | +W +G
-**Society of Potters** | 4 | +W +G +C
-**Weaver's Cottage** | 2 | +W +G
-**Weaving Guild** | 3 | W +G
-**Society of Weavers** | 4 | +W +G +C
+**Pottery Guild** | 3 | +W +G |
+**Society of Potters** | 4 | +W +G +C |
+**Weaver's Cottage** | 2 | +W +G |
+**Weaving Guild** | 3 | W +G |
+**Society of Weavers** | 4 | +W +G +C |
 
 ## CITY CENTER
 
