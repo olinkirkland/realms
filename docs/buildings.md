@@ -11,21 +11,21 @@ A | Garrison Troops | A Garrison is composed of troops that defend a City or Tow
 C | Culture | The Region can have multiple Cultures present, and most do. Regions receive a bonus to Happiness from the presence of the Regeion's Realm's Culture.
 S | Sanitation | The cleanliness of the Region is crucial to keeping out disease. Regions with negative Sanitation have a high chance of disease breaking out. Disease brings with it massive penalties to Growth and Public Order.
 E | Research Speed | The speed at which technologies in the Tech Tree are researched is affected by this value.
-X | Tax Rate | The percent of the Region's Wealth 
-M | Movement | 
+X | Tax Rate | The percent of the Region's Wealth that is added to the Treasury each turn.
+M | Movement | A bonus to the movement speed of all armies present in the Region.
 
 ## ADMINISTRATION
 
 **Governor's Residence**
 +R +X +W
 -F
-  Governor's Estate
+  **Governor's Estate**
   +R +X +W
   -F
-    Governor's Palace
+    **Governor's Palace**
     +R +X +W
     -F
-	  Royal Court [Capital Only]
+	  **Royal Court [Capital Only]**
 	  +R +X +W +A
 	  -F
 
