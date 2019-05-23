@@ -70,213 +70,236 @@ Name | Tier | Effects | Description
 
 ## CITY CENTER
 
-**Banking House**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Banking House** | 1 | 
 +W
-  **Mint**
-  +W
-    **Treasury**
-	+W +X
+**Mint** | 1 | 
++W
+**Treasury** | 1 | 
+W +X
 
-**Grain Exchange**
+**Grain Exchange** | 1 | 
 +W +G
 -F
-  **Marketplace**
-  +W +G
-  -F
-    **Merchant Guild**
-	+W +G
-    -F
-	
-**Brewery**
+**Marketplace** | 1 | 
++W +G
+-F
+**Merchant Guild** | 1 | 
+W +G
+-F
+
+**Brewery** | 1 | 
 +G +H
-  **Large Brewery**
-  +G +H
-    **Brewing Company**
-	+G +H
+**Large Brewery** | 1 | 
++G +H
+**Brewing Company** | 1 | 
++G +H
 
 ## EDUCATION
 
-**School**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**School** | 1 | 
 +E
 -F
-  **College**
-  +E
-  -F
-    **Trade School**
-	+E +G +H
-	-F
-    **University**
-	+E
-	-H -F
+**College** | 1 | 
++E
+-F
+**Trade School** | 1 | 
++E +G +H
+-F
+**University** | 1 | 
++E
+-H -F
 
 ## SANITATION
-**Well**
+
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Well** | 1 | 
 +S +H
 -F -W
-  **Troughs**
-  +S +H
-  -F -W
-    **Canals**
-	+S +H
-    -F -W
-  **Latrines**
-  +S +H
-  -F -W
-    **Sewers**
-	+S
-    -F -W
-  **Public Bath**
-  +S +H
-  -F -W
-    **Spa Complex**
-	+S +H
-    -F -W
-	
+**Troughs** | 1 | 
++S +H
+-F -W
+**Canals** | 1 | 
++S +H
+-F -W
+**Latrines** | 1 | 
++S +H
+-F -W
+**Sewers** | 1 | 
++S
+-F -W
+**Public Bath** | 1 | 
++S +H
+-F -W
+**Spa Complex** | 1 | 
++S +H
+-F -W
+
 ## CITY RECRUITMENT
 
-**Drill Square**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Drill Square** | 1 | 
 [Unlocks Recruitment]
-  **Barracks**
-  [Unlocks Recruitment]
-    **Armory**
-	[Unlocks Recruitment]
-**Bowyer**
+**Barracks** | 1 | 
 [Unlocks Recruitment]
-  **Archery Range**
-  [Unlocks Recruitment]
-    **Marksman Range**
-	[Unlocks Recruitment]
-**Siege Engineer**
+**Armory** | 1 | 
 [Unlocks Recruitment]
-  **Siege Workshop**
-  [Unlocks Recruitment]
-    **Siege Works**
-	[Unlocks Recruitment]
+**Bowyer** | 1 | 
+[Unlocks Recruitment]
+**Archery Range** | 1 | 
+[Unlocks Recruitment]
+**Marksman Range** | 1 | 
+[Unlocks Recruitment]
+**Siege Engineer** | 1 | 
+[Unlocks Recruitment]
+**Siege Workshop** | 1 | 
+[Unlocks Recruitment]
+**Siege Works** | 1 | 
+[Unlocks Recruitment]
 
 ## CITY DEFENSE
 
-**Fortress [upgraded from Castle]**
+**Fortress [upgraded from Castle]** | 1 | 
 +D +I +R +A [Unlocks Recruitment]
 -F -W
-  **Citadel**
-  +D +I +R +A [Unlocks Recruitment]
-  -F -W
+**Citadel** | 1 | 
++D +I +R +A [Unlocks Recruitment]
+-F -W
 
 ## REGION INFRASTRUCTURE
 
-**Roads**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Roads** | 1 | 
 +M +G
-  **Cobbled Roads**
-  +M +G  
-    **Metalled Roads**
-	+M +G
+**Cobbled Roads** | 1 | 
++M +G  
+**Metalled Roads** | 1 | 
++M +G
 
-**Peasant Farms**
+**Peasant Farms** | 1 | 
 [+20% F]
-  **Tenant Farms**
-  [+25% F]
-    **Great Estates**
-	[+30% F]
+**Tenant Farms** | 1 | 
+[+25% F]
+**Great Estates** | 1 | 
+[+30% F]
 
 ## TOWN DEFENSE
 
-**Town Watch**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Town Watch** | 1 | 
 +D +A
-  **Tower House**
-  +D +A
+**Tower House** | 1 | 
++D +A
 
 ## SALT DEPOSIT
 
-**Salt Works**
+**Salt Works** | 1 | 
 +S +W +G
 -H
-**Salt Trader**
+**Salt Trader** | 1 | 
 +W +G
 -H -S
 
 ## IRON VEIN
 
-**Iron Mine**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Iron Mine** | 1 | 
 +W [-10% UNIT COST in Region]
 -H -S
-**Iron Trader**
+**Iron Trader** | 1 | 
 +W +G
 -H
 
 ## QUARRY
 
-**Quarry**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Quarry** | 1 | 
 +W [-10% CONSTRUCTION COST in Region]
 -H -S
-**Stone Trader**
+**Stone Trader** | 1 | 
 +W +G
 -H -S
 
 ## MARKET TOWN
 
-**Grain Exchange**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Grain Exchange** | 1 | 
 +W +G
 -F
-  **Marketplace**
-  +W +G
-  -F
-    **Merchant Guild**
-	+W +G
-	-F
+**Marketplace** | 1 | 
++W +G
+-F
+**Merchant Guild** | 1 | 
++W +G
+-F
 
-**Rest Stop**
+**Rest Stop** | 1 | 
 +H +W +G
 -F -S
-  **Country Pub**
-  +H +W +G
-  -F -S
-    **Coaching Inn**
-	+H +W +G
-    -F -S
+**Country Pub** | 1 | 
++H +W +G
+-F -S
+**Coaching Inn** | 1 | 
++H +W +G
+-F -S
 
 ## HARBOR TOWN
 
-**Fishing Jetty**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Fishing Jetty** | 1 | 
 +F +G
 -H -S
-  **Fishing Wharf**
-  +F +G
-  -H -S
-    **Fishing Port**
-	+F +G
-	-H -S
-**Military Jetty**
+**Fishing Wharf** | 1 | 
++F +G
+-H -S
+**Fishing Port** | 1 | 
++F +G
+-H -S
+**Military Jetty** | 1 | 
 [Unlocks Recruitment] +A
 -H -S
-  **Military Wharf**
-  [Unlocks Recruitment] +A
-  -H -S
-    **Military Port**
-	[Unlocks Recruitment] +A
-	-H -S
-**Trading Jetty**
+**Military Wharf** | 1 | 
+[Unlocks Recruitment] +A
+-H -S
+**Military Port** | 1 | 
+[Unlocks Recruitment] +A
+-H -S
+**Trading Jetty** | 1 | 
 +F +G
 -H -S
-  **Trading Wharf**
-  +F +G
-  -H -S
-    **Trading Port**
-	+F +G
-	-H -S
+**Trading Wharf** | 1 | 
++F +G
+-H -S
+**Trading Port** | 1 | 
++F +G
+-H -S
 
 
 ## FOREST BORDER TOWN
 
-**Hunting Cabin**
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Hunting Cabin** | 1 | 
 +F +W +H
-  **Hunting Lodge**
-  +F +W +H
-    **Country Mansion**
-	+F +W +H
+**Hunting Lodge** | 1 | 
++F +W +H
+**Country Mansion** | 1 | 
++F +W +H
 
-**Woodcutter's Cabin**
+**Woodcutter's Cabin** | 1 | 
 [-10% Construction Cost in Region]
-  **Logging Camp**
-  [-15% Construction Cost in Region]
-    **Lumber Camp**
-	[-20% Construction Cost in Region]
+**Logging Camp** | 1 | 
+[-15% Construction Cost in Region]
+**Lumber Camp** | 1 | 
+[-20% Construction Cost in Region]
