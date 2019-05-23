@@ -72,234 +72,129 @@ Name | Tier | Effects | Description
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Banking House** | 1 | 
-+W
-**Mint** | 1 | 
-+W
-**Treasury** | 1 | 
-W +X
-
-**Grain Exchange** | 1 | 
-+W +G
--F
-**Marketplace** | 1 | 
-+W +G
--F
-**Merchant Guild** | 1 | 
-W +G
--F
-
-**Brewery** | 1 | 
-+G +H
-**Large Brewery** | 1 | 
-+G +H
-**Brewing Company** | 1 | 
-+G +H
+**Banking House** | 1 | +W | 
+**Mint** | 2 | +W | 
+**Treasury** | 3 | W +X | 
+**Grain Exchange** | 1 | +W +G -F | 
+**Marketplace** | 2 | +W +G -F | 
+**Merchant Guild** | 3 | W +G -F | 
+**Brewery** | 1 | +G +H | 
+**Large Brewery** | 2 | +G +H | 
+**Brewing Company** | 3 | +G +H | 
 
 ## EDUCATION
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**School** | 1 | 
-+E
--F
-**College** | 1 | 
-+E
--F
-**Trade School** | 1 | 
-+E +G +H
--F
-**University** | 1 | 
-+E
--H -F
+**School** | 1 | +E -F | 
+**College** | 2 | +E -F | 
+**Trade School** | 3 | +E +G +H -F | 
+**University** | 3 | +E -H -F | 
 
 ## SANITATION
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Well** | 1 | 
-+S +H
--F -W
-**Troughs** | 1 | 
-+S +H
--F -W
-**Canals** | 1 | 
-+S +H
--F -W
-**Latrines** | 1 | 
-+S +H
--F -W
-**Sewers** | 1 | 
-+S
--F -W
-**Public Bath** | 1 | 
-+S +H
--F -W
-**Spa Complex** | 1 | 
-+S +H
--F -W
+**Well** | 1 | +S +H -F -W | 
+**Troughs** | 2 | +S +H -F -W | 
+**Canals** | 3 | +S +H -F -W | 
+**Latrines** | 2 | +S +H -F -W | 
+**Sewers** | 3 | +S -F -W | 
+**Public Bath** | 2 | +S +H -F -W | 
+**Spa Complex** | 3 | +S +H -F -W | 
 
 ## CITY RECRUITMENT
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Drill Square** | 1 | 
-[Unlocks Recruitment]
-**Barracks** | 1 | 
-[Unlocks Recruitment]
-**Armory** | 1 | 
-[Unlocks Recruitment]
-**Bowyer** | 1 | 
-[Unlocks Recruitment]
-**Archery Range** | 1 | 
-[Unlocks Recruitment]
-**Marksman Range** | 1 | 
-[Unlocks Recruitment]
-**Siege Engineer** | 1 | 
-[Unlocks Recruitment]
-**Siege Workshop** | 1 | 
-[Unlocks Recruitment]
-**Siege Works** | 1 | 
-[Unlocks Recruitment]
+**Drill Square** | 1 | [Unlocks Recruitment] | 
+**Barracks** | 2 | [Unlocks Recruitment] | 
+**Armory** | 3 | [Unlocks Recruitment] | 
+**Bowyer** | 1 | [Unlocks Recruitment] | 
+**Archery Range** | 2 | [Unlocks Recruitment] | 
+**Marksman Range** | 3 | [Unlocks Recruitment] | 
+**Siege Engineer** | 1 | [Unlocks Recruitment] | 
+**Siege Workshop** | 2 | [Unlocks Recruitment] | 
+**Siege Works** | 3 | [Unlocks Recruitment] | 
 
 ## CITY DEFENSE
 
-**Fortress [upgraded from Castle]** | 1 | 
-+D +I +R +A [Unlocks Recruitment]
--F -W
-**Citadel** | 1 | 
-+D +I +R +A [Unlocks Recruitment]
--F -W
+**Fortress [upgraded from Castle]** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
+**Citadel** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
 
 ## REGION INFRASTRUCTURE
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Roads** | 1 | 
-+M +G
-**Cobbled Roads** | 1 | 
-+M +G  
-**Metalled Roads** | 1 | 
-+M +G
-
-**Peasant Farms** | 1 | 
-[+20% F]
-**Tenant Farms** | 1 | 
-[+25% F]
-**Great Estates** | 1 | 
-[+30% F]
+**Roads** | 1 | +M +G | 
+**Cobbled Roads** | 2 | +M +G | 
+**Metalled Roads** | 3 | +M +G | 
+**Peasant Farms** | 1 | [+20% F] | 
+**Tenant Farms** | 2 | [+25% F] | 
+**Great Estates** | 3 | [+30% F] | 
 
 ## TOWN DEFENSE
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Town Watch** | 1 | 
-+D +A
-**Tower House** | 1 | 
-+D +A
+**Town Watch** | 1 | +D +A | 
+**Tower House** | 2 | +D +A | 
 
 ## SALT DEPOSIT
 
-**Salt Works** | 1 | 
-+S +W +G
--H
-**Salt Trader** | 1 | 
-+W +G
--H -S
+Name | Tier | Effects | Description
+------------ | ------------ | ------------- | -------------
+**Salt Works** | 1 | +S +W +G -H | 
+**Salt Trader** | 1 | +W +G -H -S | 
 
 ## IRON VEIN
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Iron Mine** | 1 | 
-+W [-10% UNIT COST in Region]
--H -S
-**Iron Trader** | 1 | 
-+W +G
--H
+**Iron Mine** | 1 | +W [-10% UNIT COST in Region] -H -S | 
+**Iron Trader** | 1 | +W +G -H | 
 
 ## QUARRY
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Quarry** | 1 | 
-+W [-10% CONSTRUCTION COST in Region]
--H -S
-**Stone Trader** | 1 | 
-+W +G
--H -S
+**Quarry** | 1 | +W [-10% CONSTRUCTION COST in Region] -H -S | 
+**Stone Trader** | 1 | +W +G -H -S | 
 
 ## MARKET TOWN
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Grain Exchange** | 1 | 
-+W +G
--F
-**Marketplace** | 1 | 
-+W +G
--F
-**Merchant Guild** | 1 | 
-+W +G
--F
+**Grain Exchange** | 1 | +W +G -F | 
+**Marketplace** | 2 | +W +G -F | 
+**Merchant Guild** | 3 | +W +G -F | 
 
-**Rest Stop** | 1 | 
-+H +W +G
--F -S
-**Country Pub** | 1 | 
-+H +W +G
--F -S
-**Coaching Inn** | 1 | 
-+H +W +G
--F -S
+**Rest Stop** | 1 | +H +W +G -F -S | 
+**Country Pub** | 2 | +H +W +G -F -S | 
+**Coaching Inn** | 3 | +H +W +G -F -S | 
 
 ## HARBOR TOWN
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Fishing Jetty** | 1 | 
-+F +G
--H -S
-**Fishing Wharf** | 1 | 
-+F +G
--H -S
-**Fishing Port** | 1 | 
-+F +G
--H -S
-**Military Jetty** | 1 | 
-[Unlocks Recruitment] +A
--H -S
-**Military Wharf** | 1 | 
-[Unlocks Recruitment] +A
--H -S
-**Military Port** | 1 | 
-[Unlocks Recruitment] +A
--H -S
-**Trading Jetty** | 1 | 
-+F +G
--H -S
-**Trading Wharf** | 1 | 
-+F +G
--H -S
-**Trading Port** | 1 | 
-+F +G
--H -S
+**Fishing Jetty** | 1 | +F +G -H -S | 
+**Fishing Wharf** | 2 | +F +G -H -S | 
+**Fishing Port** | 3 | +F +G -H -S | 
+**Military Jetty** | 1 | [Unlocks Recruitment] +A -H -S | 
+**Military Wharf** | 2 | [Unlocks Recruitment] +A -H -S | 
+**Military Port** | 3 | [Unlocks Recruitment] +A -H -S | 
+**Trading Jetty** | 1 | +F +G -H -S | 
+**Trading Wharf** | 2 | +F +G -H -S | 
+**Trading Port** | 3 | +F +G -H -S | 
 
 
 ## FOREST BORDER TOWN
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Hunting Cabin** | 1 | 
-+F +W +H
-**Hunting Lodge** | 1 | 
-+F +W +H
-**Country Mansion** | 1 | 
-+F +W +H
-
-**Woodcutter's Cabin** | 1 | 
-[-10% Construction Cost in Region]
-**Logging Camp** | 1 | 
-[-15% Construction Cost in Region]
-**Lumber Camp** | 1 | 
-[-20% Construction Cost in Region]
+**Hunting Cabin** | 1 | +F +W +H | 
+**Hunting Lodge** | 2 | +F +W +H | 
+**Country Mansion** | 3 | +F +W +H | 
+**Woodcutter's Cabin** | 1 | [-10% Construction Cost in Region] | 
+**Logging Camp** | 1 | [-15% Construction Cost in Region] | 
+**Lumber Camp** | 1 | [-20% Construction Cost in Region] | 
