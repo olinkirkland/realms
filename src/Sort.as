@@ -70,7 +70,7 @@ package {
             return sortByCellIndex(n1.city, n2.city);
         }
 
-        public static function sortByCellCountAndSettlementCellIndex(n1:Object, n2:Object):int {
+        public static function sortByCellCountAndCityCellIndex(n1:Object, n2:Object):int {
             if (n1.cells.length < n2.cells.length)
                 return 1;
             else if (n1.cells.length > n2.cells.length)

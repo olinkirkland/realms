@@ -7,16 +7,24 @@ package generation {
         // Only for generation
         public var used:Boolean;
 
+        // Singleton
+        private var civ:Civilization;
+
+        // City Properties
         public var cell:Cell;
         public var id:String;
         public var influence:int;
         public var point:Point;
-        public var name:String;
         public var neighbors:Array;
-
         public var analysis:Object;
 
+        // Naming
+        public var nameObject:Object;
+        public var name:String;
+
         public function City(cell:Cell, id:String) {
+            civ = Civilization.getInstance();
+
             this.cell = cell;
             this.id = id;
 
@@ -30,8 +38,9 @@ package generation {
         }
 
         public function analyze():void {
-            analysis = {};
-
+            // Creates an analysis object containing descriptive flags about the city
+            // The analysis object is used for naming cities and towns
+            analysis = {all: true, townOrCity: true};
         }
 
         public function determineName():void {

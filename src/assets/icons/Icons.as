@@ -34,7 +34,7 @@ package assets.icons {
                 return new SaltMine();
             if (townType == Town.IRON)
                 return new IronMine();
-            if (townType == Town.FISH)
+            if (townType == Town.HARBOR)
                 return new FishingTown();
             if (townType == Town.WOOD)
                 return new LoggingTown();

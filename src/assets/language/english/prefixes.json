@@ -1,0 +1,153 @@
+{
+  "estuary": [
+    "Aber",
+    "Inver",
+    "Inner"
+  ],
+  "river": [
+    "Avon",
+    "Beck",
+    "Beckin",
+    "Brad",
+    "Glen",
+    "Hope",
+    "Strath",
+    "Nan",
+    "Nans"
+  ],
+  "tributary": [
+    "Bourne",
+    "Nant"
+  ],
+  "high": [
+    "Ar",
+    "Ard",
+    "Blen",
+    "Bre",
+    "Brigh",
+    "Bryn",
+    "Druim",
+    "Knock",
+    "Stan",
+    "Stam",
+    "Pen",
+    "High"
+  ],
+  "low": [
+    "Cul",
+    "Dal",
+    "Dol",
+    "Low"
+  ],
+  "coast": [
+    "Hyth",
+    "Erith",
+    "Lang",
+    "Long",
+    "Porth"
+  ],
+  "north": [
+    "Nor",
+    "North"
+  ],
+  "east": [
+    "Ast",
+    "Auchter"
+  ],
+  "south": [
+    "Sud",
+    "Sut",
+    "Suss"
+  ],
+  "west": [
+    "Wess",
+    "Wester"
+  ],
+  "grasslandOrTundra": [
+    "Auch",
+    "Auchen",
+    "Auchin",
+    "Ach",
+    "Car",
+    "Carden",
+    "Gar",
+    "Gart"
+  ],
+  "temperateOrBorealForest": [
+    "Wood",
+    "Herst",
+    "Pant",
+    "Shaw"
+  ],
+  "lake": [
+    "Moss",
+    "Pol"
+  ],
+  "savanna": [
+    "Keld"
+  ],
+  "mountain": [
+    "Bannock",
+    "Craig",
+    "Gill",
+    "Ghyll"
+  ],
+  "island": [
+    "Holm"
+  ],
+  "building-castle": [
+    "Car",
+    "Dum",
+    "Dun",
+    "Doune",
+    "Din"
+  ],
+  "building-church": [
+    "Kirk",
+    "Fin",
+    "Stow"
+  ],
+  "building-market": [
+    "Chipping",
+    "Chep",
+    "Cross"
+  ],
+  "building-logging": [],
+  "townOrCity": [
+    "Bal",
+    "Ball",
+    "Glynd",
+    "Glind",
+    "Corn"
+  ],
+  "town": [
+    "Thorpe",
+    "Swin",
+    "Shep"
+  ],
+  "all": [
+    "King",
+    "Kil",
+    "Cil",
+    "Kin",
+    "Lan",
+    "Tre",
+    "Tra",
+    "Win",
+    "Mat",
+    "Bar",
+    "Far",
+    "Black",
+    "Dub",
+    "Ban",
+    "Oir",
+    "Sel",
+    "Fal",
+    "Moner",
+    "Yar",
+    "Umb",
+    "Ruth",
+    "Rut",
+    "Rain"
+  ]
+}

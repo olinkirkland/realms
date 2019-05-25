@@ -1,5 +1,5 @@
 package generation {
-    import generation.towns.FishingTown;
+    import generation.towns.HarborTown;
     import generation.towns.IronMine;
     import generation.towns.LoggingTown;
     import generation.towns.SaltMine;
@@ -88,8 +88,8 @@ package generation {
                 case Town.WOOD:
                     town = new LoggingTown(cell, id);
                     break;
-                case Town.FISH:
-                    town = new FishingTown(cell, id);
+                case Town.HARBOR:
+                    town = new HarborTown(cell, id);
                     break;
                 default:
                     break;

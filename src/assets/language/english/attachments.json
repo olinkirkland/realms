@@ -1,0 +1,29 @@
+{
+  "estuary": [
+    "Mouth of #",
+    "Firth of #"
+  ],
+  "river": [
+    "# River",
+    "The River #"
+  ],
+  "tributary": [
+    "# Stream",
+    "# Creek",
+    "# Brook"
+  ],
+  "building-harbor": [
+    "# Harbor"
+  ],
+  "building-castle": [
+    "Caer #",
+    "# Castle"
+  ],
+  "building-mine": [
+    "# Mine"
+  ],
+  "building-trade": [
+    "# Inn",
+    "# Tavern"
+  ]
+}

@@ -41,32 +41,25 @@ package generation {
         public function analyze():void {
             // Creates an analysis object containing descriptive flags about the region
             // The analysis object is used for naming regions
+            analysis = {all: true, region: true};
 
-            analysis = {};
-
-            // Get the land that this region is on (regions cannot span more than one land so don't worry about it)
-            var lands:Object = cells[0].getFeaturesByType(Geography.LAND);
+            // Get the land that this region's city is on
+            var lands:Object = city.cell.getFeaturesByType(Geography.LAND);
             for each (var land:Object in lands)
                 break;
 
-            // Is it on a "continent" or a "tiny island"
-            if (land.cells.length < 3) {
-                // Tiny island
+            // Is it a tiny island?
+            if (land.cells.length < 3)
                 analysis.island = true;
-            } else {
-                // Continent
-                analysis.land = true;
-            }
 
             // Is it a large region?
             if (cells.length > 120)
                 analysis.large = true;
 
             // Do a loop of all the cells and add up different feature counts
-            // River, lake, coast, high, low, hot, and cold
+            // River, lake, high, low, hot, and cold
             var riverCount:int = 0;
             var lakeCount:int = 0;
-            var coastalCount:int = 0;
             var averageElevation:Number = 0;
             var averageTemperature:Number = 0;
             for each (var cell:Cell in cells) {
@@ -76,24 +69,17 @@ package generation {
                 if (cell.hasFeatureType(Geography.LAKE))
                     lakeCount++;
 
-                if (cell.coastal)
-                    coastalCount++;
-
                 averageElevation += cell.elevation;
                 averageTemperature += cell.temperature;
             }
 
-            // High river value?
+            // Does it contain a lot of rivers?
             if (riverCount > 4 || riverCount / cells.length > .2)
                 analysis.river = true;
 
-            // High lake value?
+            // Does it contain a lot of lakes?
             if (lakeCount > 4 || lakeCount / cells.length > .2)
                 analysis.lake = true;
-
-            // Is it a coastal region?
-            if (coastalCount / cells.length > .3)
-                analysis.coast = true;
 
             // Elevation
             averageElevation = averageElevation / cells.length;
@@ -152,8 +138,13 @@ package generation {
             regionalBiomes.sortOn("count");
 
             // Add most common biome
-            // analysis.temperateForest is someTemperateForestId
-            analysis[regionalBiomes[0].type] = regionalBiomes[0].biome;
+            var biomeType:String = regionalBiomes[0].type;
+            if (biomeType == Biome.TUNDRA || biomeType == Biome.GRASSLAND)
+                analysis.grasslandOrTundra = regionalBiomes[0].biome;
+            else if (biomeType == Biome.TEMPERATE_FOREST || biomeType == Biome.BOREAL_FOREST)
+                analysis.temperateOrBorealForest = regionalBiomes[0].biome;
+            else
+                analysis[biomeType] = regionalBiomes[0].biome;
         }
 
         public function analyzeContext():void {

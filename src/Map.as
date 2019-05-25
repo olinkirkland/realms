@@ -183,10 +183,10 @@ package {
                 {f: determineBiomes, m: "Biomes"},
                 {f: determineCities, m: "Cities"},
                 {f: determineRegions, m: "Regions"},
-                {f: analyzeRegionsAndDetermineNames, m: "Analyze"},
                 {f: determineResources, m: "Resources"},
                 {f: determineRoads, m: "Roads"},
                 {f: determineTowns, m: "Towns"},
+                {f: analyzeRegionsAndDetermineNames, m: "Analyze"},
 //                {f: determineSeaRoutes, m: "Sea routes"},
                 {f: draw, m: "Drawing"}];
 
@@ -1098,7 +1098,7 @@ package {
 
                             // Fishing towns should be at least 30 pixels away from other towns or cities
                             if (distanceToNearestTownOrCity > 30) {
-                                civ.registerTown(optimalFishingTownSpot, Town.FISH);
+                                civ.registerTown(optimalFishingTownSpot, Town.HARBOR);
                                 townAdded = true;
                                 break;
                             }
@@ -1539,7 +1539,7 @@ package {
                 var riverPoints:Array = [];
                 for each (var cell:Cell in river.cells)
                     riverPoints.push(cell.point);
-                riversLayer.graphics.lineStyle(Math.sqrt(river.cells[river.cells.length - 1].flux / 15), color);
+                riversLayer.graphics.lineStyle(3, color);
                 CubicBezier.curveThroughPoints(riversLayer.graphics, riverPoints, color);
             }
         }

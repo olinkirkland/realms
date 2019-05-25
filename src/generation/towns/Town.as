@@ -1,8 +1,4 @@
 package generation.towns {
-    import assets.icons.Icons;
-
-    import flash.display.Bitmap;
-
     import generation.City;
 
     import graph.Cell;
@@ -14,10 +10,15 @@ package generation.towns {
         public static var STONE:String = "stone";
         public static var TRADE:String = "trade";
         public static var WOOD:String = "wood";
-        public static var FISH:String = "fish";
+        public static var HARBOR:String = "harbor";
 
         public function Town(cell:Cell, id:String) {
             super(cell, id);
+        }
+
+        override public function analyze():void {
+            super.analyze();
+            analysis.town = true;
         }
 
         public function get townType():String {
