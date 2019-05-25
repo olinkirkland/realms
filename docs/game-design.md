@@ -4,6 +4,12 @@ Realms is a single and multi-player turn-based grand-strategy game taking place 
 
 The game generates a map with continents and islands to explore, numerous procedurally generated nations, and hundreds of regions containing cities and towns. Controlled regions can be improved and customized with buildings and decrees to guide them towards economic, cultural, or military specializations.
 
+- View the [Buildings Overview](buildings.md)  
+
+```
+The following is outdated game design that has since been altered. It will be replaced soon.
+```
+
 ### World Generation Scope
 
 Initially, the game is limited to a map mimicing 0° to 90° real-world latitude and climate reflecting Western Europe. Temperate forests, grasslands, boreal forests, and tundras dominate, but to the south large tracks of savannas and some spots of desert can be found. Factions are designated a culture that defines different faction traits including diplomatic attitude, industrial productivity, and language (which is used to determine initial settlement toponyms).
