@@ -55,7 +55,7 @@ Name | Tier | Effects | Description
 **Large Brewery** | 2 | +G +H | 
 **Brewing Company** | 3 | +G +H | 
 
-##CITY CENTER
+## CITY CENTER
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
@@ -100,8 +100,8 @@ Name | Tier | Effects | Description
 **Marketplace** | 2 | +W +G -F | 
 **Merchant Quarter** | 3 | +W +G -F | 
 **Roadside Inn** | 1 | +H +W +G -F | 
-**Gasthaus** | 2 | +H +W +G -F | 
-**Country Estate** | 3 | +H +W +G -F | 
+**Tavern** | 2 | +H +W +G -F | 
+**Country Estates** | 3 | +H +W +G -F | 
 
 ## HARBOR TOWN
 
@@ -121,4 +121,4 @@ Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
 **Hunter's Cabin** | 1 | +F +W +H | 
 **Hunting Lodge** | 2 | +F +W +H | 
-**Woodland Estate** | 3 | +F +W +H | 
+**Woodland Estates** | 3 | +F +W +H | 
