@@ -1,6 +1,6 @@
 Abbreviation | Name | Description
 ------------ | ------------ | -------------
-F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 10% of the surplus Food. Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a massive penalty to Growth and Happiness.
+F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 10% of the surplus Food. Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a large penalty to Growth and Happiness.
 W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn.
 G | Growth | This value is added to the Region's Wealth every turn.
 H | Happiness | If this value sinks below zero, there is a chance a rebellion will form in the Region.
@@ -9,8 +9,8 @@ H | Happiness | If this value sinks below zero, there is a chance a rebellion wi
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Mill** | 1 | +F | 
-**Granary** | 1 | +W +G
+**Mill** | 1 | +F +W +G| Mills use a water wheelto drive a mechanical process such as grinding, rolling, or hammering to produce flour, lumber, paper, and textiles.
+**Granary** | 1 | +F +W +G | A granary is a storehouse or room in a barn for threshed grain or animal feed.
 
 ## CASTLE
 
