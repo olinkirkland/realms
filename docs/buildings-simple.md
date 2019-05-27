@@ -16,41 +16,42 @@ Name | Tier | Effects | Description
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Wooden Castle** | 1 | -F | 
-**Stone Castle** | 2 | -F | 
+**Wooden Castle** | 1 | -F | Early castles consist of little more than an artificial mound and wooden palisades protecting a central wooden structure known as a keep.
+**Stone Castle** | 2 | -F | Stone castles build upon their wooden predecessors. Stone walls are impervious to fire and are more durable.
+**Large Stone Castle** | 3 | -F | Bigger castles with bigger garrisons provide more protection to the surrounding countryside.
 
 ## TOWN DEFENSE
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Town Watch** | 1 | +D +A | 
-**Tower House** | 2 | +D +A | 
+**Town Watch** | 1 | -W -F | A town watch is little more than a militia gathered to defend the homes of the townfolk.
+**Tower House** | 2 | -W -F | A local garrison with proper housing is enough to ward off raiders and rabble both.
 
 ## CITY DEFENSE
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Fortress [upgraded from Castle]** | 3 | -F | 
-**Citadel** | 4 | -F | 
+**Fortress [upgraded from Castle]** | 4 | -F | A fortress is an imposing castle, larger and more expansive than most hosting a large garrison of loyal troops.
+**Citadel** | 5 | -F | A citadel is the seat of any true monarch. Elaborate stonework and a massive garrison define the center of power in the region.
 
 ## RELIGION
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Chapel** | 1 | -W |
-**Church** | 2 | -W |
-**Cathedral** | 3 | -W |
-**Monastery** | 1 | -W | 
-**Monastic Brewery** | 2 | -W +G |
-**Monastic Library** | 2 | -W +G | 
+**Chapel** | 1 | -W +H | A small place to pray.
+**Church** | 2 | -W +H | A place for young and old to worship in.
+**Cathedral** | 3 | -W +H | An elaborate structure built to get closer with God.
+**Monastery** | 1 | -W | Those devoted to God must have a secluded place to call their own.
+**Monastic Brewery** | 2 | -W +G | A monastery must be self-sufficient and welcoming.
+**Monastic Library** | 2 | -W | Where the learned study scripture.
 
 ## INDUSTRY
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Crafter's Cottage** | 1 | +W +G -F| 
-**Crafting Workshops** | 2 | +W +G -F|
-**Crafting Guild** | 2 | +W +G -F|
+**Crafter's Cottage** | 1 | +W +G -F |
+**Crafting Workshops** | 2 | +W +G -F |
+**Crafting Guild** | 2 | +W +G -F |
 **Brewery** | 1 | +G +H | 
 **Large Brewery** | 2 | +G +H | 
 **Brewing Company** | 3 | +G +H | 
