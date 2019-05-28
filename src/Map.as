@@ -147,14 +147,13 @@ package {
                 points.push(new Point(pointData.x, pointData.y));
             build();
             start();
-            return;
 
             /**
-             * Old; Only use the following if all points need to be regenerated
+             * Use the following if all points need to be regenerated
              */
 
-            generatePoints();
-            start();
+//            generatePoints();
+//            start();
         }
 
         private function generatePoints():void {
@@ -1508,7 +1507,8 @@ package {
             var coastlineColors:Object = {
                 "land": Biome.colors.saltWater_stroke,
                 "lake": Biome.colors.freshWater_stroke
-            }
+            };
+
             for each (var featureType:String in coastlineFeatureTypes) {
                 for (var key:String in geo.getFeaturesByType(featureType)) {
                     var feature:Object = geo.features[key];

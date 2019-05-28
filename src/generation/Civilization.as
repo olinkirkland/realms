@@ -68,11 +68,11 @@ package generation {
             return id;
         }
 
-        public function registerTown(cell:Cell, type:String):String {
+        public function registerTown(cell:Cell, townType:String):String {
             var id:String = UIDUtil.createUID();
 
             var town:Town;
-            switch (type) {
+            switch (townType) {
                 case Town.IRON:
                     town = new IronMine(cell, id);
                     break;

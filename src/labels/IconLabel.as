@@ -7,7 +7,7 @@ package labels {
     public class IconLabel extends MapLabel {
         public var icon:MovieClip;
 
-        public function IconLabel(bitmap:Bitmap, text:String = null) {
+        public function IconLabel(bitmap:Bitmap) {
             super();
 
             icon = new MovieClip();
