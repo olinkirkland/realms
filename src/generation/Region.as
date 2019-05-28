@@ -3,6 +3,8 @@ package generation {
 
     import graph.Cell;
 
+    import mx.collections.ArrayList;
+
     public class Region {
         // Only for generation
         public var used:Boolean;
@@ -27,7 +29,7 @@ package generation {
         public var centroid:Point;
         public var land:Object;
         public var city:City;
-        public var towns:Object;
+        public var towns:Array;
         public var borderPoints:Array;
         public var simpleBorderPoints:Array;
 

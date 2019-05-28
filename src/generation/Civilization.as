@@ -100,6 +100,8 @@ package generation {
             townsById[id] = town;
             townsByCell[cell] = town;
 
+            regions[cell.region].towns.push(town);
+
             return id;
         }
 

@@ -1028,8 +1028,8 @@ package {
         private function determineTowns():void {
             // Each region should have a number of towns depending on its size
             // Start by adding stone, salt, and iron resource points as towns
-            for each (var region:Object in civ.regions) {
-                region.towns = {};
+            for each (var region:Region in civ.regions) {
+                region.towns = [];
                 for each (var cell:Cell in region.cells) {
                     if (cell.hasFeatureType(Geography.STONE)) {
                         // Add stone quarry town
@@ -1971,30 +1971,6 @@ package {
 
             // Map was clicked
             dispatchEvent(new MapClickEvent(getCellClosestToPoint(mouse)));
-        }
-
-        private function humanReadableCell(cell:Cell):String {
-            var str:String = "#" + cell.index;
-            if (cell.town)
-                str += "\n" + cell.town.name;
-            for each (var feature:Object in cell.features) {
-                str += "\n > " + feature.type + " (" + feature.cells.length + ")";
-                if (feature.ecosystem) {
-                    str += " - " + feature.ecosystem.size;
-                    if (feature.ecosystem.trees.length > 0)
-                        str += "\n   > " + feature.ecosystem.trees;
-                    if (feature.ecosystem.plants.length > 0)
-                        str += "\n   > " + feature.ecosystem.plants;
-                    if (feature.ecosystem.smallAnimals.length > 0)
-                        str += "\n   > " + feature.ecosystem.smallAnimals;
-                    if (feature.ecosystem.bigAnimals.length > 0)
-                        str += "\n   > " + feature.ecosystem.bigAnimals;
-                }
-            }
-
-            //var region:Object = civ.regions[cell.region];
-
-            return str;
         }
 
         public function get mouse():Point {

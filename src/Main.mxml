@@ -6,6 +6,7 @@
                        creationComplete="onCreationComplete(event)" showStatusBar="false"
                        initialize="onInitialize(event)">
     <fx:Script>
+        <![CDATA[
         import com.greensock.TweenMax;
 
         import generation.Civilization;
@@ -13,9 +14,15 @@
 
         import graph.Cell;
 
+        import mx.events.CloseEvent;
+
         import mx.events.FlexEvent;
+        import mx.managers.PopUpManager;
+
+        import spark.events.PopUpEvent;
 
         private var drag:Point = null;
+        private var disableMapDragging:Boolean = false;
 
         public static const MAX_ZOOM:Number = 3;
         public static const ZOOM_SPEED:Number = .3;
@@ -155,7 +162,15 @@
 
             if (cell.region) {
                 // Trigger a region panel
-                var popup:Popup
+                var p:RegionPopUp = new RegionPopUp();
+                p.region = civ.regions[cell.region];
+                PopUpManager.addPopUp(p, this, true);
+                PopUpManager.centerPopUp(p);
+                p.addEventListener(PopUpEvent.CLOSE, function (event:CloseEvent):void {
+                    disableMapDragging = false;
+                });
+
+                disableMapDragging = true;
 
 //                for (var str:String in civ.regions[cell.region].analysis)
 //                    trace(str);
@@ -265,12 +280,14 @@
         }
 
         private function onMouseDown(event:MouseEvent):void {
-            drag = new Point(systemManager.stage.mouseX - map.x, systemManager.stage.mouseY - map.y);
+            if (!disableMapDragging)
+                drag = new Point(systemManager.stage.mouseX - map.x, systemManager.stage.mouseY - map.y);
         }
 
         private function onMouseUp(event:MouseEvent):void {
             drag = null;
         }
+        ]]>
     </fx:Script>
 
     <local:Map id="map" cacheAsBitmap="true"

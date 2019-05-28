@@ -12,7 +12,7 @@ package labels {
 
             icon = new MovieClip();
             var hitArea:Sprite = new Sprite();
-            hitArea.graphics.beginFill(0x00000000);
+            hitArea.graphics.beginFill(0x000000, 0);
             hitArea.graphics.drawCircle(0, 0, 20);
             icon.addChild(hitArea);
             addChild(icon);
