@@ -1,10 +1,21 @@
 package labels {
     import flash.display.Bitmap;
+    import flash.display.MovieClip;
+    import flash.display.Sprite;
     import flash.filters.DropShadowFilter;
 
     public class IconLabel extends MapLabel {
+        public var icon:MovieClip;
+
         public function IconLabel(bitmap:Bitmap, text:String = null) {
             super();
+
+            icon = new MovieClip();
+            var hitArea:Sprite = new Sprite();
+            hitArea.graphics.beginFill(0x00000000);
+            hitArea.graphics.drawCircle(0, 0, 20);
+            icon.addChild(hitArea);
+            addChild(icon);
 
             var filter:DropShadowFilter = new DropShadowFilter();
             filter.quality = 1;
@@ -16,7 +27,7 @@ package labels {
             filters = [filter];
             cacheAsBitmap = true;
 
-            addChild(bitmap);
+            icon.addChild(bitmap);
             bitmap.x = -bitmap.width / 2;
             bitmap.y = -bitmap.height / 2;
         }

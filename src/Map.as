@@ -7,6 +7,7 @@ package {
     import flash.display.BitmapData;
     import flash.display.Graphics;
     import flash.display.MovieClip;
+    import flash.events.Event;
     import flash.events.MouseEvent;
     import flash.filters.GlowFilter;
     import flash.geom.Point;
@@ -78,7 +79,7 @@ package {
         public var drawMountains:Boolean = false;
         public var drawCities:Boolean = false;
         public var drawRoads:Boolean = false;
-        public var drawRegions:Boolean = true;
+        public var drawRegions:Boolean = false;
         public var drawElevation:Boolean = false;
         public var drawTemperature:Boolean = false;
         public var drawOutlines:Boolean = false;
@@ -86,7 +87,11 @@ package {
 
         // Miscellaneous
         private var staticMode:Bitmap;
-        public static var MAP_PROGRESS:String = "mapProgress";
+        private var lastMapPoint:Point;
+
+        // Events
+        public static const PROGRESS_EVENT:String = "mapProgress";
+        public static const CLICK_EVENT:String = "mapClickEvent";
 
         public function Map() {
             // Initialize Singletons
@@ -118,7 +123,8 @@ package {
 
             setTimeout(tryToLoadPoints, 500);
 
-            addEventListener(MouseEvent.CLICK, onClick);
+            addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+            addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
         }
 
         override protected function createChildren():void {
@@ -165,7 +171,7 @@ package {
         }
 
         private function progress(percent:Number, message:String):void {
-            this.dispatchEvent(new PayloadEvent(MAP_PROGRESS, {percent: percent, message: message}, true));
+            this.dispatchEvent(new PayloadEvent(PROGRESS_EVENT, {percent: percent, message: message}, true));
         }
 
         public function start(seed:Number = 1):void {
@@ -501,8 +507,17 @@ package {
 
                         var feature:Object = geo.features[estuary];
                         feature.target = target;
+
+                        // Rivers with estuaries are by definition stems
+                        geo.getFeaturesByType(Geography.RIVER)[river].stem = true;
                     }
                 }
+            }
+
+            // Tributaries are non--stem rivers tributaries
+            for each (river in geo.getFeaturesByType(Geography.RIVER)) {
+                if (!river.stem)
+                    river.estuary = true;
             }
         }
 
@@ -1945,11 +1960,17 @@ package {
             unuseCells();
         }
 
-        private function onClick(event:MouseEvent):void {
-            var cell:Cell = getCellClosestToPoint(mouse);
-            if (cell.region)
-                for (var str:String in civ.regions[cell.region].analysis)
-                    trace(str);
+        private function onMouseDown(event:MouseEvent):void {
+            lastMapPoint = new Point(x, y);
+        }
+
+        private function onMouseUp(event:MouseEvent):void {
+            // Has the map moved since being mouse-down'd?
+            if (Util.getDistanceBetweenTwoPoints(lastMapPoint, new Point(x, y)) > 10)
+                return;
+
+            // Map was clicked
+            dispatchEvent(new MapClickEvent(getCellClosestToPoint(mouse)));
         }
 
         private function humanReadableCell(cell:Cell):String {

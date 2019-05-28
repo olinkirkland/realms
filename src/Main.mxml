@@ -8,6 +8,11 @@
     <fx:Script>
         import com.greensock.TweenMax;
 
+        import generation.Civilization;
+        import generation.Geography;
+
+        import graph.Cell;
+
         import mx.events.FlexEvent;
 
         private var drag:Point = null;
@@ -17,9 +22,18 @@
 
         private var zoomToCursor:Boolean = true;
 
+        private var geo:Geography;
+        private var civ:Civilization;
+
 
         private function onInitialize(event:FlexEvent):void {
-            map.addEventListener(Map.MAP_PROGRESS, onMapProgress);
+            // Singletons
+            geo = Geography.getInstance();
+            civ = Civilization.getInstance();
+
+            // Events
+            map.addEventListener(Map.PROGRESS_EVENT, onMapProgress);
+            map.addEventListener(Map.CLICK_EVENT, onMapClick);
         }
 
         private function onCreationComplete(event:FlexEvent):void {
@@ -135,6 +149,19 @@
 
             progressMessage.text = percent >= 0 ? message + " (" + int(percent * 100) + "%)" : message;
         }
+
+        private function onMapClick(mapClickEvent:MapClickEvent):void {
+            var cell:Cell = mapClickEvent.cell;
+
+            if (cell.region) {
+                // Trigger a region panel
+                var popup:Popup
+
+//                for (var str:String in civ.regions[cell.region].analysis)
+//                    trace(str);
+            }
+        }
+
 
         public function onKeyUp(event:KeyboardEvent):void {
             switch (event.keyCode) {

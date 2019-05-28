@@ -16,6 +16,9 @@ package labels {
             if (!text)
                 return;
 
+            // todo remove this
+            return;
+
             var format:TextFormat = new TextFormat(Fonts.regular, 10, 0x000000);
             var txt:TextField = new TextField();
             txt.embedFonts = true;
