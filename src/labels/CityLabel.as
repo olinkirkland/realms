@@ -10,7 +10,7 @@ package labels {
             var background:Sprite = new Sprite();
             addChild(background);
 
-            super(bitmap, text);
+            super(bitmap);
 
             if (!text)
                 return;

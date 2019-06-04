@@ -83,11 +83,10 @@ package generation {
             for each (var river:Object in rivers)
                 break;
             if (river) {
-                // Is it on a tributary?
-                var tributary:Boolean = false;
-
-
                 analysis.river = river;
+                // Is it on a tributary?
+                if (river.tributary)
+                    analysis.tributary = true;
             }
 
             // Estuary

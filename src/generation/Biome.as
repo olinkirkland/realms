@@ -32,19 +32,19 @@ package generation {
             freshWater_stroke: 0x6c7784,
             saltWater: 0x99A29D,
             saltWater_stroke: 0x6c7784,
-            tundra: 0xd6d0c9,
+            tundra: 0xD5C1A1,
             borealForest: 0x8ba975,
             borealForest_stroke: 0x517743,
             borealForest_bottomStroke: 0x102900,
-            grassland: 0xEAD6B5,
+            grassland: 0xD5C1A1,
             temperateForest: 0xAAAA76,
             temperateForest_stroke: 0x787643,
             temperateForest_bottomStroke: 0x292500,
-            savanna: 0xffc889,
-            rainForest: 0xEAD6B5,
-            rainForest_stroke: 0xEAD6B5,
-            desert: 0xffb560,
-            mountain: 0xbcae9a
+            savanna: 0xD5C1A1,
+            rainForest: 0xD5C1A1,
+            rainForest_stroke: 0xD5C1A1,
+            desert: 0xD5C1A1,
+            mountain: 0xD5C1A1
         };
 
         public static function determineBiome(cell:Cell):String {

@@ -7,8 +7,10 @@ package {
     import flash.display.BitmapData;
     import flash.display.Graphics;
     import flash.display.MovieClip;
-    import flash.events.Event;
     import flash.events.MouseEvent;
+    import flash.filters.BitmapFilter;
+    import flash.filters.BitmapFilterQuality;
+    import flash.filters.BlurFilter;
     import flash.filters.GlowFilter;
     import flash.geom.Point;
     import flash.geom.Rectangle;
@@ -105,11 +107,11 @@ package {
                 terrainLayer,
                 coastlinesLayer,
                 riversLayer,
+                roadsLayer,
                 forestsLayer,
                 mountainsLayer,
                 reliefLayer,
                 regionsLayer,
-                roadsLayer,
                 elevationLayer,
                 temperatureLayer,
                 outlinesLayer
@@ -513,10 +515,10 @@ package {
                 }
             }
 
-            // Tributaries are non--stem rivers tributaries
+            // Tributaries are non-stem rivers tributaries
             for each (river in geo.getFeaturesByType(Geography.RIVER)) {
                 if (!river.stem)
-                    river.estuary = true;
+                    river.tributary = true;
             }
         }
 
@@ -1555,7 +1557,7 @@ package {
                 for each (var cell:Cell in river.cells)
                     riverPoints.push(cell.point);
                 riversLayer.graphics.lineStyle(3, color);
-                CubicBezier.curveThroughPoints(riversLayer.graphics, riverPoints, color);
+                CubicBezier.curveThroughPoints(riversLayer.graphics, riverPoints);
             }
         }
 
@@ -1632,11 +1634,11 @@ package {
              */
 
             for each (var region:Object in civ.regions) {
-                region.color = Util.randomColor();
+//                region.color = Util.randomColor();
+                region.color = 0x000000;
 
                 var regionFill:MovieClip = new MovieClip();
                 regionFill.graphics.lineStyle();
-                regionFill.graphics.beginFill(region.color, .2);
 
                 var regionGlow:MovieClip = new MovieClip();
                 regionGlow.graphics.lineStyle();
@@ -1656,9 +1658,9 @@ package {
 
                 var filter:GlowFilter = new GlowFilter();
                 filter.quality = 10;
-                filter.blurX = 10;
-                filter.blurY = 10;
-                filter.strength = .8;
+                filter.blurX = 4;
+                filter.blurY = 4;
+                filter.strength = 0;
                 filter.inner = true;
                 filter.knockout = true;
                 filter.color = region.color;
@@ -1667,9 +1669,9 @@ package {
                 var regionOutline:MovieClip = new MovieClip();
                 regionOutline.graphics.copyFrom(regionGlow.graphics);
 
-                filter.strength = 4;
-                filter.blurX = 2;
-                filter.blurY = 2;
+                filter.strength = 2;
+                filter.blurX = 1.1;
+                filter.blurY = 1.1;
 
                 regionOutline.filters = [filter];
                 regionOutline.cacheAsBitmap = true;
@@ -1696,9 +1698,10 @@ package {
                     }
                 }
 
-                roadsLayer.graphics.lineStyle(2);
+                roadsLayer.graphics.lineStyle(1.5, 0xCAB28E);
                 for each (var roadSegment:Array in roadSegments)
-                    CubicBezier.curveThroughPoints(roadsLayer.graphics, roadSegment, 0x000000);
+                    CubicBezier.curveThroughPoints(roadsLayer.graphics, roadSegment, .5, .75, true, true);
+
             }
         }
 
