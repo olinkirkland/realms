@@ -93,8 +93,14 @@ package generation {
             if (cell.hasFeatureType(Geography.ESTUARY))
                 analysis.estuary = true;
 
-            // Determine the biome this cell's on
-
+            // Determine this cell's biome type
+            if (cell.biomeType == "grassland" || cell.biomeType == "tundra") {
+                analysis["grasslandOrTundra"] = cell.biome;
+            } else if (cell.biomeType == "temperateForest" || cell.biomeType == "borealForest") {
+                analysis["temperateOrBorealForest"] = cell.biome;
+            } else {
+                analysis[cell.biomeType] = cell.biome;
+            }
         }
 
         public function determineName():void {
