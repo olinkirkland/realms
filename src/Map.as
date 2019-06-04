@@ -5,12 +5,10 @@ package {
 
     import flash.display.Bitmap;
     import flash.display.BitmapData;
+    import flash.display.BlendMode;
     import flash.display.Graphics;
     import flash.display.MovieClip;
     import flash.events.MouseEvent;
-    import flash.filters.BitmapFilter;
-    import flash.filters.BitmapFilterQuality;
-    import flash.filters.BlurFilter;
     import flash.filters.GlowFilter;
     import flash.geom.Point;
     import flash.geom.Rectangle;
@@ -43,6 +41,9 @@ package {
 
         [Embed(source="assets/points.json", mimeType="application/octet-stream")]
         private static const points_json:Class;
+
+        [Embed(source="assets/parchment.jpg")]
+        public static const parchment_jpg:Class;
 
         // Map Storage
         public var points:Vector.<Point>;
@@ -90,6 +91,7 @@ package {
         // Miscellaneous
         private var staticMode:Bitmap;
         private var lastMapPoint:Point;
+        private var parchment:Bitmap;
 
         // Events
         public static const PROGRESS_EVENT:String = "mapProgress";
@@ -117,6 +119,8 @@ package {
                 outlinesLayer
             ];
 
+            parchment = new parchment_jpg();
+
             addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
         }
 
@@ -139,7 +143,12 @@ package {
                 layer.cacheAsBitmap = true;
                 addChild(layer);
             }
+
+            addChild(parchment);
+            parchment.alpha = .6;
+            parchment.blendMode = BlendMode.MULTIPLY;
         }
+
 
         private function tryToLoadPoints():void {
             // Points cache
