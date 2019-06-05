@@ -9,7 +9,7 @@ H | Happiness | If this value sinks below zero, there is a chance a rebellion wi
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Mill** | 1 | +F +W +G| Mills use a water wheelto drive a mechanical process such as grinding, rolling, or hammering to produce flour, lumber, paper, and textiles.
+**Mill** | 1 | +F +W +G| Mills use a water wheel to drive a mechanical process such as grinding, rolling, or hammering to produce flour, lumber, paper, and textiles.
 **Granary** | 1 | +F +W +G | A granary is a storehouse or room in a barn for threshed grain or animal feed.
 
 ## CASTLE
