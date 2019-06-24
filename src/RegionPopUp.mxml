@@ -38,7 +38,7 @@
             PopUpManager.removePopUp(event.currentTarget as IFlexDisplayObject);
         }
 
-        public function set region(r:Region) {
+        public function set region(r:Region):void {
             this.r = r;
         }
 

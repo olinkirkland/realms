@@ -1,7 +1,6 @@
 package {
     import com.nodename.Delaunay.Voronoi;
     import com.nodename.geom.LineSegment;
-    import com.woodruff.CubicBezier;
 
     import flash.display.Bitmap;
     import flash.display.BitmapData;
@@ -72,6 +71,7 @@ package {
         private var elevationLayer:MovieClip = new MovieClip();
         private var temperatureLayer:MovieClip = new MovieClip();
         private var outlinesLayer:MovieClip = new MovieClip();
+        private var sketchLayer:MovieClip = new MovieClip();
 
         // Toggles
         public var drawOcean:Boolean = true;
@@ -79,9 +79,9 @@ package {
         public var drawCoastlines:Boolean = true;
         public var drawRivers:Boolean = true;
         public var drawForests:Boolean = true;
-        public var drawMountains:Boolean = false;
-        public var drawCities:Boolean = false;
-        public var drawRoads:Boolean = false;
+        public var drawMountains:Boolean = true;
+        public var drawCities:Boolean = true;
+        public var drawRoads:Boolean = true;
         public var drawRegions:Boolean = false;
         public var drawElevation:Boolean = false;
         public var drawTemperature:Boolean = false;
@@ -116,7 +116,8 @@ package {
                 regionsLayer,
                 elevationLayer,
                 temperatureLayer,
-                outlinesLayer
+                outlinesLayer,
+                sketchLayer
             ];
 
             parchment = new parchment_jpg();
@@ -145,7 +146,7 @@ package {
             }
 
             addChild(parchment);
-            parchment.alpha = .6;
+            parchment.alpha = .5;
             parchment.blendMode = BlendMode.MULTIPLY;
         }
 
@@ -233,19 +234,23 @@ package {
             for each (var cell:Cell in cells)
                 cell.neighbors.sort(Sort.sortByIndex);
 
-
             // Generate a height map
             var rand:Rand = new Rand(masterSeed);
 
             var w:Number = width / 2;
             var h:Number = height / 2;
 
-            // Add mountain
+            // Add shallow mountain
             placeMountain(cellFromDistribution(0), .8, .95, .2);
 
             // Add hills
             for (var i:int = 0; i < 30; i++)
                 placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
+
+            // Add mountain ranges
+            for (i = 0; i < 2; i++) {
+                placeMountainRange();
+            }
 
             // Add big islands further out
             for (i = 0; i < 3; i++)
@@ -387,6 +392,12 @@ package {
                 }
 
                 unuseCells();
+            }
+
+            function placeMountainRange():void {
+                sketchLayer.graphics.lineStyle(1, 0xff0000);
+                sketchLayer.graphics.moveTo(Math.random() * width, Math.random() * height);
+                sketchLayer.graphics.lineTo(Math.random() * width, Math.random() * height);
             }
         }
 
@@ -1441,7 +1452,7 @@ package {
             var d:Number;
 
             if (cell.hasFeatureType(Biome.TEMPERATE_FOREST)) {
-                iconDensity = .6;
+                iconDensity = .5;
 
                 if (rand.next() > iconDensity)
                     return;
@@ -1450,18 +1461,18 @@ package {
                     return;
 
                 canvas.lineStyle(rand.between(1, 1.5), Biome.colors["temperateForest_stroke"], rand.between(.6, 1));
-                canvas.moveTo(c.x - (d = rand.between(1, 2)), c.y);
-                canvas.curveTo(c.x, c.y - rand.between(1, 5), c.x + d, c.y);
+                canvas.moveTo(c.x - (d = rand.between(1.5, 2)), c.y);
+                canvas.curveTo(c.x, c.y - rand.between(1, 2), c.x + d, c.y);
             }
 
             if (cell.hasFeatureType(Biome.BOREAL_FOREST)) {
-                iconDensity = .8;
+                iconDensity = .5;
 
                 if (rand.next() > iconDensity)
                     return;
 
                 canvas.lineStyle(rand.between(.5, 1.5), Biome.colors["borealForest_stroke"], rand.between(.6, 1));
-                canvas.moveTo(c.x - (d = rand.between(1, 2)), c.y);
+                canvas.moveTo(c.x - (d = rand.between(1, 4)), c.y);
                 canvas.lineTo(c.x, c.y - rand.between(1, 3));
                 canvas.lineTo(c.x + d, c.y);
             }
@@ -1559,20 +1570,83 @@ package {
              * Draw Rivers
              */
 
-            var color:uint = Biome.colors[Biome.FRESH_WATER];
             for each (var river:Object in geo.getFeaturesByType(Geography.RIVER)) {
                 // Create an array of river points
                 var riverPoints:Array = [];
                 for each (var cell:Cell in river.cells)
                     riverPoints.push(cell.point);
-                riversLayer.graphics.lineStyle(3, color);
-                CubicBezier.curveThroughPoints(riversLayer.graphics, riverPoints);
+                var pointsOnCurve:Array = CubicBezier.curveThroughPoints(riverPoints);
+                pointsOnCurve = pointsOnCurve.reverse();
+
+                var dist:Number = pointsOnCurve.length / 10;
+                if (dist > 2)
+                    dist = 2;
+                var widest:Number = dist;
+
+                var curve:Array = [];
+                for (var i:int = 0; i < pointsOnCurve.length; i++) {
+                    var p:Point = pointsOnCurve[i];
+                    var p0:Point;
+                    var p1:Point;
+
+                    if (i < pointsOnCurve.length - 1) {
+                        // Angle to the next point
+                        var angle:Number = Math.atan2(pointsOnCurve[i + 1].y - p.y,
+                                pointsOnCurve[i + 1].x - p.x);
+
+                        // Perpendicular angle
+                        var perp:Number = angle + 90;
+                        if (perp > 360) {
+                            perp -= 360;
+                        }
+
+                        // Outer point (top)
+                        p0 = new Point(p.x + Math.cos(perp) * dist,
+                                p.y + Math.sin(perp) * dist);
+
+                        // Outer point (bottom)
+                        p1 = new Point(p.x + Math.cos(perp) * -dist,
+                                p.y + Math.sin(perp) * -dist);
+                    } else {
+                        // Final point makes a triangle
+                        p0 = p;
+                        p1 = p;
+                    }
+
+                    curve.push({
+                        p: p,
+                        p0: p0,
+                        p1: p1
+                    });
+
+                    dist = widest - ((i / pointsOnCurve.length) * widest);
+                }
+
+                riversLayer.graphics.lineStyle();
+                riversLayer.graphics.beginFill(Biome.colors[Biome.SALT_WATER]);
+                for (i = 0; i < curve.length - 1; i++) {
+                    var c:Object = curve[i];
+                    var d:Object = curve[i + 1];
+                    p0 = c.p1;
+                    p1 = c.p0;
+                    var p2:Point = d.p0;
+                    var p3:Point = d.p1;
+
+
+                    riversLayer.graphics.moveTo(p0.x, p0.y);
+                    riversLayer.graphics.lineTo(p1.x, p1.y);
+                    riversLayer.graphics.lineTo(p2.x, p2.y);
+                    riversLayer.graphics.lineTo(p3.x, p3.y);
+                    riversLayer.graphics.lineTo(p0.x, p0.y);
+                }
+                riversLayer.graphics.endFill();
             }
         }
 
         private function drawForestsLayer():void {
             /**
              * Draw Forests
+             *
              */
 
             // Draw Temperate Forests
@@ -1634,7 +1708,22 @@ package {
              * Draw Mountains
              */
 
-            // todo
+            for each (var mountain:Object in geo.getFeaturesByType(Biome.MOUNTAIN)) {
+                // Fill
+                mountainsLayer.graphics.lineStyle();
+                for each (var cell:Cell in mountain.cells) {
+                    var drawMountainHere:Boolean = true;
+                    for each (var neighbor:Cell in cell.neighbors) {
+                        // Don't draw any mountains exactly on the border to another biome type
+                        if (!neighbor.hasFeatureType(Biome.MOUNTAIN)) {
+                            drawMountainHere = false;
+                            break;
+                        }
+                    }
+                    if (drawMountainHere)
+                        fillCell(mountainsLayer.graphics, cell, Biome.colors[Biome.MOUNTAIN]);
+                }
+            }
         }
 
         private function drawRegionsLayer():void {
@@ -1708,9 +1797,13 @@ package {
                 }
 
                 roadsLayer.graphics.lineStyle(1.5, 0xCAB28E);
-                for each (var roadSegment:Array in roadSegments)
-                    CubicBezier.curveThroughPoints(roadsLayer.graphics, roadSegment, .5, .75, true, true);
-
+                for each (var roadSegment:Array in roadSegments) {
+                    var roadPoints:Array = CubicBezier.curveThroughPoints(roadSegment);
+                    roadsLayer.graphics.moveTo(roadPoints[0].x, roadPoints[0].y);
+                    for each (var p:Point in roadPoints) {
+                        roadsLayer.graphics.lineTo(p.x, p.y);
+                    }
+                }
             }
         }
 

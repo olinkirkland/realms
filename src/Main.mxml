@@ -25,7 +25,7 @@
         private var disableMapDragging:Boolean = false;
 
         public static const MAX_ZOOM:Number = 3;
-        public static const ZOOM_SPEED:Number = .3;
+        public static const ZOOM_SPEED:Number = 1;
 
         private var zoomToCursor:Boolean = true;
 
@@ -54,6 +54,9 @@
             buttonGenerate.addEventListener(MouseEvent.CLICK, onButtonGenerateClick);
 
             updateInstructions();
+
+            // Maximize
+            maximize();
         }
 
         private function updateInstructions():void {
@@ -88,6 +91,10 @@
             if (zoomToCursor)
                 p = map.globalToLocal(new Point(stage.mouseX, stage.mouseY));
 
+            zoom(p, scale);
+        }
+
+        private function zoom(p:Point, scale:Number):void {
             var m:Matrix = new Matrix();
             m.translate(-p.x,
                     -p.y);
@@ -155,6 +162,14 @@
             labelSeed.text = "#" + map.masterSeed;
 
             progressMessage.text = percent >= 0 ? message + " (" + int(percent * 100) + "%)" : message;
+
+            if (percent == 1) {
+                // Map is complete
+                // Center the map
+                map.x = width / 2 - map.width / 2;
+                map.y = height / 2 - map.height / 2;
+                constrain();
+            }
         }
 
         private function onMapClick(mapClickEvent:MapClickEvent):void {
@@ -164,7 +179,7 @@
                 // Trigger a region panel
                 var p:RegionPopUp = new RegionPopUp();
                 p.region = civ.regions[cell.region];
-                PopUpManager.addPopUp(p, this, true);
+                PopUpManager.addPopUp(p, this);
                 PopUpManager.centerPopUp(p);
                 p.addEventListener(PopUpEvent.CLOSE, function (event:CloseEvent):void {
                     disableMapDragging = false;

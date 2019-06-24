@@ -44,7 +44,7 @@ package generation {
             rainForest: 0xD5C1A1,
             rainForest_stroke: 0xD5C1A1,
             desert: 0xD5C1A1,
-            mountain: 0xD5C1A1
+            mountain: 0xBC9F73
         };
 
         public static function determineBiome(cell:Cell):String {
