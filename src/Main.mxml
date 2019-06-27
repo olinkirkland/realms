@@ -25,7 +25,7 @@
         private var disableMapDragging:Boolean = false;
 
         public static const MAX_ZOOM:Number = 3;
-        public static const ZOOM_SPEED:Number = 1;
+        public static const ZOOM_SPEED:Number = 0;
 
         private var zoomToCursor:Boolean = true;
 
@@ -47,7 +47,7 @@
             systemManager.stage.addEventListener(Event.ENTER_FRAME, onFrame);
             systemManager.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-            systemManager.stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
+//            systemManager.stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
             systemManager.stage.addEventListener(Event.RESIZE, onResize);
             systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 
@@ -169,6 +169,7 @@
                 map.x = width / 2 - map.width / 2;
                 map.y = height / 2 - map.height / 2;
                 constrain();
+                //zoom(new Point(width / 2, height / 2), 2);
             }
         }
 

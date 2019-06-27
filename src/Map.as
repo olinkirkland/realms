@@ -1216,7 +1216,7 @@ package {
             for each (var city:City in civ.cities) {
                 if (!city.used) {
                     var queue:Array = [];
-                    var undesirability:Number = 20;
+                    var undesirability:Number = 30;
                     var radius:Number = .8;
 
                     city.cell.used = true;

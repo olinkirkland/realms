@@ -1,13 +1,12 @@
 package labels {
     import flash.display.Bitmap;
-    import flash.display.Sprite;
     import flash.text.TextField;
     import flash.text.TextFieldAutoSize;
     import flash.text.TextFormat;
 
     public class CityLabel extends IconLabel {
         public function CityLabel(bitmap:Bitmap, text:String = null) {
-            var background:Sprite = new Sprite();
+            var background:Asset_CityLabel = new Asset_CityLabel();
             addChild(background);
 
             super(bitmap);
@@ -15,7 +14,7 @@ package labels {
             if (!text)
                 return;
 
-            var format:TextFormat = new TextFormat(Fonts.regular, 10, 0xffffff);
+            var format:TextFormat = new TextFormat(Fonts.regular, 14, 0xffffff);
             var txt:TextField = new TextField();
             txt.embedFonts = true;
             txt.defaultTextFormat = format;
@@ -28,13 +27,12 @@ package labels {
             txt.x = -txt.width / 2;
             txt.y = bitmap.y + 16;
 
-            var hPadding:int = 3;
-            var vPadding:int = 1;
-            background.graphics.lineStyle(2, 0xffffff);
-            background.graphics.beginFill(0x000000);
-            background.graphics.drawRoundRect(txt.x - hPadding, txt.y - vPadding, txt.width + 2 * hPadding, txt.height + 2 * vPadding, 25, 25);
-            background.graphics.endFill();
-            background.cacheAsBitmap = true;
+            var hPadding:int = 10;
+            var vPadding:int = 5;
+            background.x = txt.x - hPadding;
+            background.y = txt.y - vPadding;
+            background.width = txt.width + 2 * hPadding;
+            background.height = txt.height + 2 * vPadding;
         }
     }
 }

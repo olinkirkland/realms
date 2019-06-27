@@ -110,7 +110,7 @@ package {
             }
 
             for each (var city:City in civ.cities) {
-                label = new CityLabel(new Icons.City(), city.name);
+                label = new CityLabel(new Icons.City(), city.name + ", " + (civ.regions[city.cell.region] as Region).name);
                 label.point = new Point(city.cell.point.x, city.cell.point.y);
                 label.x = label.point.x;
                 label.y = label.point.y;
