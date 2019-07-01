@@ -31,7 +31,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 25000;
+        public static var NUM_POINTS:int = 40000;
         public static var SEA_LEVEL:Number = .2;
         public static var MOUNTAIN_ELEVATION:Number = .9;
         public static var MOUNTAIN_ELEVATION_ADJACENT:Number = .85;
@@ -157,15 +157,16 @@ package {
             points = new Vector.<Point>();
             for each (var pointData:Object in pointsData)
                 points.push(new Point(pointData.x, pointData.y));
-            build();
-            start();
-
+            
             /**
-             * Use the following if all points need to be regenerated
+             * Set the following if statement to false to regenerate points
              */
-
-//            generatePoints();
-//            start();
+            if (false)
+                build();
+            else
+                generatePoints();
+            
+            start();
         }
 
         private function generatePoints():void {
