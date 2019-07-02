@@ -31,7 +31,9 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        public static var NUM_POINTS:int = 40000;
+        private const REGENERATE_POINTS:Boolean = true;
+
+        public static var NUM_POINTS:int = 30000;
         public static var SEA_LEVEL:Number = .2;
         public static var MOUNTAIN_ELEVATION:Number = .9;
         public static var MOUNTAIN_ELEVATION_ADJACENT:Number = .85;
@@ -157,15 +159,12 @@ package {
             points = new Vector.<Point>();
             for each (var pointData:Object in pointsData)
                 points.push(new Point(pointData.x, pointData.y));
-            
-            /**
-             * Set the following if statement to false to regenerate points
-             */
-            if (false)
-                build();
-            else
+
+            if (REGENERATE_POINTS)
                 generatePoints();
-            
+            else
+                build();
+
             start();
         }
 
@@ -1423,7 +1422,7 @@ package {
             drawRoadsLayer();
             drawElevationLayer();
             drawTemperatureLayer();
-            drawOutlinesLayer();
+            //drawOutlinesLayer();
 
             // The show function toggles visibility on and off for specific layers
             show();
@@ -1505,12 +1504,13 @@ package {
 
             terrainLayer.graphics.lineStyle();
             for each (var biomeType:String in Biome.list) {
-                for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
-                    for each (var cell:Cell in biome.cells) {
-                        fillCell(terrainLayer.graphics, cell, Biome.colors[biomeType]);
-                        cell.terrainColor = Biome.colors[biomeType];
+                if (biomeType != Biome.SALT_WATER)
+                    for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
+                        for each (var cell:Cell in biome.cells) {
+                            fillCell(terrainLayer.graphics, cell, Biome.colors[biomeType]);
+                            cell.terrainColor = Biome.colors[biomeType];
+                        }
                     }
-                }
             }
 
             // Draw details for all cells
@@ -1733,8 +1733,8 @@ package {
              */
 
             for each (var region:Object in civ.regions) {
-//                region.color = Util.randomColor();
-                region.color = 0x000000;
+                region.color = Util.randomColor();
+//                region.color = 0x000000;
 
                 var regionFill:MovieClip = new MovieClip();
                 regionFill.graphics.lineStyle();
@@ -1756,10 +1756,10 @@ package {
                 regionGlow.cacheAsBitmap = true;
 
                 var filter:GlowFilter = new GlowFilter();
-                filter.quality = 10;
+                filter.quality = 4;
                 filter.blurX = 4;
                 filter.blurY = 4;
-                filter.strength = 0;
+                filter.strength = 20;
                 filter.inner = true;
                 filter.knockout = true;
                 filter.color = region.color;
