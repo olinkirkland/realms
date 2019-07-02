@@ -31,9 +31,7 @@ package {
     import mx.events.FlexEvent;
 
     public class Map extends UIComponent {
-        private const REGENERATE_POINTS:Boolean = true;
-
-        public static var NUM_POINTS:int = 30000;
+        public static var NUM_POINTS:int = 25000;
         public static var SEA_LEVEL:Number = .2;
         public static var MOUNTAIN_ELEVATION:Number = .9;
         public static var MOUNTAIN_ELEVATION_ADJACENT:Number = .85;
@@ -158,14 +156,16 @@ package {
             var pointsData:Object = JSON.parse(new points_json());
             points = new Vector.<Point>();
             for each (var pointData:Object in pointsData)
-                points.push(new Point(pointData.x, pointData.y));
-
-            if (REGENERATE_POINTS)
-                generatePoints();
-            else
-                build();
-
+                points.push(new Point(pointData.x * 2, pointData.y * 2));
+            build();
             start();
+
+            /**
+             * Use the following if all points need to be regenerated
+             */
+
+//            generatePoints();
+//            start();
         }
 
         private function generatePoints():void {
@@ -752,7 +752,7 @@ package {
 
                             if (!neighbor.used && neighbor.regionInfluence < influence) {
                                 // Use ocean tiles, but don't add them to the region
-                                if (!neighbor.hasFeatureType(Geography.OCEAN))
+                                if (!neighbor.hasFeatureType(Geography.OCEAN) || !neighbor.hasFeatureType(Geography.LAKE))
                                     civ.addCellToRegion(neighbor, regionId, influence);
                                 else
                                     neighbor.regionInfluence = influence;
@@ -1422,7 +1422,7 @@ package {
             drawRoadsLayer();
             drawElevationLayer();
             drawTemperatureLayer();
-            //drawOutlinesLayer();
+            drawOutlinesLayer();
 
             // The show function toggles visibility on and off for specific layers
             show();
@@ -1504,13 +1504,15 @@ package {
 
             terrainLayer.graphics.lineStyle();
             for each (var biomeType:String in Biome.list) {
-                if (biomeType != Biome.SALT_WATER)
-                    for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
-                        for each (var cell:Cell in biome.cells) {
+                for each (var biome:Object in geo.getFeaturesByType(biomeType)) {
+                    for each (var cell:Cell in biome.cells) {
+                        // Only draw ocean cells that are touching non-ocean cells (for performance reasons)
+                        if (biomeType != Biome.SALT_WATER)
                             fillCell(terrainLayer.graphics, cell, Biome.colors[biomeType]);
-                            cell.terrainColor = Biome.colors[biomeType];
-                        }
+
+                        cell.terrainColor = Biome.colors[biomeType];
                     }
+                }
             }
 
             // Draw details for all cells
@@ -1756,10 +1758,10 @@ package {
                 regionGlow.cacheAsBitmap = true;
 
                 var filter:GlowFilter = new GlowFilter();
-                filter.quality = 4;
-                filter.blurX = 4;
-                filter.blurY = 4;
-                filter.strength = 20;
+                filter.quality = 10;
+                filter.blurX = 100;
+                filter.blurY = 100;
+                filter.strength = 10;
                 filter.inner = true;
                 filter.knockout = true;
                 filter.color = region.color;
@@ -1775,6 +1777,7 @@ package {
                 regionOutline.filters = [filter];
                 regionOutline.cacheAsBitmap = true;
 
+                regionsLayer.alpha = .4;
                 regionsLayer.addChild(regionFill);
                 regionsLayer.addChild(regionGlow);
                 regionsLayer.addChild(regionOutline);
