@@ -170,6 +170,10 @@
                 map.y = height / 2 - map.height / 2;
                 constrain();
                 //zoom(new Point(width / 2, height / 2), 2);
+
+                map.scaleX = 2;
+                map.scaleY = 2;
+                overlay.positionLabels(map.scaleX);
             }
         }
 
