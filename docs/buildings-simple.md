@@ -7,109 +7,102 @@ H | Happiness | If this value sinks below zero, there is a chance a rebellion wi
 
 ## AGRICULTURE
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Mill** | 1 | +F +W +G |
-**Granary** | 1 | +F +W +G |
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Mill 1** | 1 | +20F +150W +4G | 
+**Mill 2** | 1 | +35F +200W +6G | 
+**Mill 3** | 1 | +50F +250W +8G | 
+**Granary 1** | 1 | +40F +300W | 
+**Granary 2** | 1 | +50F +450W | 
+**Granary 3** | 1 | +60F +600W | 
 
 ## CASTLE
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Castle 1** | 1 | +H |
-**Castle 2** | 2 | +H |
-**Castle 3** | 3 | +H |
-**Castle 4** | 4 | +H |
-**Castle 5** | 5 | +H |
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Castle 1** | 1 | +1H | 800
+**Castle 2** | 2 | +3H | 1600
+**Castle 3** | 3 | +5H | 3200
+**Castle 4** | 4 | +7H | 4800
+**Castle 5** | 5 | +12H | 7200
 
-## RELIGION
+## Worship
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Church 1** | 1 | -W +H |
-**Church 2** | 2 | -W +H |
-**Church 3** | 3 | -W +H |
-**Monastery 1** | 1 | -W |
-**Monastery 2** | 2 | -W +G |
-**Monastery 3** | 2 | -W |
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Church 1** | 1 | -100W +2H | 500W
+**Church 2** | 2 | -250W +4H | 1000W
+**Church 3** | 3 | -500W +6H | 1500W
 
 ## INDUSTRY
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Workshops 1** | 1 | +W +G -F |
-**Workshops 2** | 2 | +W +G -F |
-**Workshops 3** | 2 | +W +G -F |
-**Brewery 1** | 1 | +G +H | 
-**Brewery 2** | 2 | +G +H | 
-**Brewery 3** | 3 | +G +H | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Workshops 1** | 1 | +500W +4G -F | 1500
+**Workshops 2** | 2 | +700W +5G -F | 3000W
+**Workshops 3** | 2 | +900W +6G -F | 6000W
+**Brewery 1** | 1 | +2H | 1200W
+**Brewery 2** | 2 | +1G +4H | 2400W
+**Brewery 3** | 3 | +3G +6H | 4800W
 
-## CITY CENTER
+## INFRASTRUCTURE
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Banking House** | 1 | +W | 
-**Mint** | 2 | +W | 
-**Treasury** | 3 | +W | 
-
-## REGION INFRASTRUCTURE
-
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Roads 1** | 1 | +G | 
-**Roads 2** | 2 | +G | 
-**Farms 1** | 1 | [+20% F] | 
-**Farms 2** | 2 | [+30% F] | 
-**Farms 3** | 3 | [+40% F] -H |
-**Farms 4** | 4 | [+50% F] -H | 
-**Patrols 1** | 1 | -W -F |
-**Patrols 2** | 2 | -W -F |
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Roads 1** | 1 | +2G | 750W
+**Roads 2** | 2 | +5G | 3000W
+**Farms 1** | 1 | [+20% F] | 1000W
+**Farms 2** | 2 | [+30% F] | 3000W
+**Farms 3** | 3 | [+40% F] -H | 5000W
+**Farms 4** | 4 | [+50% F] -H | 10000W
+**Patrols 1** | 1 | -W -F | 1000W
+**Patrols 2** | 2 | -W -F | 3000W
 
 ## SALT DEPOSIT
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Salt Works 1** | 1 | +W +G -H | 
-**Salt Works 2** | 1 | +W +G -H | 
-**Salt Works 3** | 1 | +W +G -H | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Salt Works 1** | 1 | +W +G -H | 1500W
+**Salt Works 2** | 1 | +W +G -H | 3000W
+**Salt Works 3** | 1 | +W +G -H | 5000W
 
 ## IRON VEIN
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Iron Mine 1** | 1 | +W -H | 
-**Iron Mine 2** | 1 | +W -H | 
-**Iron Mine 3** | 1 | +W -H | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Iron Mine 1** | 1 | +W -H | 1500W
+**Iron Mine 2** | 1 | +W -H | 3000W
+**Iron Mine 3** | 1 | +W -H | 5000W
 
 ## QUARRY
 
-Name | Tier | Effects |
------------- | ------------ | ------------- |
-**Quarry 1** | 1 | +W -H | 
-**Quarry 2** | 1 | +W -H | 
-**Quarry 3** | 1 | +W -H | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Quarry 1** | 1 | +W -H | 1500W
+**Quarry 2** | 1 | +W -H | 3000W
+**Quarry 3** | 1 | +W -H | 5000W
 
 ## MARKET TOWN
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Market 1** | 1 | +W +G -F | 
-**Market 2** | 2 | +W +G -F | 
-**Market 2** | 3 | +W +G -F | 
-**Tavern 1** | 1 | +H +W +G -F | 
-**Tavern 2** | 2 | +H +W +G -F | 
-**Tavern 3** | 3 | +H +W +G -F | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Market 1** | 1 | +W +G -F | 800W
+**Market 2** | 2 | +W +G -F | 1600W
+**Market 2** | 3 | +W +G -F | 3200W
+**Tavern 1** | 1 | +H +W +G -20F | 800W
+**Tavern 2** | 2 | +H +W +G -40F | 1600W
+**Tavern 3** | 3 | +H +W +G -60F | 3200W
 
 ## HARBOR TOWN
 
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-**Fishing 1** | 1 | +F +G -H | 
-**Fishing 2** | 2 | +F +G -H | 
-**Fishing 3** | 3 | +F +G -H | 
-**Trading 1** | 1 | +W +G -H | 
-**Trading 2** | 2 | +W +G -H | 
-**Trading 3** | 3 | +W +G -H | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Fishing 1** | 1 | +20F +2G -H | 800W
+**Fishing 2** | 2 | +50F +4G -H | 4000W
+**Fishing 3** | 3 | +100F +6G -H | 8000W
+**Trading 1** | 1 | +250W +3G -2H | 1000W
+**Trading 2** | 2 | +500W +5G -4H | 5000W
+**Trading 3** | 3 | +1000W +7G -10H | 10000W
 
 
 ## FOREST TOWN
