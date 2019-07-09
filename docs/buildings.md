@@ -1,7 +1,7 @@
 Abbreviation | Name | Description
 ------------ | ------------ | -------------
 F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 20% and 10% of the surplus Food (capping at +20 Growth and +10 Happiness). Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a large penalty to Growth and Happiness.
-W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn.
+W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn. The starting tax rate is 10%.
 G | Growth | This value is added to the Region's Wealth every turn.
 H | Happiness | If this value sinks below zero, there is a chance a rebellion will form in the Region.
 
@@ -20,11 +20,11 @@ Name | Tier | Effects | Cost
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Castle 1** | 1 | +1H | 800
-**Castle 2** | 2 | +2H | 1600
-**Castle 3** | 3 | +3H | 3200
-**Castle 4** | 4 | +4H | 4800
-**Castle 5** | 5 | +5H | 7200
+**Castle 1** | 1 | +1H -2F | 2000
+**Castle 2** | 2 | +2H -3F | 4000
+**Castle 3** | 3 | +3H -4F | 6000
+**Castle 4** | 4 | +4H -5F | 12000
+**Castle 5** | 5 | +5H -6F | 24000
 
 ## Worship
 
@@ -38,23 +38,23 @@ Name | Tier | Effects | Cost
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Workshops 1** | 1 | +600W +4G -1F | 1500
-**Workshops 2** | 2 | +800W +5G -2F | 3000W
-**Workshops 3** | 2 | +1000W +6G -3F | 6000W
+**Workshops 1** | 1 | +600W +3G -1F | 1500W
+**Workshops 2** | 2 | +800W +4G -2F | 3000W
+**Workshops 3** | 2 | +1000W +5G -3F | 4500W
 **Brewery 1** | 1 | +2H | 1200W
 **Brewery 2** | 2 | +1G +4H | 2400W
-**Brewery 3** | 3 | +3G +6H | 4800W
+**Brewery 3** | 3 | +2G +6H | 3600W
 
 ## INFRASTRUCTURE
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Roads 1** | 1 | +2G | 750W
-**Roads 2** | 2 | +5G | 3000W
-**Farms 1** | 1 | [+20% F] | 1000W
-**Farms 2** | 2 | [+30% F] | 3000W
-**Farms 3** | 3 | [+40% F] -H | 5000W
-**Farms 4** | 4 | [+50% F] -H | 10000W
+**Roads 1** | 1 | +2G | 800W
+**Roads 2** | 2 | +5G | 3200W
+**Farms 1** | 1 | [+10% F] | 1250W
+**Farms 2** | 2 | [+20% F] | 2500W
+**Farms 3** | 3 | [+30% F] -4H | 5000W
+**Farms 4** | 4 | [+40% F] -8H | 10000W
 **Patrols 1** | 1 | -100W -2F | 1000W
 **Patrols 2** | 2 | -300W -3F | 3000W
 
@@ -62,25 +62,25 @@ Name | Tier | Effects | Cost
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Salt Works 1** | 1 | +W +G -H | 1500W
-**Salt Works 2** | 1 | +W +G -H | 3000W
-**Salt Works 3** | 1 | +W +G -H | 5000W
+**Salt Works 1** | 1 | +300W +4G -2H | 2500W
+**Salt Works 2** | 1 | +500W +8G -4H | 5000W
+**Salt Works 3** | 1 | +900W +12G -8H | 10000W
 
 ## IRON VEIN
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Iron Mine 1** | 1 | +W -H | 1500W
-**Iron Mine 2** | 1 | +W -H | 3000W
-**Iron Mine 3** | 1 | +W -H | 5000W
+**Iron Mine 1** | 1 | +200W -1H | 1500W
+**Iron Mine 2** | 1 | +400W -2H | 3000W
+**Iron Mine 3** | 1 | +800W -4H | 5000W
 
 ## QUARRY
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Quarry 1** | 1 | +W -H | 1500W
-**Quarry 2** | 1 | +W -H | 3000W
-**Quarry 3** | 1 | +W -H | 5000W
+**Quarry 1** | 1 | +200W -1H | 1500W
+**Quarry 2** | 1 | +400W -2H | 3000W
+**Quarry 3** | 1 | +800W -4H | 5000W
 
 ## MARKET TOWN
 
@@ -102,7 +102,7 @@ Name | Tier | Effects | Cost
 **Fishing 3** | 3 | +10F +6G -H | 8000W
 **Trading 1** | 1 | +250W +3G -2H | 1000W
 **Trading 2** | 2 | +500W +5G -4H | 5000W
-**Trading 3** | 3 | +1000W +7G -10H | 10000W
+**Trading 3** | 3 | +1000W +7G -8H | 10000W
 
 
 ## FOREST TOWN
