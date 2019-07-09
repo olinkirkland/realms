@@ -22,12 +22,6 @@ Name | Tier | Effects |
 **Castle 4** | 4 | +H |
 **Castle 5** | 5 | +H |
 
-## CITY DEFENSE
-
-Name | Tier | Effects |
------------- | ------------ | ------------- 
-
-
 ## RELIGION
 
 Name | Tier | Effects |
