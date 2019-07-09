@@ -1,6 +1,6 @@
 Abbreviation | Name | Description
 ------------ | ------------ | -------------
-F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 10% of the surplus Food. Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a large penalty to Growth and Happiness.
+F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 20% and 10% of the surplus Food (capping at +20 Growth and +10 Happiness). Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a large penalty to Growth and Happiness.
 W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn.
 G | Growth | This value is added to the Region's Wealth every turn.
 H | Happiness | If this value sinks below zero, there is a chance a rebellion will form in the Region.
@@ -9,12 +9,12 @@ H | Happiness | If this value sinks below zero, there is a chance a rebellion wi
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Mill 1** | 1 | +20F +150W +4G | 
-**Mill 2** | 1 | +35F +200W +6G | 
-**Mill 3** | 1 | +50F +250W +8G | 
-**Granary 1** | 1 | +40F +300W | 
-**Granary 2** | 1 | +50F +450W | 
-**Granary 3** | 1 | +60F +600W | 
+**Mill 1** | 1 | +1F +150W +4G | 
+**Mill 2** | 1 | +2F +200W +6G | 
+**Mill 3** | 1 | +3F +250W +8G | 
+**Granary 1** | 1 | +2F +300W | 
+**Granary 2** | 1 | +3F +450W | 
+**Granary 3** | 1 | +4F +600W | 
 
 ## CASTLE
 
@@ -38,9 +38,9 @@ Name | Tier | Effects | Cost
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Workshops 1** | 1 | +500W +4G -F | 1500
-**Workshops 2** | 2 | +700W +5G -F | 3000W
-**Workshops 3** | 2 | +900W +6G -F | 6000W
+**Workshops 1** | 1 | +500W +4G -1F | 1500
+**Workshops 2** | 2 | +700W +5G -2F | 3000W
+**Workshops 3** | 2 | +900W +6G -3F | 6000W
 **Brewery 1** | 1 | +2H | 1200W
 **Brewery 2** | 2 | +1G +4H | 2400W
 **Brewery 3** | 3 | +3G +6H | 4800W
@@ -55,8 +55,8 @@ Name | Tier | Effects | Cost
 **Farms 2** | 2 | [+30% F] | 3000W
 **Farms 3** | 3 | [+40% F] -H | 5000W
 **Farms 4** | 4 | [+50% F] -H | 10000W
-**Patrols 1** | 1 | -W -F | 1000W
-**Patrols 2** | 2 | -W -F | 3000W
+**Patrols 1** | 1 | -100W -2F | 1000W
+**Patrols 2** | 2 | -300W -3F | 3000W
 
 ## SALT DEPOSIT
 
