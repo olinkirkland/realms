@@ -7,15 +7,15 @@ H | Happiness | If this value sinks below zero, there is a chance a rebellion wi
 
 ## AGRICULTURE
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Mill** | 1 | +F +W +G| Mills use a water wheel to drive a mechanical process such as grinding, rolling, or hammering to produce flour, lumber, paper, and textiles.
-**Granary** | 1 | +F +W +G | A granary is a storehouse or room in a barn for threshed grain or animal feed.
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
+**Mill** | 1 | +F +W +G |
+**Granary** | 1 | +F +W +G |
 
 ## CASTLE
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Castle 1** | 1 | +H |
 **Castle 2** | 2 | +H |
 **Castle 3** | 3 | +H |
@@ -24,14 +24,14 @@ Name | Tier | Effects | Description
 
 ## CITY DEFENSE
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 
 
 ## RELIGION
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Church 1** | 1 | -W +H |
 **Church 2** | 2 | -W +H |
 **Church 3** | 3 | -W +H |
@@ -41,8 +41,8 @@ Name | Tier | Effects | Description
 
 ## INDUSTRY
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Workshops 1** | 1 | +W +G -F |
 **Workshops 2** | 2 | +W +G -F |
 **Workshops 3** | 2 | +W +G -F |
@@ -52,53 +52,53 @@ Name | Tier | Effects | Description
 
 ## CITY CENTER
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Banking House** | 1 | +W | 
 **Mint** | 2 | +W | 
 **Treasury** | 3 | +W | 
 
 ## REGION INFRASTRUCTURE
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Roads 1** | 1 | +G | 
 **Roads 2** | 2 | +G | 
 **Farms 1** | 1 | [+20% F] | 
 **Farms 2** | 2 | [+30% F] | 
 **Farms 3** | 3 | [+40% F] -H |
 **Farms 4** | 4 | [+50% F] -H | 
-**Patrols 1** | 1 | -W -F | A militia gathered to defend the homes of the townfolk.
-**Patrols 2** | 2 | -W -F | A local garrison with proper housing is enough to ward off raiders and rabble both.
+**Patrols 1** | 1 | -W -F |
+**Patrols 2** | 2 | -W -F |
 
 ## SALT DEPOSIT
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Salt Works 1** | 1 | +W +G -H | 
 **Salt Works 2** | 1 | +W +G -H | 
 **Salt Works 3** | 1 | +W +G -H | 
 
 ## IRON VEIN
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Iron Mine 1** | 1 | +W -H | 
 **Iron Mine 2** | 1 | +W -H | 
 **Iron Mine 3** | 1 | +W -H | 
 
 ## QUARRY
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- |
 **Quarry 1** | 1 | +W -H | 
 **Quarry 2** | 1 | +W -H | 
 **Quarry 3** | 1 | +W -H | 
 
 ## MARKET TOWN
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Market 1** | 1 | +W +G -F | 
 **Market 2** | 2 | +W +G -F | 
 **Market 2** | 3 | +W +G -F | 
@@ -108,8 +108,8 @@ Name | Tier | Effects | Description
 
 ## HARBOR TOWN
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Fishing 1** | 1 | +F +G -H | 
 **Fishing 2** | 2 | +F +G -H | 
 **Fishing 3** | 3 | +F +G -H | 
@@ -120,8 +120,8 @@ Name | Tier | Effects | Description
 
 ## FOREST TOWN
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
 **Hunting 1** | 1 | +F +W +H | 
 **Hunting 2** | 2 | +F +W +H | 
 **Hunting 3** | 3 | +F +W +H | 
