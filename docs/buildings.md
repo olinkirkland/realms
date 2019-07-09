@@ -9,38 +9,38 @@ H | Happiness | If this value sinks below zero, there is a chance a rebellion wi
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Mill 1** | 1 | +1F +150W +4G | 
-**Mill 2** | 1 | +2F +200W +6G | 
-**Mill 3** | 1 | +3F +250W +8G | 
-**Granary 1** | 1 | +2F +300W | 
-**Granary 2** | 1 | +3F +450W | 
-**Granary 3** | 1 | +4F +600W | 
+**Mill 1** | 1 | +1F +100W +1G | 1000W
+**Mill 2** | 1 | +2F +200W +2G | 3000W
+**Mill 3** | 1 | +3F +300W +3G | 5000W
+**Granary 1** | 1 | +1F +300W | 1000W
+**Granary 2** | 1 | +2F +400W | 3000W
+**Granary 3** | 1 | +3F +500W | 5000W
 
 ## CASTLE
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
 **Castle 1** | 1 | +1H | 800
-**Castle 2** | 2 | +3H | 1600
-**Castle 3** | 3 | +5H | 3200
-**Castle 4** | 4 | +7H | 4800
-**Castle 5** | 5 | +12H | 7200
+**Castle 2** | 2 | +2H | 1600
+**Castle 3** | 3 | +3H | 3200
+**Castle 4** | 4 | +4H | 4800
+**Castle 5** | 5 | +5H | 7200
 
 ## Worship
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Church 1** | 1 | -100W +2H | 500W
-**Church 2** | 2 | -250W +4H | 1000W
-**Church 3** | 3 | -500W +6H | 1500W
+**Church 1** | 1 | -100W +1H | 500W
+**Church 2** | 2 | -200W +2H | 1000W
+**Church 3** | 3 | -300W +3H | 1500W
 
 ## INDUSTRY
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Workshops 1** | 1 | +500W +4G -1F | 1500
-**Workshops 2** | 2 | +700W +5G -2F | 3000W
-**Workshops 3** | 2 | +900W +6G -3F | 6000W
+**Workshops 1** | 1 | +600W +4G -1F | 1500
+**Workshops 2** | 2 | +800W +5G -2F | 3000W
+**Workshops 3** | 2 | +1000W +6G -3F | 6000W
 **Brewery 1** | 1 | +2H | 1200W
 **Brewery 2** | 2 | +1G +4H | 2400W
 **Brewery 3** | 3 | +3G +6H | 4800W
@@ -86,20 +86,20 @@ Name | Tier | Effects | Cost
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Market 1** | 1 | +W +G -F | 800W
-**Market 2** | 2 | +W +G -F | 1600W
-**Market 2** | 3 | +W +G -F | 3200W
-**Tavern 1** | 1 | +H +W +G -20F | 800W
-**Tavern 2** | 2 | +H +W +G -40F | 1600W
-**Tavern 3** | 3 | +H +W +G -60F | 3200W
+**Market 1** | 1 | +W +G -1F | 800W
+**Market 2** | 2 | +W +G -2F | 1600W
+**Market 2** | 3 | +W +G -3F | 3200W
+**Tavern 1** | 1 | +H +W +G -2F | 800W
+**Tavern 2** | 2 | +H +W +G -3F | 1600W
+**Tavern 3** | 3 | +H +W +G -4F | 3200W
 
 ## HARBOR TOWN
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Fishing 1** | 1 | +20F +2G -H | 800W
-**Fishing 2** | 2 | +50F +4G -H | 4000W
-**Fishing 3** | 3 | +100F +6G -H | 8000W
+**Fishing 1** | 1 | +2F +2G -H | 800W
+**Fishing 2** | 2 | +5F +4G -H | 4000W
+**Fishing 3** | 3 | +10F +6G -H | 8000W
 **Trading 1** | 1 | +250W +3G -2H | 1000W
 **Trading 2** | 2 | +500W +5G -4H | 5000W
 **Trading 3** | 3 | +1000W +7G -10H | 10000W
