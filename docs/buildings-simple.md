@@ -16,11 +16,11 @@ Name | Tier | Effects | Description
 
 Name | Tier | Effects | Description
 ------------ | ------------ | ------------- | -------------
-**Castle 1** | 1 | -F | An artificial mound and wooden palisades protecting a central wooden structure known as a keep.
-**Castle 2** | 2 | -F | Stone castles build upon their wooden predecessors. Stone walls are fire resistant and more durable.
-**Castle 3** | 3 | -F | Bigger castles with bigger garrisons provide more protection to the surrounding countryside.
-**Castle 4** | 4 | -F | Bigger castles with bigger garrisons provide more protection to the surrounding countryside.
-**Castle 5** | 5 | -F | Bigger castles with bigger garrisons provide more protection to the surrounding countryside.
+**Castle 1** | 1 | +H |
+**Castle 2** | 2 | +H |
+**Castle 3** | 3 | +H |
+**Castle 4** | 4 | +H |
+**Castle 5** | 5 | +H |
 
 ## CITY DEFENSE
 
