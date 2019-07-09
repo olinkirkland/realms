@@ -2,7 +2,7 @@
 
 ## Navigation
 - [Demo](demo.html)  
-- [Buildings](simple-buildings.md)
+- [Buildings](buildings.md)
 - [AI](ai.md)
 - [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms)
 
