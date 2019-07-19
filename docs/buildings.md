@@ -51,10 +51,10 @@ Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
 **Roads 1** | 1 | +2G | 800W
 **Roads 2** | 2 | +5G | 3200W
-**Farms 1** | 1 | [+10% F] | 1250W
-**Farms 2** | 2 | [+20% F] | 2500W
-**Farms 3** | 3 | [+30% F] -4H | 5000W
-**Farms 4** | 4 | [+40% F] -8H | 10000W
+**Farms 1** | 1 | [+3F] | 1250W
+**Farms 2** | 2 | [+4F] | 2500W
+**Farms 3** | 3 | [+5F] -4H | 5000W
+**Farms 4** | 4 | [+8F] -8H | 10000W
 **Patrols 1** | 1 | -100W -2F | 1000W
 **Patrols 2** | 2 | -300W -3F | 3000W
 
@@ -97,21 +97,21 @@ Name | Tier | Effects | Cost
 
 Name | Tier | Effects | Cost
 ------------ | ------------ | ------------- | ------------- 
-**Fishing 1** | 1 | +2F +2G -H | 800W
-**Fishing 2** | 2 | +5F +4G -H | 4000W
-**Fishing 3** | 3 | +10F +6G -H | 8000W
+**Fishing 1** | 1 | +2F +2G -2H | 800W
+**Fishing 2** | 2 | +5F +4G -4H | 4000W
+**Fishing 3** | 3 | +10F +6G -6H | 8000W
 **Trading 1** | 1 | +250W +3G -2H | 1000W
 **Trading 2** | 2 | +500W +5G -4H | 5000W
-**Trading 3** | 3 | +1000W +7G -8H | 10000W
+**Trading 3** | 3 | +1000W +7G -6H | 10000W
 
 
 ## FOREST TOWN
 
 Name | Tier | Effects |
 ------------ | ------------ | ------------- 
-**Hunting 1** | 1 | +F +W +H | 
-**Hunting 2** | 2 | +F +W +H | 
-**Hunting 3** | 3 | +F +W +H | 
-**Logging 1** | 1 | +F +W +H | 
-**Logging 2** | 2 | +F +W +H | 
-**Logging 3** | 3 | +F +W +H | 
+**Hunting 1** | 1 | +2F +100W +2H | 
+**Hunting 2** | 2 | +3F +250W +3H | 
+**Hunting 3** | 3 | +4F +500W +4H | 
+**Logging 1** | 1 | +2F +200W -2H | 
+**Logging 2** | 2 | +2F +400W -3H | 
+**Logging 3** | 3 | +2F +800W -4H | 
