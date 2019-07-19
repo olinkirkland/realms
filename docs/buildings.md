@@ -1,7 +1,7 @@
 Abbreviation | Name | Description
 ------------ | ------------ | -------------
 F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 20% and 10% of the surplus Food (capping at +20 Growth and +10 Happiness). Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a large penalty to Growth and Happiness.
-W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn. The starting tax rate is 10%.
+W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn. The base tax rate is 10%.
 G | Growth | This value is added to the Region's Wealth every turn.
 H | Happiness | If this value sinks below zero, there is a chance a rebellion will form in the Region.
 
