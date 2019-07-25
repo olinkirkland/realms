@@ -18,4 +18,4 @@
 - Flash.swc: Required some functionality from this for Andy Woodruff's Continuous Curves
 
 # Resources
-- [An index of valuable links I've gathered in regards to worldbuilding, procedural design, and programming](resources.md)
+- [An index of links related to worldbuilding, procedural programming, and research](resources.md)
