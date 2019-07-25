@@ -2,7 +2,8 @@
 
 ## Navigation
 - [Demo](demo.html)  
-- [Game Design](game-design)  
+- [Buildings](buildings.md)
+- [AI](ai.md)
 - [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms)
 
 Inspired by the works of Azgaar's Fantasy Maps, Amit Patel's Polygonal Map Generation, Scott Turner's Dragons Abound, and Martin O'Leary's Map Generation.  

@@ -1,201 +1,117 @@
 Abbreviation | Name | Description
 ------------ | ------------ | -------------
-F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 10% of the surplus Food. Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a massive penalty to Growth and Happiness.
-W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn.
+F | Food | If a Region produces more Food than it consumes, it receives a bonus to Growth and Happiness equal to 20% and 10% of the surplus Food (capping at +20 Growth and +10 Happiness). Otherwise, a negative amount of Food incurs a slight penalty to Growth. If a Region doesn't produce enough food and the Realm the Region belongs to has a negative total Food amount, the Region gets a large penalty to Growth and Happiness.
+W | Wealth | The value of the Region in cold, hard cash. This value is taxed at the Region's tax rate and that amount is added to the Treasury each turn. The base tax rate is 10%.
 G | Growth | This value is added to the Region's Wealth every turn.
-D | Defense | Structures or fortifications designed to impede attackers.
-I | Siege Holdout | How long a City can last under siege.
-H | Happiness | Together with Repression, this value reflects the Region's Public Order. If Public Order drops below zero, a rebellion is more likely to occur in the Region.
-R | Repression | Together with Happiness, this value reflects the Region's Public Order. During a rebellion, the strength of rebel forces is determined by a Public Order that relies heavily on Repression.
-A | Garrison Troops | A Garrison is composed of troops that defend a City or Town when attacked, but cannot be mustered to march with an Army. They can, however, reinforce Armies within their influence radius, but return to their City or Town when the battle is complete.
-C | Culture | The Region can have multiple Cultures present, and most do. Regions receive a bonus to Happiness from the presence of the Regeion's Realm's Culture.
-S | Sanitation | The cleanliness of the Region is crucial to keeping out disease. Regions with negative Sanitation have a high chance of disease breaking out. Disease brings with it massive penalties to Growth and Public Order.
-E | Research Speed | The speed at which technologies in the Tech Tree are researched is affected by this value.
-X | Tax Rate | The percent of the Region's Wealth that is added to the Treasury each turn.
-M | Movement | A bonus to the movement speed of all armies present in the Region.
-
-## ADMINISTRATION
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Governor's Residence** | 1 | +R +X +W -F | 
-**Governor's Estate** | 2 | +R +X +W -F | 
-**Governor's Palace** | 3 | +R +X +W -F | 
-**Royal Court [Capital Only]** | 4 | +R +X +W +A -F | 
+H | Happiness | If this value sinks below zero, there is a chance a rebellion will form in the Region.
 
 ## AGRICULTURE
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Water Mill [River Only]** | 1 | +F +W | 
-**Wind Mill [Non-River Only]** | 1 | +F +W | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Mill 1** | 1 | +1F +100W +1G | 1000W
+**Mill 2** | 1 | +2F +200W +2G | 3000W
+**Mill 3** | 1 | +3F +300W +3G | 5000W
+**Granary 1** | 1 | +1F +300W | 1000W
+**Granary 2** | 1 | +2F +400W | 3000W
+**Granary 3** | 1 | +3F +500W | 5000W
 
-## DEFENSE
+## CASTLE
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Hill Fort** | 1 | +D +I +R +A -F -W | 
-**Motte and Bailey** | 2 | +D +I +R +A -F -W | 
-**Wooden Castle** | 3 | +D +I +R +A -F -W |
-**Castle** | 4 | +D +I +R +A -F -W | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Castle 1** | 1 | +1H -2F | 2000
+**Castle 2** | 2 | +2H -3F | 4000
+**Castle 3** | 3 | +3H -4F | 6000
+**Castle 4** | 4 | +4H -5F | 12000
+**Castle 5** | 5 | +5H -6F | 24000
 
-## TOWN DEFENSE
+## Worship
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Town Watch** | 1 | +D +A | 
-**Tower House** | 2 | +D +A | 
-
-## CITY DEFENSE
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Fortress [upgraded from Castle]** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
-**Citadel** | 1 | +D +I +R +A [Unlocks Recruitment] -F -W | 
-
-## RELIGION
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Holy Ground** | 1 | +H +C -F | 
-**Chapel** | 2 | +H +C -F |
-**Church** | 3 | +H +C -F |
-**Cathedral** | 4 | +H +C -F |
-**Monastery** | 1 | +H +C | 
-**Monastic Brewery** | 2 | +H +C +G |
-**Monastic Compound** | 3 | +H +C +G | 
-**Monastic Library** | 2 | +H +C +E -F | 
-**Monastic Institute** | 3 | +H +C +E -F |
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Church 1** | 1 | -100W +1H | 500W
+**Church 2** | 2 | -200W +2H | 1000W
+**Church 3** | 3 | -300W +3H | 1500W
 
 ## INDUSTRY
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Crafter's Cottage** | 1 | +W +G | 
-**Blacksmith's Cottage** | 2 | +W +G | 
-**Blacksmithing Guild** | 3 | +W +G | 
-**Society of Blacksmiths** | 4 | +W +G +C |
-**Potter's Cottage** | 2 | +W +G | 
-**Pottery Guild** | 3 | +W +G |
-**Society of Potters** | 4 | +W +G +C |
-**Weaver's Cottage** | 2 | +W +G |
-**Weaving Guild** | 3 | W +G |
-**Society of Weavers** | 4 | +W +G +C |
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Workshops 1** | 1 | +600W +3G -1F | 1500W
+**Workshops 2** | 2 | +800W +4G -2F | 3000W
+**Workshops 3** | 2 | +1000W +5G -3F | 4500W
+**Brewery 1** | 1 | +2H | 1200W
+**Brewery 2** | 2 | +1G +4H | 2400W
+**Brewery 3** | 3 | +2G +6H | 3600W
 
-## CITY CENTER
+## INFRASTRUCTURE
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Banking House** | 1 | +W | 
-**Mint** | 2 | +W | 
-**Treasury** | 3 | W +X | 
-**Grain Exchange** | 1 | +W +G -F | 
-**Marketplace** | 2 | +W +G -F | 
-**Merchant Guild** | 3 | W +G -F | 
-**Brewery** | 1 | +G +H | 
-**Large Brewery** | 2 | +G +H | 
-**Brewing Company** | 3 | +G +H | 
-
-## EDUCATION
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**School** | 1 | +E -F | 
-**College** | 2 | +E -F | 
-**Trade School** | 3 | +E +G +H -F | 
-**University** | 3 | +E -H -F | 
-
-## SANITATION
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Well** | 1 | +S +H -F -W | 
-**Troughs** | 2 | +S +H -F -W | 
-**Canals** | 3 | +S +H -F -W | 
-**Latrines** | 2 | +S +H -F -W | 
-**Sewers** | 3 | +S -F -W | 
-**Public Bath** | 2 | +S +H -F -W | 
-**Spa Complex** | 3 | +S +H -F -W | 
-
-## CITY RECRUITMENT
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Drill Square** | 1 | [Unlocks Recruitment] | 
-**Barracks** | 2 | [Unlocks Recruitment] | 
-**Armory** | 3 | [Unlocks Recruitment] | 
-**Bowyer** | 1 | [Unlocks Recruitment] | 
-**Archery Range** | 2 | [Unlocks Recruitment] | 
-**Marksman Range** | 3 | [Unlocks Recruitment] | 
-**Siege Engineer** | 1 | [Unlocks Recruitment] | 
-**Siege Workshop** | 2 | [Unlocks Recruitment] | 
-**Siege Works** | 3 | [Unlocks Recruitment] | 
-
-## REGION INFRASTRUCTURE
-
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Roads** | 1 | +M +G | 
-**Cobbled Roads** | 2 | +M +G | 
-**Metalled Roads** | 3 | +M +G | 
-**Peasant Farms** | 1 | [+20% F] | 
-**Tenant Farms** | 2 | [+25% F] | 
-**Great Estates** | 3 | [+30% F] | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Roads 1** | 1 | +2G | 800W
+**Roads 2** | 2 | +5G | 3200W
+**Farms 1** | 1 | [+3F] | 1250W
+**Farms 2** | 2 | [+4F] | 2500W
+**Farms 3** | 3 | [+5F] -4H | 5000W
+**Farms 4** | 4 | [+8F] -8H | 10000W
+**Patrols 1** | 1 | -100W -2F | 1000W
+**Patrols 2** | 2 | -300W -3F | 3000W
 
 ## SALT DEPOSIT
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Salt Works** | 1 | +S +W +G -H | 
-**Salt Trader** | 1 | +W +G -H -S | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Salt Works 1** | 1 | +300W +4G -2H | 2500W
+**Salt Works 2** | 1 | +500W +8G -4H | 5000W
+**Salt Works 3** | 1 | +900W +12G -8H | 10000W
 
 ## IRON VEIN
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Iron Mine** | 1 | +W [-10% UNIT COST in Region] -H -S | 
-**Iron Trader** | 1 | +W +G -H | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Iron Mine 1** | 1 | +200W -1H | 1500W
+**Iron Mine 2** | 1 | +400W -2H | 3000W
+**Iron Mine 3** | 1 | +800W -4H | 5000W
 
 ## QUARRY
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Quarry** | 1 | +W [-10% CONSTRUCTION COST in Region] -H -S | 
-**Stone Trader** | 1 | +W +G -H -S | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Quarry 1** | 1 | +200W -1H | 1500W
+**Quarry 2** | 1 | +400W -2H | 3000W
+**Quarry 3** | 1 | +800W -4H | 5000W
 
 ## MARKET TOWN
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Grain Exchange** | 1 | +W +G -F | 
-**Marketplace** | 2 | +W +G -F | 
-**Merchant Guild** | 3 | +W +G -F | 
-**Rest Stop** | 1 | +H +W +G -F -S | 
-**Country Pub** | 2 | +H +W +G -F -S | 
-**Coaching Inn** | 3 | +H +W +G -F -S | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Market 1** | 1 | +W +G -1F | 800W
+**Market 2** | 2 | +W +G -2F | 1600W
+**Market 2** | 3 | +W +G -3F | 3200W
+**Tavern 1** | 1 | +H +W +G -2F | 800W
+**Tavern 2** | 2 | +H +W +G -3F | 1600W
+**Tavern 3** | 3 | +H +W +G -4F | 3200W
 
 ## HARBOR TOWN
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Fishing Jetty** | 1 | +F +G -H -S | 
-**Fishing Wharf** | 2 | +F +G -H -S | 
-**Fishing Port** | 3 | +F +G -H -S | 
-**Military Jetty** | 1 | [Unlocks Recruitment] +A -H -S | 
-**Military Wharf** | 2 | [Unlocks Recruitment] +A -H -S | 
-**Military Port** | 3 | [Unlocks Recruitment] +A -H -S | 
-**Trading Jetty** | 1 | +F +G -H -S | 
-**Trading Wharf** | 2 | +F +G -H -S | 
-**Trading Port** | 3 | +F +G -H -S | 
+Name | Tier | Effects | Cost
+------------ | ------------ | ------------- | ------------- 
+**Fishing 1** | 1 | +2F +2G -2H | 800W
+**Fishing 2** | 2 | +5F +4G -4H | 4000W
+**Fishing 3** | 3 | +10F +6G -6H | 8000W
+**Trading 1** | 1 | +250W +3G -2H | 1000W
+**Trading 2** | 2 | +500W +5G -4H | 5000W
+**Trading 3** | 3 | +1000W +7G -6H | 10000W
 
 
-## FOREST BORDER TOWN
+## FOREST TOWN
 
-Name | Tier | Effects | Description
------------- | ------------ | ------------- | -------------
-**Hunting Cabin** | 1 | +F +W +H | 
-**Hunting Lodge** | 2 | +F +W +H | 
-**Country Mansion** | 3 | +F +W +H | 
-**Woodcutter's Cabin** | 1 | [-10% Construction Cost in Region] | 
-**Logging Camp** | 1 | [-15% Construction Cost in Region] | 
-**Lumber Camp** | 1 | [-20% Construction Cost in Region] | 
+Name | Tier | Effects |
+------------ | ------------ | ------------- 
+**Hunting 1** | 1 | +2F +100W +2H | 
+**Hunting 2** | 2 | +3F +250W +3H | 
+**Hunting 3** | 3 | +4F +500W +4H | 
+**Logging 1** | 1 | +2F +200W -2H | 
+**Logging 2** | 2 | +2F +400W -3H | 
+**Logging 3** | 3 | +2F +800W -4H | 
