@@ -1,14 +1,6 @@
 # Resources
-- [Inspiration](#inspiration)
-- [History](#geography-and-history)
-- [Climate](#climate)
-- [Toponymy](#toponymy)
-- Rivers
-- Roads
-- [Flags](#flags)
-- [Art Assets](#art-assets)
-- Programming
-- AI
+
+| [Inspiration](#inspiration) | [History](#geography-and-history) | [Climate](#climate) | [Toponymy](#toponymy) | Rivers | Roads | [Flags](#flags) | [Art Assets](#art-assets) | Programming | AI |
 
 ## Inspiration
 ### World Maps
