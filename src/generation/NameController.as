@@ -9,19 +9,10 @@ package generation {
         [Embed(source="../assets/language/english/biomes.json", mimeType="application/octet-stream")]
         private static const biomes_json:Class;
 
-        [Embed(source="../assets/language/english/prefixes.json", mimeType="application/octet-stream")]
-        private static const prefixes_json:Class;
+        [Embed(source="../assets/language/german/places.json", mimeType="application/octet-stream")]
+        private static const places_json:Class;
 
-        [Embed(source="../assets/language/english/suffixes.json", mimeType="application/octet-stream")]
-        private static const suffixes_json:Class;
-
-        [Embed(source="../assets/language/english/attachments.json", mimeType="application/octet-stream")]
-        private static const attachments_json:Class;
-
-        [Embed(source="../assets/language/english/associations.json", mimeType="application/octet-stream")]
-        private static const associations_json:Class;
-
-        public var namingDictionary:Object;
+        public var places:Object;
 
         private var existingNames:Array = [];
 
@@ -64,12 +55,7 @@ package generation {
             saltWater = biomes.saltWater;
 
             // Places
-            namingDictionary = {
-                prefixes: JSON.parse(new prefixes_json()),
-                suffixes: JSON.parse(new suffixes_json()),
-                attachments: JSON.parse(new attachments_json()).combinations,
-                associations: JSON.parse(new associations_json())
-            };
+            places = JSON.parse(new places_json());
         }
 
         public function nameRegions(regions:Object):void {
@@ -91,9 +77,12 @@ package generation {
                 region.nameObject = generatePrefixAndSuffix(region.analysis, new Rand(int(rand.next() * 9999)));
 
             for each (region in regionsArray) {
+                // If it has a child, 70% chance it will receive a nameBoundQualifier, causing a pair like North Dakota/South Dakota
+                // Alternatively, 30% chance it will not receive a nameBoundQualifier, causing a pair like Virginia/West Virginia
                 if (region.nameBoundChild && rand.next() < .7)
                     region.nameObject.nameBoundQualifier = namingDictionary.associations[region.nameBoundChildCompassDirection];
 
+                // If it has a parent, name it the same as its parent
                 if (region.nameBoundParent) {
                     region.nameObject.nameBoundQualifier = namingDictionary.associations[region.nameBoundParentCompassDirection];
                     region.nameObject.prefix = region.nameBoundParent.nameObject.prefix;
