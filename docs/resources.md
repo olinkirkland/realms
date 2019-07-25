@@ -44,7 +44,7 @@ Scott Turner has taken map generation and gone off the deep end with it. His blo
 [Scott Turner's Blog: Forest Coloring](https://heredragonsabound.blogspot.com/2017/03/sprucing-up-forest.html)
 
 ### Art
-I used to draw all the time, but rarely landscapes. These videos teach methods of drawing that can be translated into code - or not, honestly I draw mountains all the time now for fun.
+These videos teach art. I'd like to recreate the styles programmatically.
 [Drawing Mountains](https://www.youtube.com/watch?v=7xVOhNt3JQk)
 
 ## History
