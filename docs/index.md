@@ -1,6 +1,6 @@
 [![](https://i.imgur.com/OocdrtT.png)](https://i.imgur.com/OocdrtT.png)
 
-## Navigation
+# Navigating this Site
 - [Demo](demo.html)  
 - [Realms Trello Page](https://trello.com/b/SoUEo0DZ/realms)
 
@@ -17,4 +17,5 @@
 - [Andy Woodruff's Continuous Curves](http://www.cartogrammar.com/blog/continuous-curves-with-actionscript-3/): Reworked to draw continuous curves like rivers and roads
 - Flash.swc: Required some functionality from this for Andy Woodruff's Continuous Curves
 
-## [Resources](resources.md)
+# Resources
+- [An index of valuable links I've gathered in regards to worldbuilding, procedural design, and programming](resources.md)
