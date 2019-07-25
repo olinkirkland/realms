@@ -1,4 +1,4 @@
-# Navigation
+# References
 - [Inspiration](#inspiration)
 - [History](#history)
 - [Climate](#climate)
