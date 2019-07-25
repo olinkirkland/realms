@@ -1,4 +1,4 @@
-# References
+# Resources
 - [Inspiration](#inspiration)
 - [History](#geography-and-history)
 - [Climate](#climate)
