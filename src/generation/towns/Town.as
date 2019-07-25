@@ -19,6 +19,7 @@ package generation.towns {
         override public function analyze():void {
             super.analyze();
             analysis.town = true;
+            delete analysis.city;
         }
 
         public function get townType():String {

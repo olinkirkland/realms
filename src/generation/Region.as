@@ -43,7 +43,7 @@ package generation {
         public function analyze():void {
             // Creates an analysis object containing descriptive flags about the region
             // The analysis object is used for naming regions
-            analysis = {all: true, region: true};
+            analysis = {generic: true, region: true};
 
             // Get the land that this region's city is on
             var lands:Object = city.cell.getFeaturesByType(Geography.LAND);
@@ -141,12 +141,7 @@ package generation {
 
             // Add most common biome
             var biomeType:String = regionalBiomes[0].type;
-            if (biomeType == Biome.TUNDRA || biomeType == Biome.GRASSLAND)
-                analysis.grasslandOrTundra = regionalBiomes[0].biome;
-            else if (biomeType == Biome.TEMPERATE_FOREST || biomeType == Biome.BOREAL_FOREST)
-                analysis.temperateOrBorealForest = regionalBiomes[0].biome;
-            else
-                analysis[biomeType] = regionalBiomes[0].biome;
+            analysis[biomeType] = regionalBiomes[0].biome;
         }
 
         public function analyzeContext():void {
@@ -208,7 +203,7 @@ package generation {
                 neighborRegion = neighborRegionsArray[0];
                 if (neighborRegionsArray[0].compare == 1 && !nameBinding && !neighborRegion.region.nameBinding) {
                     if (rand.next() < .08) {
-                        // Name-bind the regions
+                        // 80% chance to name-bind the regions
                         nameBinding = true;
                         neighborRegion.region.nameBinding = true;
                         nameBoundChild = neighborRegion.region;

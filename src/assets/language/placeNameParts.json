@@ -1,0 +1,1505 @@
+[
+  {
+    "countSuffix": 5,
+    "count": 5,
+    "name": "",
+    "tags": [
+      "region"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Blau",
+    "tags": [
+      "blue",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 0,
+    "count": 9,
+    "name": "Weiß",
+    "tags": [
+      "white",
+      "generic"
+    ],
+    "countOther": 2,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 7
+  },
+  {
+    "countSuffix": 0,
+    "count": 5,
+    "name": "Braun",
+    "tags": [
+      "brown",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 10,
+    "name": "Schwarz",
+    "tags": [
+      "black",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 10
+  },
+  {
+    "countSuffix": 0,
+    "count": 13,
+    "name": "Rot",
+    "tags": [
+      "red",
+      "generic"
+    ],
+    "countOther": 4,
+    "nameAddons": [
+      "h"
+    ],
+    "countPrefix": 9
+  },
+  {
+    "countSuffix": 0,
+    "count": 7,
+    "name": "Grün",
+    "tags": [
+      "green",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 7
+  },
+  {
+    "countSuffix": 0,
+    "count": 1,
+    "name": "Hell",
+    "tags": [
+      "light",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 0,
+    "count": 1,
+    "name": "Dunkel",
+    "tags": [
+      "dark",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 0,
+    "count": 1,
+    "name": "Silber",
+    "tags": [
+      "silver",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 1,
+    "count": 5,
+    "name": "Gold",
+    "tags": [
+      "gold",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 5,
+    "name": "Sieg",
+    "tags": [
+      "victory",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 3,
+    "name": "Heu",
+    "tags": [
+      "hay",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 0,
+    "count": 10,
+    "name": "Frei",
+    "tags": [
+      "free",
+      "generic"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 9
+  },
+  {
+    "countSuffix": 0,
+    "count": 3,
+    "name": "Straß",
+    "tags": [
+      "road",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 0,
+    "count": 8,
+    "name": "Laut",
+    "tags": [
+      "clear",
+      "generic"
+    ],
+    "countOther": 1,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 7
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Glück",
+    "tags": [
+      "lucky",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "s"
+    ],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 6,
+    "count": 13,
+    "name": "Horn",
+    "tags": [
+      "horn",
+      "generic"
+    ],
+    "countOther": 3,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 5,
+    "count": 24,
+    "name": "Eich",
+    "tags": [
+      "oak",
+      "plant"
+    ],
+    "countOther": 15,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 3,
+    "name": "Tann",
+    "tags": [
+      "pine",
+      "plant"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 4,
+    "count": 9,
+    "name": "Baum",
+    "tags": [
+      "tree",
+      "plant"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 3,
+    "name": "Nuß",
+    "tags": [
+      "nut",
+      "plant"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 4,
+    "count": 9,
+    "name": "Moos",
+    "tags": [
+      "moss",
+      "plant"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 4,
+    "count": 14,
+    "name": "Esch",
+    "tags": [
+      "ash",
+      "plant"
+    ],
+    "countOther": 4,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 5,
+    "count": 10,
+    "name": "Holz",
+    "tags": [
+      "borealForest",
+      "temperateForest",
+      "plant"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Birk",
+    "tags": [
+      "birch",
+      "plant"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 2,
+    "count": 9,
+    "name": "Buch",
+    "tags": [
+      "beech",
+      "plant"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Traub",
+    "tags": [
+      "grape",
+      "plant"
+    ],
+    "countOther": 2,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 2,
+    "count": 29,
+    "name": "Erl",
+    "tags": [
+      "birch",
+      "plant"
+    ],
+    "countOther": 21,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Forst",
+    "tags": [
+      "borealForest",
+      "temperateForest",
+      "plant"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 5,
+    "count": 10,
+    "name": "Hain",
+    "tags": [
+      "borealForest",
+      "temperateForest",
+      "plant"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 14,
+    "name": "Hag",
+    "tags": [
+      "hedge",
+      "plant"
+    ],
+    "countOther": 9,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Hasel",
+    "tags": [
+      "hazel",
+      "plant"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 0,
+    "count": 4,
+    "name": "Linden",
+    "tags": [
+      "linden",
+      "plant"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 2,
+    "count": 6,
+    "name": "Dorn",
+    "tags": [
+      "thorn",
+      "plant"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 1,
+    "count": 4,
+    "name": "Ulm",
+    "tags": [
+      "elm",
+      "plant"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 0,
+    "count": 3,
+    "name": "Bärn",
+    "tags": [
+      "bear",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 6,
+    "count": 30,
+    "name": "Bern",
+    "tags": [
+      "bear",
+      "animal",
+      "generic"
+    ],
+    "countOther": 14,
+    "nameAddons": [],
+    "countPrefix": 10
+  },
+  {
+    "countSuffix": 0,
+    "count": 10,
+    "name": "Wolf",
+    "tags": [
+      "wolf",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 10
+  },
+  {
+    "countSuffix": 0,
+    "count": 4,
+    "name": "Fisch",
+    "tags": [
+      "fish",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 1,
+    "name": "Hund",
+    "tags": [
+      "hound",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 0,
+    "count": 3,
+    "name": "Biber",
+    "tags": [
+      "beaver",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 0,
+    "count": 9,
+    "name": "Schwan",
+    "tags": [
+      "swan",
+      "animal",
+      "generic"
+    ],
+    "countOther": 4,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 5,
+    "name": "Has",
+    "tags": [
+      "hare",
+      "animal",
+      "generic"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 1,
+    "name": "Eulen",
+    "tags": [
+      "owl",
+      "animal",
+      "generic"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 0,
+    "count": 25,
+    "name": "Eber",
+    "tags": [
+      "pig",
+      "animal",
+      "generic"
+    ],
+    "countOther": 12,
+    "nameAddons": [],
+    "countPrefix": 13
+  },
+  {
+    "countSuffix": 0,
+    "count": 7,
+    "name": "Wild",
+    "tags": [
+      "game",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 7
+  },
+  {
+    "countSuffix": 0,
+    "count": 3,
+    "name": "Bock",
+    "tags": [
+      "goat",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 0,
+    "count": 1,
+    "name": "Gäns",
+    "tags": [
+      "goose",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 0,
+    "count": 5,
+    "name": "Hirsch",
+    "tags": [
+      "deer",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 4,
+    "name": "Kitz",
+    "tags": [
+      "fawn",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 5,
+    "name": "Henn",
+    "tags": [
+      "hen",
+      "animal",
+      "generic"
+    ],
+    "countOther": 1,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Katz",
+    "tags": [
+      "cat",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Ochs",
+    "tags": [
+      "ox",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 5,
+    "count": 41,
+    "name": "Roß",
+    "tags": [
+      "horse",
+      "animal",
+      "generic"
+    ],
+    "countOther": 32,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Stut",
+    "tags": [
+      "horse",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "t",
+      "en"
+    ],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 14,
+    "count": 23,
+    "name": "Ham",
+    "tags": [
+      "goat",
+      "animal",
+      "generic"
+    ],
+    "countOther": 4,
+    "nameAddons": [
+      "s",
+      "els"
+    ],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 3,
+    "name": "Falken",
+    "tags": [
+      "falcon",
+      "animal",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 0,
+    "count": 9,
+    "name": "Grafen",
+    "tags": [
+      "count",
+      "owner",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 9
+  },
+  {
+    "countSuffix": 0,
+    "count": 12,
+    "name": "Königs",
+    "tags": [
+      "king",
+      "owner",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 11
+  },
+  {
+    "countSuffix": 0,
+    "count": 0,
+    "name": "Prinzen",
+    "tags": [
+      "prince",
+      "owner",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 0,
+    "count": 5,
+    "name": "Fürsten",
+    "tags": [
+      "prince",
+      "owner",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 1,
+    "name": "Adels",
+    "tags": [
+      "noble",
+      "owner",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 0,
+    "count": 4,
+    "name": "Herzog",
+    "tags": [
+      "duke",
+      "owner",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "s",
+      "en"
+    ],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "Reichs",
+    "tags": [
+      "empire",
+      "owner",
+      "generic"
+    ],
+    "countOther": 2,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 0,
+    "count": 6,
+    "name": "Bischofs",
+    "tags": [
+      "bishop",
+      "owner",
+      "generic"
+    ],
+    "countOther": 2,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 0,
+    "count": 5,
+    "name": "Herr",
+    "tags": [
+      "lord",
+      "owner",
+      "generic"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 6,
+    "name": "Lüb",
+    "tags": [
+      "warm",
+      "hot",
+      "weather"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 1,
+    "count": 37,
+    "name": "Alt",
+    "tags": [
+      "old",
+      "descriptor"
+    ],
+    "countOther": 15,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 21
+  },
+  {
+    "countSuffix": 1,
+    "count": 65,
+    "name": "Neu",
+    "tags": [
+      "new",
+      "descriptor"
+    ],
+    "countOther": 14,
+    "nameAddons": [],
+    "countPrefix": 49
+  },
+  {
+    "countSuffix": 0,
+    "count": 6,
+    "name": "Hoch",
+    "tags": [
+      "high",
+      "descriptor"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 0,
+    "count": 14,
+    "name": "Hohen",
+    "tags": [
+      "high",
+      "descriptor"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 13
+  },
+  {
+    "countSuffix": 0,
+    "count": 15,
+    "name": "Nieder",
+    "tags": [
+      "low",
+      "descriptor"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 14
+  },
+  {
+    "countSuffix": 3,
+    "count": 25,
+    "name": "Eng",
+    "tags": [
+      "narrow",
+      "descriptor"
+    ],
+    "countOther": 17,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 1,
+    "count": 8,
+    "name": "Breit",
+    "tags": [
+      "wide",
+      "descriptor"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 1,
+    "count": 13,
+    "name": "Hart",
+    "tags": [
+      "hard",
+      "descriptor"
+    ],
+    "countOther": 6,
+    "nameAddons": [],
+    "countPrefix": 5
+  },
+  {
+    "countSuffix": 0,
+    "count": 7,
+    "name": "Nord",
+    "tags": [
+      "north",
+      "location"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 0,
+    "count": 17,
+    "name": "Ost",
+    "tags": [
+      "east",
+      "location"
+    ],
+    "countOther": 5,
+    "nameAddons": [],
+    "countPrefix": 12
+  },
+  {
+    "countSuffix": 0,
+    "count": 1,
+    "name": "Süd",
+    "tags": [
+      "south",
+      "location"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 0,
+    "count": 2,
+    "name": "West",
+    "tags": [
+      "west",
+      "location"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 0,
+    "count": 51,
+    "name": "Ober",
+    "tags": [
+      "higher",
+      "location"
+    ],
+    "countOther": 7,
+    "nameAddons": [],
+    "countPrefix": 43
+  },
+  {
+    "countSuffix": 0,
+    "count": 16,
+    "name": "Unter",
+    "tags": [
+      "lower",
+      "location"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 15
+  },
+  {
+    "countSuffix": 11,
+    "count": 47,
+    "name": "Wald",
+    "tags": [
+      "borealForest",
+      "temperateForest",
+      "geography"
+    ],
+    "countOther": 13,
+    "nameAddons": [],
+    "countPrefix": 22
+  },
+  {
+    "countSuffix": 235,
+    "count": 248,
+    "name": "Berg",
+    "tags": [
+      "hill",
+      "geography"
+    ],
+    "countOther": 3,
+    "nameAddons": [],
+    "countPrefix": 9
+  },
+  {
+    "countSuffix": 10,
+    "count": 13,
+    "name": "Fels",
+    "tags": [
+      "hill",
+      "geography"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 70,
+    "count": 88,
+    "name": "Stein",
+    "tags": [
+      "stone",
+      "geography"
+    ],
+    "countOther": 5,
+    "nameAddons": [],
+    "countPrefix": 12
+  },
+  {
+    "countSuffix": 4,
+    "count": 4,
+    "name": "Steig",
+    "tags": [
+      "road",
+      "geography"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 6,
+    "count": 15,
+    "name": "Land",
+    "tags": [
+      "region",
+      "geography"
+    ],
+    "countOther": 3,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 162,
+    "count": 168,
+    "name": "Bach",
+    "tags": [
+      "stream",
+      "geography"
+    ],
+    "countOther": 3,
+    "nameAddons": [],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 54,
+    "count": 75,
+    "name": "Feld",
+    "tags": [
+      "field",
+      "grassland",
+      "savannah",
+      "geography"
+    ],
+    "countOther": 16,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 1,
+    "count": 10,
+    "name": "Erz",
+    "tags": [
+      "ore",
+      "geography"
+    ],
+    "countOther": 9,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 2,
+    "count": 3,
+    "name": "Moor",
+    "tags": [
+      "moor",
+      "geography"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 4,
+    "count": 13,
+    "name": "Heid",
+    "tags": [
+      "field",
+      "grassland",
+      "savannah",
+      "geography"
+    ],
+    "countOther": 3,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 0,
+    "count": 4,
+    "name": "Weid",
+    "tags": [
+      "field",
+      "grassland",
+      "savannah",
+      "geography"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 34,
+    "count": 42,
+    "name": "Tal",
+    "tags": [
+      "valley",
+      "geography"
+    ],
+    "countOther": 8,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 15,
+    "count": 19,
+    "name": "Furt",
+    "tags": [
+      "ford",
+      "river",
+      "geography"
+    ],
+    "countOther": 2,
+    "nameAddons": [],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 2,
+    "count": 36,
+    "name": "Eis",
+    "tags": [
+      "iron",
+      "geography"
+    ],
+    "countOther": 24,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 10
+  },
+  {
+    "countSuffix": 7,
+    "count": 9,
+    "name": "Beck",
+    "tags": [
+      "lake",
+      "geography"
+    ],
+    "countOther": 1,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 4,
+    "count": 7,
+    "name": "Bruck",
+    "tags": [
+      "bridge",
+      "geography"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 1,
+    "count": 2,
+    "name": "Brücken",
+    "tags": [
+      "bridge",
+      "geography"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 1,
+    "count": 11,
+    "name": "Mühl",
+    "tags": [
+      "mill",
+      "building"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 9
+  },
+  {
+    "countSuffix": 130,
+    "count": 143,
+    "name": "Burg",
+    "tags": [
+      "castle",
+      "building"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 11
+  },
+  {
+    "countSuffix": 13,
+    "count": 22,
+    "name": "Markt",
+    "tags": [
+      "market",
+      "building"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 52,
+    "count": 64,
+    "name": "Stadt",
+    "tags": [
+      "city",
+      "building"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 10
+  },
+  {
+    "countSuffix": 19,
+    "count": 21,
+    "name": "Brunn",
+    "tags": [
+      "well",
+      "building"
+    ],
+    "countOther": 0,
+    "nameAddons": [
+      "en"
+    ],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 4,
+    "count": 5,
+    "name": "Garten",
+    "tags": [
+      "garden",
+      "building"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 64,
+    "count": 66,
+    "name": "Kirchen",
+    "tags": [
+      "church",
+      "building"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 1,
+    "count": 2,
+    "name": "Kloster",
+    "tags": [
+      "monastery",
+      "building"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 1
+  },
+  {
+    "countSuffix": 4,
+    "count": 4,
+    "name": "Hafen",
+    "tags": [
+      "port",
+      "building"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 108,
+    "count": 113,
+    "name": "Heim",
+    "tags": [
+      "town"
+    ],
+    "countOther": 2,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 9,
+    "count": 52,
+    "name": "Hof",
+    "tags": [
+      "town"
+    ],
+    "countOther": 35,
+    "nameAddons": [],
+    "countPrefix": 7
+  },
+  {
+    "countSuffix": 3,
+    "count": 11,
+    "name": "Hall",
+    "tags": [
+      "town"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 6
+  },
+  {
+    "countSuffix": 21,
+    "count": 41,
+    "name": "Eck",
+    "tags": [
+      "town"
+    ],
+    "countOther": 17,
+    "nameAddons": [],
+    "countPrefix": 3
+  },
+  {
+    "countSuffix": 114,
+    "count": 255,
+    "name": "Ing",
+    "tags": [
+      "town"
+    ],
+    "countOther": 137,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 105,
+    "count": 110,
+    "name": "Ingen",
+    "tags": [
+      "town"
+    ],
+    "countOther": 5,
+    "nameAddons": [],
+    "countPrefix": 0
+  },
+  {
+    "countSuffix": 10,
+    "count": 13,
+    "name": "Zell",
+    "tags": [
+      "town"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 2
+  },
+  {
+    "countSuffix": 20,
+    "count": 34,
+    "name": "Egg",
+    "tags": [
+      "town"
+    ],
+    "countOther": 5,
+    "nameAddons": [],
+    "countPrefix": 8
+  },
+  {
+    "countSuffix": 247,
+    "count": 253,
+    "name": "Dorf",
+    "tags": [
+      "town"
+    ],
+    "countOther": 1,
+    "nameAddons": [],
+    "countPrefix": 4
+  },
+  {
+    "countSuffix": 38,
+    "count": 38,
+    "name": "Hausen",
+    "tags": [
+      "town"
+    ],
+    "countOther": 0,
+    "nameAddons": [],
+    "countPrefix": 0
+  }
+]

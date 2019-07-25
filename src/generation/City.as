@@ -38,9 +38,10 @@ package generation {
         }
 
         public function analyze():void {
-            // Creates an analysis object containing descriptive flags about the city
+            // Creates an analysis object containing true/false properties about the city
             // The analysis object is used for naming cities and towns
-            analysis = {all: true, townOrCity: true};
+            // todo temporarily set building to true
+            analysis = {city: true, generic: true, building: true};
 
             // Region
             var region:Region = civ.regions[cell.region];
@@ -68,7 +69,7 @@ package generation {
 
             // Hot
             else if (cell.temperature > .5)
-                analysis.hot = true;
+                analysis.warm = true;
 
             // Is the city on the coast?
             for each(var neighbor:Cell in cell.neighbors) {
@@ -94,13 +95,7 @@ package generation {
                 analysis.estuary = true;
 
             // Determine this cell's biome type
-            if (cell.biomeType == "grassland" || cell.biomeType == "tundra") {
-                analysis["grasslandOrTundra"] = cell.biome;
-            } else if (cell.biomeType == "temperateForest" || cell.biomeType == "borealForest") {
-                analysis["temperateOrBorealForest"] = cell.biome;
-            } else {
-                analysis[cell.biomeType] = cell.biome;
-            }
+            analysis[cell.biomeType] = cell.biome;
         }
 
         public function determineName():void {

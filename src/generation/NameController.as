@@ -6,13 +6,13 @@ package generation {
         private var civ:Civilization;
         private var rand:Rand;
 
-        [Embed(source="../assets/language/english/biomes.json", mimeType="application/octet-stream")]
+        [Embed(source="../assets/language/biomes.json", mimeType="application/octet-stream")]
         private static const biomes_json:Class;
 
-        [Embed(source="../assets/language/german/places.json", mimeType="application/octet-stream")]
-        private static const places_json:Class;
+        [Embed(source="../assets/language/placeNameParts.json", mimeType="application/octet-stream")]
+        private static const placeNameParts_json:Class;
 
-        public var places:Object;
+        public var placeNameParts:Object;
 
         private var existingNames:Array = [];
 
@@ -55,7 +55,7 @@ package generation {
             saltWater = biomes.saltWater;
 
             // Places
-            places = JSON.parse(new places_json());
+            placeNameParts = JSON.parse(new placeNameParts_json());
         }
 
         public function nameRegions(regions:Object):void {
@@ -74,17 +74,17 @@ package generation {
                 region.analyzeContext();
 
             for each (region in regionsArray)
-                region.nameObject = generatePrefixAndSuffix(region.analysis, new Rand(int(rand.next() * 9999)));
+                region.nameObject = generateName(region.analysis, new Rand(int(rand.next() * 9999)));
 
             for each (region in regionsArray) {
                 // If it has a child, 70% chance it will receive a nameBoundQualifier, causing a pair like North Dakota/South Dakota
                 // Alternatively, 30% chance it will not receive a nameBoundQualifier, causing a pair like Virginia/West Virginia
                 if (region.nameBoundChild && rand.next() < .7)
-                    region.nameObject.nameBoundQualifier = namingDictionary.associations[region.nameBoundChildCompassDirection];
+                    region.nameObject.nameBoundQualifier = getPlaceNamePartsByTag(region.nameBoundChildCompassDirection);
 
                 // If it has a parent, name it the same as its parent
                 if (region.nameBoundParent) {
-                    region.nameObject.nameBoundQualifier = namingDictionary.associations[region.nameBoundParentCompassDirection];
+                    region.nameObject.nameBoundQualifier = getPlaceNamePartsByTag(region.nameBoundParentCompassDirection);
                     region.nameObject.prefix = region.nameBoundParent.nameObject.prefix;
                     region.nameObject.suffix = region.nameBoundParent.nameObject.suffix;
                 }
@@ -98,81 +98,99 @@ package generation {
             }
         }
 
-        public function generatePrefixAndSuffix(analysis:Object, rand:Rand):Object {
-            var prefixes:Object = namingDictionary.prefixes;
-            var suffixes:Object = namingDictionary.suffixes;
-
-            var prefix:String;
-            var suffix:String;
-
+        public function generateName(analysis:Object, rand:Rand):Object {
             // Analysis keys
             var analysisKeys:Array = [];
             for (var key:String in analysis)
                 analysisKeys.push(key);
             analysisKeys.sort();
 
-            // Prefix keys
-            var prefixKeys:Array = [];
-            for (key in prefixes)
-                prefixKeys.push(key);
-            prefixKeys.sort();
 
-            // Suffix keys
-            var suffixKeys:Array = [];
-            for (key in suffixes)
-                suffixKeys.push(key);
-            suffixKeys.sort();
+            var validPlaceNameParts:Array = [];
+            for each (var analysisKey:String in analysisKeys)
+                validPlaceNameParts = Util.removeDuplicatesFromArray(validPlaceNameParts.concat(getPlaceNamePartsByTag(analysisKey)));
 
-            // Possible keys
-            var possiblePrefixKeys:Array = Util.sharedPropertiesBetweenArrays(analysisKeys, prefixKeys);
-            var possibleSuffixKeys:Array = Util.sharedPropertiesBetweenArrays(analysisKeys, suffixKeys);
+            var prefix:String = "";
+            var suffix:String = "";
 
-            var possibleCombinations:Array = [];
+            do {
+                prefix = getProperty(validPlaceNameParts, "countPrefix",
+                        rand.next());
+                suffix = getProperty(validPlaceNameParts, "countSuffix",
+                        rand.next());
+            } while (!validateName(prefix,
+                    suffix));
 
-            for each (var possiblePrefixKey:String in possiblePrefixKeys) {
-                var px:Array = prefixes[possiblePrefixKey];
-                if (px) {
-                    for each (var possiblePrefix:String in px) {
-                        for each (var possibleSuffixKey:String in possibleSuffixKeys) {
-                            var sx:Array = suffixes[possibleSuffixKey];
-                            if (sx) {
-                                for each (var possibleSuffix:String in sx) {
-                                    possibleCombinations.push({
-                                        prefix: possiblePrefix,
-                                        suffix: possibleSuffix,
-                                        name: possiblePrefix + possibleSuffix
-                                    });
-                                }
-                            }
-                        }
-                    }
+            return validateName(prefix, suffix);
+        }
+
+        private function getProperty(properties:Array,
+                                     type:String,
+                                     chance:Number):String {
+            var total:int = 0;
+            for each (var p:Object in properties)
+                total += p[type];
+
+            chance *= total;
+
+            var count:int = 0;
+            for each (p in properties) {
+                count += p[type];
+                if (count >= chance)
+                    break;
+            }
+
+            var s:String = p.name;
+            var addons:Array = p.nameAddons.concat("");
+            if (addons.length > 0) {
+                var addon:String = addons[int(Math.random() * addons.length)];
+                s += addon;
+            }
+
+            return s;
+        }
+
+        public function getPlaceNamePartsByTag(tag:String):Array {
+            var arr:Array = [];
+            for each (var placeName:Object in placeNameParts) {
+                if (placeName.tags.indexOf(tag) >= 0)
+                    arr.push(placeName);
+            }
+            return arr;
+        }
+
+        private function validateName(prefix:String,
+                                      suffix:String):Object {
+            suffix = suffix.toLowerCase();
+
+            // Prefix can't be the same as suffix
+            if (prefix.toLowerCase() == suffix)
+                return null;
+
+            // Prefix can't end with a vowel if suffix starts with one
+            if (endsWithAVowel(prefix) && startsWithAVowel(suffix)) {
+                if (suffix == "ing" || suffix == "ingen") {
+                    prefix += "s";
+                } else if (suffix == "au") {
+                    prefix += "n";
+                } else {
+                    return null;
                 }
             }
 
-            //todo strip possible combinations that aren't "allowed combinations"
-
-            // Choose from possible combinations
-            possibleCombinations = Util.removeDuplicatesFromArray(possibleCombinations);
-            possibleCombinations.sortOn("name");
-
-            var choice:Object = {};
-            do {
-                if (possibleCombinations.length > 0) {
-                    choice = possibleCombinations.removeAt(rand.between(0, possibleCombinations.length - 1));
-                } else {
-                    var prePrefix:String = "New ";
-                    choice.prefix = prePrefix + choice.prefix;
-                    break;
-                }
-            } while (choice && existingNames.indexOf(choice.prefix + choice.suffix) > -1);
-
-            prefix = choice.prefix;
-            suffix = choice.suffix;
-
-            if (choice)
-                existingNames.push(choice.prefix + choice.suffix);
-
+            // Proceed as normal
             return {prefix: prefix, suffix: suffix};
+        }
+
+        private function startsWithAVowel(str:String):Boolean {
+            var regex:RegExp = /^[aeiou]\w+/;
+            return regex.test(str.toLowerCase());
+        }
+
+
+        private function endsWithAVowel(str:String):Boolean {
+            var regex:RegExp = /\w+[aeiou]$/;
+            return regex.test(str.toLowerCase());
         }
 
         public function nameCities(cities:Object):void {
@@ -186,7 +204,7 @@ package generation {
                 city.analyze();
 
             for each (city in citiesArray)
-                city.nameObject = generatePrefixAndSuffix(city.analysis, new Rand(int(rand.next() * 9999)));
+                city.nameObject = generateName(city.analysis, new Rand(int(rand.next() * 9999)));
 
             for each (city in citiesArray) {
                 var n:Object = city.nameObject;
