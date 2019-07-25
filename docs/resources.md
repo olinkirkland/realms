@@ -9,7 +9,7 @@
 - [Art Assets](#art-assets)
 - Programming
 - AI
-[button url="http://www.google.com"]
+
 ## Inspiration
 ### World Maps
 Classic fictional and real world maps are probably the most important art resource when designing generated worlds.
