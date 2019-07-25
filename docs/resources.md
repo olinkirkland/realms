@@ -1,12 +1,31 @@
 # Navigation
-- Inspiration
-- Theory
-- AI
-- Assets
-- Climate and Biomes
-- Programming
-- Toponymy (Place Names)
-- Resources
+- [Inspiration](#inspiration)
+- [History](#history)
+- [Climate](#climate)
+- [Toponymy](#toponymy)
 - Rivers
 - Roads
 - Family Tree
+- [Art Assets](#art-assets)
+- Programming
+- AI
+
+## Inspiration
+
+## History
+
+## Climate
+
+## Toponymy
+
+## Rivers
+
+## Roads
+
+## Family Tree
+
+## Art Assets
+
+## Programming
+
+## AI
