@@ -1,4 +1,4 @@
-[![](Hero.png)](Hero.png)
+[![](hero.png)](hero.png)
 
 ## Navigating this Site
 - [Demo](demo.html)  
