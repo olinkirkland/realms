@@ -1,4 +1,4 @@
-[![](https://i.imgur.com/OocdrtT.png)](https://i.imgur.com/OocdrtT.png)
+[![](splash.png)](splash.png)
 
 ## Navigating this Site
 - [Demo](demo.html)  

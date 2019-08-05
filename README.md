@@ -2,6 +2,8 @@
 
 [https://olinkirk.land/realms](http://olinkirk.land/realms)
 
+[![](docs/splash.png)](docs/splash.png)
+
 World Generation in AS3
 Inspired by the works of Azgaar's Fantasy Maps, Amit Patel's Polygonal Map Generation, Scott Turner's Dragons Abound, and Martin O'Leary's Map Generation.  
 https://azgaar.wordpress.com/  
