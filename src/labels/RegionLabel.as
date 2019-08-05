@@ -207,17 +207,17 @@ package labels {
                     }
 
                     // Make the control point happen halfway through with the same distance
-                    var midPoint:Point = new Point((first.x + last.x) / 2, (first.y + last.y) / 2);
+                    var midpoint:Point = new Point((first.x + last.x) / 2, (first.y + last.y) / 2);
                     var angle:Number = Util.getAngleBetweenTwoPoints(first, last);
 
                     var controlPoint:Point = new Point();
-                    controlPoint.x = midPoint.x + (Math.cos(Util.degreesToRadians(angle - 90)) * furthestDistance);
-                    controlPoint.y = midPoint.y + (Math.sin(Util.degreesToRadians(angle - 90)) * furthestDistance);
+                    controlPoint.x = midpoint.x + (Math.cos(Util.degreesToRadians(angle - 90)) * furthestDistance);
+                    controlPoint.y = midpoint.y + (Math.sin(Util.degreesToRadians(angle - 90)) * furthestDistance);
 
                     // If a line from the furthest point to the control point crosses the line between first and last, translate the control point over the line
                     if (Util.getIntersectBetweenTwoLineSegments(controlPoint, furthestPoint, first, last)) {
-                        controlPoint.x = midPoint.x + (Math.cos(Util.degreesToRadians(angle + 90)) * furthestDistance);
-                        controlPoint.y = midPoint.y + (Math.sin(Util.degreesToRadians(angle + 90)) * furthestDistance);
+                        controlPoint.x = midpoint.x + (Math.cos(Util.degreesToRadians(angle + 90)) * furthestDistance);
+                        controlPoint.y = midpoint.y + (Math.sin(Util.degreesToRadians(angle + 90)) * furthestDistance);
                     }
 
                     var dist:Number = Util.getDistanceBetweenTwoPoints(first, last);

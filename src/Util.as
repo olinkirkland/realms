@@ -87,8 +87,8 @@ package {
             return intersectPoint;
         }
 
-        public static function getDistanceBetweenLineSegmentAndPoint(line1:Point, line2:Point, point:Point):Number {
-            return getHeightOfTriangle(line1, line2, point, point);
+        public static function getDistanceBetweenLineSegmentAndPoint(linePoint1:Point, linePoint2:Point, point:Point):Number {
+            return getHeightOfTriangle(linePoint1, linePoint2, point, point);
         }
 
         private static function getHeightOfTriangle(a:Point, b:Point, c:Point, v:Point):Number {

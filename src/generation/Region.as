@@ -3,8 +3,6 @@ package generation {
 
     import graph.Cell;
 
-    import mx.collections.ArrayList;
-
     public class Region {
         // Only for generation
         public var used:Boolean;
@@ -137,11 +135,12 @@ package generation {
                 }
             }
 
-            regionalBiomes.sortOn("count");
+            regionalBiomes.sortOn("percent", Array.DESCENDING);
 
             // Add most common biome
             var biomeType:String = regionalBiomes[0].type;
             analysis[biomeType] = regionalBiomes[0].biome;
+            analysis.regionalBiomes = regionalBiomes;
         }
 
         public function analyzeContext():void {

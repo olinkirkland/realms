@@ -12,7 +12,7 @@ package {
                 mimeType="application/x-font",
                 advancedAntiAliasing="true",
                 embedAsCFF="false")]
-        private var antiqueBookCover:Class;
+        private var alice:Class;
 
         public static var fancy:String = "fancy";
         public static var regular:String = "regular";

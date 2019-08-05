@@ -4,7 +4,6 @@ package {
 
     import flash.display.Bitmap;
     import flash.display.BitmapData;
-    import flash.display.BlendMode;
     import flash.display.Graphics;
     import flash.display.MovieClip;
     import flash.events.MouseEvent;
@@ -74,16 +73,16 @@ package {
         private var sketchLayer:MovieClip = new MovieClip();
 
         // Toggles
-        public var drawOcean:Boolean = true;
-        public var drawTerrain:Boolean = true;
-        public var drawCoastlines:Boolean = true;
-        public var drawRivers:Boolean = true;
-        public var drawForests:Boolean = true;
-        public var drawMountains:Boolean = true;
-        public var drawCities:Boolean = true;
-        public var drawRoads:Boolean = true;
+        public var drawOcean:Boolean = false;
+        public var drawTerrain:Boolean = false;
+        public var drawCoastlines:Boolean = false;
+        public var drawRivers:Boolean = false;
+        public var drawForests:Boolean = false;
+        public var drawMountains:Boolean = false;
+        public var drawCities:Boolean = false;
+        public var drawRoads:Boolean = false;
         public var drawRegions:Boolean = false;
-        public var drawElevation:Boolean = false;
+        public var drawElevation:Boolean = true;
         public var drawTemperature:Boolean = false;
         public var drawOutlines:Boolean = false;
 
@@ -145,9 +144,9 @@ package {
                 addChild(layer);
             }
 
-            addChild(parchment);
-            parchment.alpha = .5;
-            parchment.blendMode = BlendMode.MULTIPLY;
+//            addChild(parchment);
+//            parchment.alpha = .2;
+//            parchment.blendMode = BlendMode.MULTIPLY;
         }
 
 
@@ -240,17 +239,15 @@ package {
             var w:Number = width / 2;
             var h:Number = height / 2;
 
-            // Add shallow mountain
-            placeMountain(cellFromDistribution(0), .8, .95, .2);
+            // Add shallow, massive mountain that acts as a form of noise in conjunction with all other elements
+            placeLandStar(cellFromDistribution(0), .8, .95, .2);
 
             // Add hills
             for (var i:int = 0; i < 30; i++)
-                placeHill(cellFromDistribution(.25), rand.between(.5, .8), rand.between(.95, .99), rand.between(.1, .2));
+                placeHill(cellFromDistribution(.25), rand.between(.3, .5), rand.between(.95, .99), rand.between(.1, .2));
 
             // Add mountain ranges
-            for (i = 0; i < 2; i++) {
-                placeMountainRange();
-            }
+            placeMountainRanges(5);
 
             // Add big islands further out
             for (i = 0; i < 3; i++)
@@ -269,7 +266,7 @@ package {
 
             // Add pits
             for (i = 0; i < 15; i++)
-                placePit(cellFromDistribution(.35), rand.between(.2, .7), rand.between(.8, .95), rand.between(0, .2));
+                placePit(cellFromDistribution(.35), rand.between(.2, .7), rand.between(.95, .98), rand.between(0, .2));
 
             // Subtract .05 from land cells
             addToLandCells(-.05);
@@ -300,7 +297,7 @@ package {
                         cell.elevation *= value;
             }
 
-            function placeMountain(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
+            function placeLandStar(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
                 var rand:Rand = new Rand(masterSeed);
 
                 // Can only be placed once, at the beginning
@@ -331,6 +328,96 @@ package {
                 }
 
                 unuseCells();
+            }
+
+            function placeMountainRanges(count:int):void {
+                var rand:Rand = new Rand(masterSeed);
+
+                var edges:Array = [[new Point(0, 0),
+                    new Point(width, 0)],
+                    [new Point(width, 0),
+                        new Point(width, height)],
+                    [new Point(width, height),
+                        new Point(0, height)],
+                    [new Point(0, height),
+                        new Point(0, 0)]];
+
+                var ranges:Array = [];
+                graphics.clear();
+                for (var i:int = 0; i < count; i++) {
+                    // New range cannot intersect any existing ranges
+                    do {
+                        var range:Array = [];
+
+                        var firstSide:Array = edges[int(rand.next() * edges.length)];
+                        var secondSide:Array;
+                        do {
+                            secondSide = edges[int(rand.next() * edges.length)];
+                        } while (secondSide == firstSide);
+
+                        var pointOnFirstSide:Point = new Point(rand.between(firstSide[0].x, firstSide[1].x), rand.between(firstSide[0].y, firstSide[1].y));
+                        var pointOnSecondSide:Point = new Point(rand.between(secondSide[0].x, secondSide[1].x), rand.between(secondSide[0].y, secondSide[1].y));
+                        range = [pointOnFirstSide, pointOnSecondSide];
+                    }
+                    while (rangeIntersectsAnotherRange(range)) ;
+                    if (range)
+                        ranges.push(range);
+
+                    graphics.lineStyle(3, 0xff0000);
+                    graphics.moveTo(range[0].x, range[0].y);
+                    graphics.lineTo(range[1].x, range[1].y);
+                }
+
+                // Raise elevation under each range
+                for each (cell in cells) {
+                    for each (range in ranges) {
+                        var midpoint:Point = Point.interpolate(range[0], range[1], .5);
+                        var rangeSize:Number = Util.getDistanceBetweenTwoPoints(range[0], range[1])
+
+                        if (lineIntersectsCell(range, cell)) {
+                            var closestEdgeDistance:Number;
+                            for each (var edge:Array in edges) {
+                                var edgeDistance:Number = Util.getDistanceBetweenLineSegmentAndPoint(edge[0], edge[1], cell.point);
+                                if (!closestEdgeDistance || edgeDistance < closestEdgeDistance)
+                                    closestEdgeDistance = edgeDistance;
+                            }
+
+                            var m:Number = 1 - (Util.getDistanceBetweenTwoPoints(cell.point, midpoint) / (rangeSize * 0.2));
+                            if (m < 0)
+                                m = 0;
+                            if (closestEdgeDistance < 100)
+                                    trace(closestEdgeDistance);
+                                graphics.drawCircle(cell.point.x, cell.point.y, (m * 10));
+                            // placeHill(cell, m, rand.between(.95, .98));
+                        }
+                    }
+                }
+
+                function rangeIntersectsAnotherRange(range:Array):Boolean {
+                    var intersects:Boolean = false;
+                    for each (var otherRange:Array in ranges) {
+                        if (Util.getIntersectBetweenTwoLineSegments(range[0], range[1], otherRange[0], otherRange[1])) {
+                            intersects = true;
+                            break;
+                        }
+                    }
+                    return intersects;
+                }
+
+                function lineIntersectsCell(line:Array, cell:Cell):Boolean {
+                    var intersects:Boolean = false;
+                    for each (var edge:Edge in cell.edges) {
+                        if (edge.v0 && edge.v1)
+                            if (Util.getIntersectBetweenTwoLineSegments(edge.v0.point, edge.v1.point, line[0], line[1])) {
+                                intersects = true;
+                                break;
+                            }
+
+                        if (intersects)
+                            break;
+                    }
+                    return intersects;
+                }
             }
 
             function placeHill(start:Cell, elevation:Number = 1, radius:Number = .95, sharpness:Number = 0):void {
@@ -393,12 +480,6 @@ package {
 
                 unuseCells();
             }
-
-            function placeMountainRange():void {
-                sketchLayer.graphics.lineStyle(1, 0xff0000);
-                sketchLayer.graphics.moveTo(Math.random() * width, Math.random() * height);
-                sketchLayer.graphics.lineTo(Math.random() * width, Math.random() * height);
-            }
         }
 
         private function smoothHeightMap():void {
@@ -408,7 +489,6 @@ package {
             do {
                 depressions = 0;
                 for each (var cell:Cell in cells) {
-
                     // Is it a depression?
                     if (cell.neighbors.length > 0) {
                         var d:Boolean = cell.elevation >= SEA_LEVEL;
@@ -1724,7 +1804,8 @@ package {
                         }
                     }
                     if (drawMountainHere)
-                        fillCell(mountainsLayer.graphics, cell, Biome.colors[Biome.MOUNTAIN]);
+                        fillCell(mountainsLayer.graphics, cell, Biome.colors.mountain);
+// fillCell(mountainsLayer.graphics, cell, Util.getColorBetweenColors(0x00ffff, 0x0000ff, cell.elevation));
                 }
             }
         }
@@ -1857,7 +1938,8 @@ package {
             var index:int = Math.floor(preciseIndex);
 
             var color:uint = colors[index];
-            if (index < colors.length - 1 && elevation >= SEA_LEVEL)
+//            if (index < colors.length - 1 && elevation >= SEA_LEVEL)
+            if (index < colors.length - 1)
                 color = Util.getColorBetweenColors(colors[index], colors[index + 1], preciseIndex - index);
 
             return color;
@@ -2123,6 +2205,7 @@ package {
             elevationLayer.visible = drawElevation;
             temperatureLayer.visible = drawTemperature;
             outlinesLayer.visible = drawOutlines;
+            sketchLayer.visible = true;
         }
     }
 }

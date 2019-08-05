@@ -84,7 +84,7 @@ package generation {
 
                 // If it has a parent, name it the same as its parent
                 if (region.nameBoundParent) {
-                    region.nameObject.nameBoundQualifier = getPlaceNamePartsByTag(region.nameBoundParentCompassDirection);
+                    region.nameObject.nameBoundQualifier = getPlaceNamePartsByTag(region.nameBoundParentCompassDirection)[0].name;
                     region.nameObject.prefix = region.nameBoundParent.nameObject.prefix;
                     region.nameObject.suffix = region.nameBoundParent.nameObject.suffix;
                 }
@@ -94,7 +94,7 @@ package generation {
                 var n:Object = region.nameObject;
                 region.name = n.prefix + n.suffix;
                 if (n.hasOwnProperty("nameBoundQualifier"))
-                    region.name = n.nameBoundQualifier + " " + region.name;
+                    region.name = n.nameBoundQualifier + region.name.toLowerCase();
             }
         }
 

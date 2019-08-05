@@ -68,7 +68,7 @@ package {
             positionLabels(1);
 
             regionLabelsVisible = false;
-            locationLabelsVisible = false;
+            locationLabelsVisible = true;
         }
 
         public function positionLabels(scale:Number):void {
