@@ -80,7 +80,7 @@ package generation {
                 // If it has a child, 70% chance it will receive a nameBoundQualifier, causing a pair like North Dakota/South Dakota
                 // Alternatively, 30% chance it will not receive a nameBoundQualifier, causing a pair like Virginia/West Virginia
                 if (region.nameBoundChild && rand.next() < .7)
-                    region.nameObject.nameBoundQualifier = getPlaceNamePartsByTag(region.nameBoundChildCompassDirection);
+                    region.nameObject.nameBoundQualifier = getPlaceNamePartsByTag(region.nameBoundChildCompassDirection)[0].name;
 
                 // If it has a parent, name it the same as its parent
                 if (region.nameBoundParent) {

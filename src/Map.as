@@ -32,8 +32,8 @@ package {
     public class Map extends UIComponent {
         public static var NUM_POINTS:int = 25000;
         public static var SEA_LEVEL:Number = .2;
-        public static var MOUNTAIN_ELEVATION:Number = .9;
-        public static var MOUNTAIN_ELEVATION_ADJACENT:Number = .85;
+        public static var MOUNTAIN_ELEVATION:Number = .97;
+        public static var MOUNTAIN_ELEVATION_ADJACENT:Number = .92;
 
         public var masterSeed:int;
 
@@ -107,10 +107,10 @@ package {
                 oceanLayer,
                 terrainLayer,
                 coastlinesLayer,
+                mountainsLayer,
                 riversLayer,
                 roadsLayer,
                 forestsLayer,
-                mountainsLayer,
                 reliefLayer,
                 regionsLayer,
                 elevationLayer,
@@ -362,10 +362,6 @@ package {
                     while (rangeIntersectsAnotherRange(range)) ;
                     if (range)
                         ranges.push(range);
-
-                    graphics.lineStyle(3, 0xff0000);
-                    graphics.moveTo(range[0].x, range[0].y);
-                    graphics.lineTo(range[1].x, range[1].y);
                 }
 
                 // Raise elevation under each range
@@ -375,20 +371,19 @@ package {
                         var rangeSize:Number = Util.getDistanceBetweenTwoPoints(range[0], range[1])
 
                         if (lineIntersectsCell(range, cell)) {
-                            var closestEdgeDistance:Number;
+                            var closestEdgeDistance:Number = Number.POSITIVE_INFINITY;
                             for each (var edge:Array in edges) {
-                                var edgeDistance:Number = Util.getDistanceBetweenLineSegmentAndPoint(edge[0], edge[1], cell.point);
-                                if (!closestEdgeDistance || edgeDistance < closestEdgeDistance)
+                                var edgeDistance:int = Util.getDistanceBetweenLineSegmentAndPoint(edge[0], edge[1], cell.point);
+                                //trace("Distance from (" + cell.point.x + ", " + cell.point.y + ") to an edge is " + edgeDistance);
+                                if (edgeDistance < closestEdgeDistance)
                                     closestEdgeDistance = edgeDistance;
+                                //trace("New closest edge: " + closestEdgeDistance);
                             }
 
-                            var m:Number = 1 - (Util.getDistanceBetweenTwoPoints(cell.point, midpoint) / (rangeSize * 0.2));
-                            if (m < 0)
-                                m = 0;
-                            if (closestEdgeDistance < 100)
-                                    trace(closestEdgeDistance);
-                                graphics.drawCircle(cell.point.x, cell.point.y, (m * 10));
-                            // placeHill(cell, m, rand.between(.95, .98));
+                            var m:Number = Math.max(0.6 - (Util.getDistanceBetweenTwoPoints(cell.point, midpoint) / (rangeSize * 0.2)), 0);
+                            if (closestEdgeDistance > 300)
+                                placeHill(cell, m, rand.between(.92, .96));
+                            //graphics.drawCircle(cell.point.x, cell.point.y, (m * 10));
                         }
                     }
                 }
